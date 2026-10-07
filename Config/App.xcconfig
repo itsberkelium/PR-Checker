@@ -1,0 +1,8 @@
+// Build settings for the app target.
+// Machine- or team-specific values go in Local.xcconfig, which is git-ignored.
+// See Local.xcconfig.example.
+
+// Bitbucket server pre-filled in Settings on first launch. Empty = users type it.
+DEFAULT_SERVER_URL =
+
+#include? "Local.xcconfig"

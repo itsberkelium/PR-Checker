@@ -1,0 +1,74 @@
+name: PRChecker
+options:
+  bundleIdPrefix: dev.berke
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    DEVELOPMENT_TEAM: L4U4H3GS68
+    SWIFT_VERSION: "6.0"
+    SWIFT_DEFAULT_ACTOR_ISOLATION: MainActor
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    # Bump this for every release; Sparkle compares it to decide what's newer.
+    MARKETING_VERSION: "0.2.2"
+    CURRENT_PROJECT_VERSION: $(MARKETING_VERSION)
+
+packages:
+  Sparkle:
+    url: https://github.com/sparkle-project/Sparkle
+    from: "2.6.0"
+
+targets:
+  PRChecker:
+    type: application
+    platform: macOS
+    sources: [PRChecker]
+    configFiles:
+      Debug: Config/App.xcconfig
+      Release: Config/App.xcconfig
+    dependencies:
+      - package: Sparkle
+    info:
+      path: PRChecker/Info.plist
+      properties:
+        CFBundleDisplayName: PR Checker
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSUIElement: true
+        LSApplicationCategoryType: public.app-category.developer-tools
+        SUFeedURL: $(SPARKLE_FEED_URL)
+        SUPublicEDKey: $(SPARKLE_PUBLIC_KEY)
+        SUEnableAutomaticChecks: true
+        SUAutomaticallyUpdate: false
+        PRCheckerDefaultServerURL: $(DEFAULT_SERVER_URL)
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.berke.PRChecker
+        PRODUCT_NAME: PR Checker
+        CODE_SIGN_STYLE: Automatic
+        ENABLE_HARDENED_RUNTIME: YES
+        SPARKLE_FEED_URL: "https://pr-checker.berke.dev/appcast.xml"
+        SPARKLE_PUBLIC_KEY: "u0y65WacdOZD/xKCdHOzzjkJUziEx/otw3dqtJPsHms="
+
+  PRCheckerTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources: [PRCheckerTests]
+    dependencies:
+      - target: PRChecker
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: dev.berke.PRCheckerTests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/PR Checker.app/Contents/MacOS/PR Checker"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
+schemes:
+  PRChecker:
+    build:
+      targets:
+        PRChecker: all
+    test:
+      targets: [PRCheckerTests]
