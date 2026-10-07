@@ -49,6 +49,7 @@ targets:
         PRODUCT_NAME: PR Checker
         CODE_SIGN_STYLE: Automatic
         ENABLE_HARDENED_RUNTIME: YES
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SPARKLE_FEED_URL: "https://pr-checker.berke.dev/appcast.xml"
         SPARKLE_PUBLIC_KEY: "u0y65WacdOZD/xKCdHOzzjkJUziEx/otw3dqtJPsHms="
 

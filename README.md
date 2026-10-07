@@ -102,7 +102,9 @@ PRChecker/
   Notifier.swift          macOS notifications
   Updater.swift           Sparkle integration
   Views/                  menu bar popover, PR rows, settings window
+  Assets.xcassets/        app icon
 PRCheckerTests/           Swift Testing suite
+Design/                   icon sources: macOS (SVG, 1024 PNG, .icns), Windows (SVG, .ico)
 scripts/package.sh        sign, notarize, publish
 ```
 
