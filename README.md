@@ -43,6 +43,30 @@ Your own comments never notify you. Filters decide what gets announced, and chan
 - **Filters:** hide drafts, and limit to project keys or `PROJECT/repo-slug` entries, comma-separated
 - **Notifications** and **Open at login**
 
+## Privacy
+
+PR Checker has no backend, accounts, analytics or telemetry. Your data stays on your Mac and on your own Bitbucket server.
+
+**What's stored, all locally on your Mac:**
+
+| Data | Where |
+|---|---|
+| Bitbucket access token | Your login Keychain |
+| Server URL, refresh interval, filters, toggles | The app's preferences (`~/Library/Preferences/dev.berke.PRChecker.plist`) |
+| Last-seen PR state: IDs, titles, links, reviewer names, comment times. Used only to decide what to notify. | The same preferences file |
+
+**Network connections the app makes:**
+
+- **Your Bitbucket server**, directly from your Mac with your token. Nothing passes through any other server.
+- **The update feed** (`SUFeedURL`), at most once a day or when you choose *Check for Updates…*. It's a plain download of a public file and sends no PR data or token. Sparkle's optional system-profile reporting is off. As with any web request, the host sees your IP address and the app version.
+
+Clicking a PR or a notification opens the link in your browser.
+
+To remove everything:
+1. Quit the app and delete it.
+2. Delete the `dev.berke.PRChecker` item in Keychain Access.
+3. Run `defaults delete dev.berke.PRChecker`.
+
 ## Building from source
 
 Requires Xcode 26 or later and [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`).
