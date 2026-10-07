@@ -120,7 +120,9 @@ struct ChangeDetectorTests {
 @MainActor
 struct SettingsFilterTests {
     @Test func filtersByProjectOrRepo() throws {
-        let defaults = try #require(UserDefaults(suiteName: "PRCheckerTests-\(UUID())"))
+        let suite = "PRCheckerTests-\(UUID())"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
         let settings = AppSettings(defaults: defaults)
         let item = try #require(PRItem(try makePR(myStatus: "UNAPPROVED", lastReviewed: nil, latest: "a")))
 
