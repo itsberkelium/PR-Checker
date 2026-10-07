@@ -27,7 +27,7 @@ DIST="dist"
 APP="$DIST/$APP_NAME.app"
 ZIP="$DIST/$APP_NAME.zip"
 UPDATES="$DIST/updates"
-R2_BUCKET="${R2_BUCKET:-pr-checker}"
+R2_BUCKET="${R2_BUCKET:-gu-cdn}"
 SPARKLE_BIN="build/SourcePackages/artifacts/sparkle/Sparkle/bin"
 
 step() { printf '\n\033[1m==> %s\033[0m\n' "$1"; }
@@ -107,11 +107,14 @@ cp "$ZIP" "$UPDATES/$UPDATE_ZIP"
   "$UPDATES"
 
 if [[ $PUBLISH == 1 ]]; then
-  step "Publishing $VERSION to R2 bucket $R2_BUCKET"
+  # Objects live under the feed URL's path, e.g. gu-cdn.berke.dev/pr-checker/ -> "pr-checker/".
+  FEED_PATH="${FEED_URL#https://*/}"
+  PREFIX="${FEED_PATH%appcast.xml}"
+  step "Publishing $VERSION to R2 bucket $R2_BUCKET/$PREFIX"
   # Upload the archive first so the feed never points at a missing file.
-  npx --yes wrangler r2 object put "$R2_BUCKET/$UPDATE_ZIP" --remote \
+  npx --yes wrangler r2 object put "$R2_BUCKET/$PREFIX$UPDATE_ZIP" --remote \
     --file "$UPDATES/$UPDATE_ZIP" --content-type application/zip
-  npx --yes wrangler r2 object put "$R2_BUCKET/appcast.xml" --remote \
+  npx --yes wrangler r2 object put "$R2_BUCKET/${PREFIX}appcast.xml" --remote \
     --file "$UPDATES/appcast.xml" --content-type application/xml \
     --cache-control "no-cache"
   curl -fsS "$FEED_URL" | grep -q "<sparkle:shortVersionString>$VERSION<" \

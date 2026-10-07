@@ -71,7 +71,7 @@ xcodebuild -project PRChecker.xcodeproj -scheme PRChecker test
 3. notarizes and staples the app
 4. writes `dist/PR Checker.zip` and the Sparkle appcast
 
-With `--publish`, it also uploads the update to the R2 bucket behind `SUFeedURL`.
+With `--publish`, it also uploads the update to the R2 bucket behind `SUFeedURL`, under the same path as the feed.
 
 ```bash
 # 1. Bump MARKETING_VERSION in project.yml
