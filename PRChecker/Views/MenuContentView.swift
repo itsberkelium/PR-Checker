@@ -28,6 +28,7 @@ struct MenuContentView: View {
             footer
         }
         .task {
+            await Notifier.shared.refreshStatus()
             // Opening the popover with stale data triggers a refresh.
             if let last = store.lastUpdated, last.timeIntervalSinceNow > -60 { return }
             await store.refresh()
@@ -70,6 +71,13 @@ struct MenuContentView: View {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange)
                     .help(error)
+            }
+            if store.settings.notificationsEnabled && Notifier.shared.isBlockedBySystem {
+                Button("Notifications are off in System Settings", systemImage: "bell.slash.fill") {
+                    Notifier.shared.openSystemSettings()
+                }
+                .foregroundStyle(.orange)
+                .help("Notifications are turned off for PR Checker in System Settings. Click to fix.")
             }
             if let last = store.lastUpdated {
                 Text("Updated \(last, format: .relative(presentation: .named))")

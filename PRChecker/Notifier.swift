@@ -1,18 +1,55 @@
 import AppKit
+import Observation
 import UserNotifications
 
 /// Posts macOS notifications and opens the PR when one is clicked.
+@Observable
 final class Notifier: NSObject, UNUserNotificationCenterDelegate {
     static let shared = Notifier()
 
-    private var center: UNUserNotificationCenter { .current() }
+    /// What macOS allows, independent of the app's own Notifications toggle.
+    private(set) var authorizationStatus: UNAuthorizationStatus = .notDetermined
+
+    /// The user (or an MDM profile) turned PR Checker off in System Settings → Notifications.
+    var isBlockedBySystem: Bool { authorizationStatus == .denied }
+
+    @ObservationIgnored private var center: UNUserNotificationCenter { .current() }
 
     func activate() {
         center.delegate = self
+        // Pick up changes made in System Settings while the app was running.
+        NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
+        ) { _ in
+            Task { @MainActor in await Notifier.shared.refreshStatus() }
+        }
+        Task { await refreshStatus() }
     }
 
     func requestAuthorization() {
-        center.requestAuthorization(options: [.alert, .sound]) { _, _ in }
+        Task {
+            _ = try? await center.requestAuthorization(options: [.alert, .sound])
+            await refreshStatus()
+        }
+    }
+
+    func refreshStatus() async {
+        authorizationStatus = await center.notificationSettings().authorizationStatus
+    }
+
+    /// Opens System Settings → Notifications → PR Checker.
+    func openSystemSettings() {
+        let id = Bundle.main.bundleIdentifier ?? ""
+        let url = URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension?id=\(id)")
+        NSWorkspace.shared.open(url ?? URL(fileURLWithPath: "/System/Applications/System Settings.app"))
+    }
+
+    func sendTest() {
+        post(Change(
+            title: "PR Checker notifications work",
+            body: "You'll be notified about review requests and changes to your PRs.",
+            url: URL(string: "https://github.com/itsberkelium/PR-Checker")!
+        ))
     }
 
     func post(_ change: Change) {

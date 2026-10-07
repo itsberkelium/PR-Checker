@@ -5,6 +5,7 @@ struct SettingsView: View {
     static let windowID = "settings"
 
     @Environment(PRStore.self) private var store
+    private let notifier = Notifier.shared
     @State private var token = ""
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var testResult: String?
@@ -58,6 +59,24 @@ struct SettingsView: View {
 
             Section("General") {
                 Toggle("Notifications", isOn: $settings.notificationsEnabled)
+                if settings.notificationsEnabled {
+                    if notifier.isBlockedBySystem {
+                        LabeledContent {
+                            Button("Open Notification Settings…") { notifier.openSystemSettings() }
+                        } label: {
+                            Label {
+                                Text("Turned off in System Settings")
+                                Text("macOS is blocking PR Checker's notifications. Turn on Allow Notifications.")
+                            } icon: {
+                                Image(systemName: "bell.slash.fill").foregroundStyle(.orange)
+                            }
+                        }
+                    } else {
+                        LabeledContent("Check delivery") {
+                            Button("Send Test Notification") { notifier.sendTest() }
+                        }
+                    }
+                }
                 Toggle("Open at login", isOn: $launchAtLogin)
             }
         }
@@ -65,6 +84,7 @@ struct SettingsView: View {
         .frame(width: 480)
         .fixedSize(horizontal: false, vertical: true)
         .onAppear { token = store.settings.token }
+        .task { await notifier.refreshStatus() }
         .onChange(of: settings.refreshMinutes) { store.start() }
         .onChange(of: settings.notificationsEnabled) { _, enabled in
             if enabled { Notifier.shared.requestAuthorization() }
