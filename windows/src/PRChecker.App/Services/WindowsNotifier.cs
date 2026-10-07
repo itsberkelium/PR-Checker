@@ -18,7 +18,7 @@ internal sealed class WindowsNotifier : INotifier
         AppNotificationManager.Default.Register();
     }
 
-    public void Unregister() => AppNotificationManager.Default.Unregister();
+    public static void Unregister() => AppNotificationManager.Default.Unregister();
 
     /// <summary>For a launch caused by clicking a notification while the app wasn't running.</summary>
     public void HandleArguments(IDictionary<string, string> arguments)

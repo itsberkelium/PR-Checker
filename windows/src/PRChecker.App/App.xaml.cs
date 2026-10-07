@@ -120,6 +120,6 @@ public sealed partial class App : Application, IDisposable
         _updateTimer?.Stop();
         _store?.Dispose();
         _tray?.Dispose();
-        _notifier.Unregister();
+        WindowsNotifier.Unregister();
     }
 }

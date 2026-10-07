@@ -11,7 +11,7 @@ public sealed record Badge(string Glyph, string Text, Brush Foreground);
 /// <summary>Display strings and badges for one PR, same as the macOS row.</summary>
 public sealed class PrRow(PrItem item, bool showsAuthor)
 {
-    private static Brush Brush(Color color) => new SolidColorBrush(color);
+    private static SolidColorBrush Brush(Color color) => new(color);
     private static readonly Brush Green = Brush(Color.FromArgb(255, 16, 137, 62));
     private static readonly Brush Red = Brush(Color.FromArgb(255, 196, 43, 28));
     private static readonly Brush Orange = Brush(Color.FromArgb(255, 202, 80, 16));
