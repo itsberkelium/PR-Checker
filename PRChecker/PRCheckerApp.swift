@@ -25,8 +25,12 @@ struct PRCheckerApp: App {
 }
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    func applicationDidFinishLaunching(_ notification: Notification) {
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        // Before launch finishes, so a click that launched the app still reaches the delegate.
         Notifier.shared.activate()
+    }
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
         if AppSettings.shared.notificationsEnabled {
             Notifier.shared.requestAuthorization()
         }

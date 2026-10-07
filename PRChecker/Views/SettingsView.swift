@@ -4,10 +4,97 @@ import SwiftUI
 struct SettingsView: View {
     static let windowID = "settings"
 
+    enum Tab: Hashable {
+        case general, bitbucket, about
+    }
+
+    @Environment(PRStore.self) private var store
+    @State private var tab: Tab = PRStore.shared.isConfigured ? .general : .bitbucket
+
+    var body: some View {
+        TabView(selection: $tab) {
+            GeneralSettings()
+                .tabItem { Label("General", systemImage: "gearshape") }
+                .tag(Tab.general)
+            BitbucketSettings()
+                .tabItem { Label("Bitbucket", systemImage: "server.rack") }
+                .tag(Tab.bitbucket)
+            AboutSettings()
+                .tabItem { Label("About", systemImage: "info.circle") }
+                .tag(Tab.about)
+        }
+        .frame(width: 480)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+}
+
+// MARK: - General
+
+private struct GeneralSettings: View {
     @Environment(PRStore.self) private var store
     private let notifier = Notifier.shared
-    @State private var token = ""
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
+
+    var body: some View {
+        @Bindable var settings = store.settings
+
+        Form {
+            Section("General") {
+                Toggle("Notifications", isOn: $settings.notificationsEnabled)
+                if settings.notificationsEnabled {
+                    if notifier.isBlockedBySystem {
+                        LabeledContent {
+                            Button("Open Notification Settings…") { notifier.openSystemSettings() }
+                        } label: {
+                            Label {
+                                Text("Turned off in System Settings")
+                                Text("macOS is blocking PR Checker's notifications. Turn on Allow Notifications.")
+                            } icon: {
+                                Image(systemName: "bell.slash.fill").foregroundStyle(.orange)
+                            }
+                        }
+                    } else {
+                        LabeledContent("Check delivery") {
+                            Button("Send Test Notification") { notifier.sendTest() }
+                        }
+                    }
+                }
+                Toggle("Open at login", isOn: $launchAtLogin)
+            }
+
+            Section("Refresh") {
+                Picker("Check every", selection: $settings.refreshMinutes) {
+                    ForEach(AppSettings.refreshOptions, id: \.self) { minutes in
+                        Text("\(minutes) min").tag(minutes)
+                    }
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .task { await notifier.refreshStatus() }
+        .onChange(of: settings.refreshMinutes) { store.start() }
+        .onChange(of: settings.notificationsEnabled) { _, enabled in
+            if enabled { notifier.requestAuthorization() }
+        }
+        .onChange(of: launchAtLogin) { _, enabled in
+            do {
+                if enabled {
+                    try SMAppService.mainApp.register()
+                } else {
+                    try SMAppService.mainApp.unregister()
+                }
+            } catch {
+                launchAtLogin = SMAppService.mainApp.status == .enabled
+            }
+        }
+    }
+}
+
+// MARK: - Bitbucket
+
+private struct BitbucketSettings: View {
+    @Environment(PRStore.self) private var store
+    @State private var token = ""
     @State private var testResult: String?
 
     var body: some View {
@@ -38,14 +125,6 @@ struct SettingsView: View {
                     .foregroundStyle(.secondary)
             }
 
-            Section("Refresh") {
-                Picker("Check every", selection: $settings.refreshMinutes) {
-                    ForEach(AppSettings.refreshOptions, id: \.self) { minutes in
-                        Text("\(minutes) min").tag(minutes)
-                    }
-                }
-            }
-
             Section {
                 Toggle("Hide draft pull requests", isOn: $settings.hideDrafts)
                 TextField("Only these projects/repos", text: $settings.repoFilter, prompt: Text("All"))
@@ -56,71 +135,9 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-
-            Section("General") {
-                Toggle("Notifications", isOn: $settings.notificationsEnabled)
-                if settings.notificationsEnabled {
-                    if notifier.isBlockedBySystem {
-                        LabeledContent {
-                            Button("Open Notification Settings…") { notifier.openSystemSettings() }
-                        } label: {
-                            Label {
-                                Text("Turned off in System Settings")
-                                Text("macOS is blocking PR Checker's notifications. Turn on Allow Notifications.")
-                            } icon: {
-                                Image(systemName: "bell.slash.fill").foregroundStyle(.orange)
-                            }
-                        }
-                    } else {
-                        LabeledContent("Check delivery") {
-                            Button("Send Test Notification") { notifier.sendTest() }
-                        }
-                    }
-                }
-                Toggle("Open at login", isOn: $launchAtLogin)
-            }
-
-            Section("About") {
-                LabeledContent("Version", value: Self.appVersion)
-                LabeledContent {
-                    Button("Check for Updates…") { Updater.shared.checkForUpdates() }
-                } label: {
-                    Text("Updates")
-                    if let last = Updater.shared.lastCheckDate {
-                        Text("Last checked \(last, format: .relative(presentation: .named))")
-                    } else {
-                        Text("Checked automatically once a week")
-                    }
-                }
-            }
         }
         .formStyle(.grouped)
-        .frame(width: 480)
-        .fixedSize(horizontal: false, vertical: true)
         .onAppear { token = store.settings.token }
-        .task { await notifier.refreshStatus() }
-        .onChange(of: settings.refreshMinutes) { store.start() }
-        .onChange(of: settings.notificationsEnabled) { _, enabled in
-            if enabled { Notifier.shared.requestAuthorization() }
-        }
-        .onChange(of: launchAtLogin) { _, enabled in
-            do {
-                if enabled {
-                    try SMAppService.mainApp.register()
-                } else {
-                    try SMAppService.mainApp.unregister()
-                }
-            } catch {
-                launchAtLogin = SMAppService.mainApp.status == .enabled
-            }
-        }
-    }
-
-    private static var appVersion: String {
-        let info = Bundle.main.infoDictionary
-        let version = info?["CFBundleShortVersionString"] as? String ?? "?"
-        let build = info?["CFBundleVersion"] as? String ?? version
-        return build == version ? version : "\(version) (\(build))"
     }
 
     private func saveAndConnect() {
@@ -135,5 +152,35 @@ struct SettingsView: View {
                 store.start()
             }
         }
+    }
+}
+
+// MARK: - About
+
+private struct AboutSettings: View {
+    var body: some View {
+        Form {
+            Section {
+                LabeledContent("Version", value: Self.appVersion)
+                LabeledContent {
+                    Button("Check for Updates…") { Updater.shared.checkForUpdates() }
+                } label: {
+                    Text("Updates")
+                    if let last = Updater.shared.lastCheckDate {
+                        Text("Last checked \(last, format: .relative(presentation: .named))")
+                    } else {
+                        Text("Checked automatically once a week")
+                    }
+                }
+            }
+        }
+        .formStyle(.grouped)
+    }
+
+    private static var appVersion: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "?"
+        let build = info?["CFBundleVersion"] as? String ?? version
+        return build == version ? version : "\(version) (\(build))"
     }
 }

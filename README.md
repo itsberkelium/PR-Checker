@@ -34,7 +34,7 @@ The token is kept in your login Keychain. Everything else is stored in the app's
 | The build fails, or a failed build passes again | Mine |
 | The PR is merged or declined | Mine |
 
-macOS must also allow PR Checker's notifications (System Settings → Notifications → PR Checker). If it doesn't, Settings and the menu show a warning with a button that opens that page. Use **Send Test Notification** in Settings to check delivery.
+macOS must also allow PR Checker's notifications (System Settings → Notifications → PR Checker). If it doesn't, Settings and the menu show a warning with a button that opens that page. Use **Send Test Notification** in Settings → General to check delivery. Click a notification to open its PR; close it to dismiss it.
 
 Your own comments never notify you. Filters decide what gets announced, and changing a filter doesn't re-announce PRs the app already knew about. The first refresh after install or upgrade is silent.
 

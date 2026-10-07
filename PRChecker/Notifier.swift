@@ -44,12 +44,13 @@ final class Notifier: NSObject, UNUserNotificationCenterDelegate {
         NSWorkspace.shared.open(url ?? URL(fileURLWithPath: "/System/Applications/System Settings.app"))
     }
 
+    /// Has no link, so clicking it just dismisses it.
     func sendTest() {
-        post(Change(
-            title: "PR Checker notifications work",
-            body: "You'll be notified about review requests and changes to your PRs.",
-            url: URL(string: "https://github.com/itsberkelium/PR-Checker")!
-        ))
+        let content = UNMutableNotificationContent()
+        content.title = "PR Checker notifications work"
+        content.body = "Click a notification to open its pull request."
+        content.sound = .default
+        center.add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
     }
 
     func post(_ change: Change) {
@@ -66,7 +67,9 @@ final class Notifier: NSObject, UNUserNotificationCenterDelegate {
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        if let link = response.notification.request.content.userInfo["url"] as? String,
+        // Clicking the notification opens the PR (macOS removes it); closing it does nothing.
+        if response.actionIdentifier == UNNotificationDefaultActionIdentifier,
+           let link = response.notification.request.content.userInfo["url"] as? String,
            let url = URL(string: link) {
             Task { @MainActor in NSWorkspace.shared.open(url) }
         }
