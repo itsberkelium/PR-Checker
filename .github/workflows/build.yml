@@ -54,5 +54,24 @@ jobs:
         with:
           global-json-file: windows/global.json
 
-      - name: Build and test
-        run: dotnet test --solution PRChecker.slnx --configuration Release
+      - name: Test core
+        run: dotnet test --project tests/PRChecker.Core.Tests --configuration Release
+
+      # Self-contained, unsigned builds that run from a folder; for trying the app
+      # (e.g. in a VM) until Velopack releases are published.
+      - name: Publish app
+        run: |
+          dotnet publish src/PRChecker.App -c Release -r win-arm64 -o artifacts/PRChecker-win-arm64
+          dotnet publish src/PRChecker.App -c Release -r win-x64 -o artifacts/PRChecker-win-x64
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: PRChecker-win-arm64
+          path: windows/artifacts/PRChecker-win-arm64
+          retention-days: 14
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: PRChecker-win-x64
+          path: windows/artifacts/PRChecker-win-x64
+          retention-days: 14
