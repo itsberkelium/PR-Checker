@@ -120,8 +120,10 @@ struct ChangeDetectorTests {
 @MainActor
 struct SettingsFilterTests {
     @Test func filtersByProjectOrRepo() throws {
-        let suite = "PRCheckerTests-\(UUID())"
+        // A fixed name: macOS keeps an empty plist per suite, so random names would pile up.
+        let suite = "dev.berke.PRCheckerTests"
         let defaults = try #require(UserDefaults(suiteName: suite))
+        defaults.removePersistentDomain(forName: suite)
         defer { defaults.removePersistentDomain(forName: suite) }
         let settings = AppSettings(defaults: defaults)
         let item = try #require(PRItem(try makePR(myStatus: "UNAPPROVED", lastReviewed: nil, latest: "a")))
