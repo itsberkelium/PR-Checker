@@ -58,6 +58,10 @@ private struct GeneralSettings: View {
                             Button("Send Test Notification") { notifier.sendTest() }
                         }
                     }
+                    Toggle(isOn: $settings.notificationDetails) {
+                        Text("Show pull request details")
+                        Text("Off: notifications don't show titles, names or results, e.g. while screen sharing.")
+                    }
                 }
                 Toggle("Open at login", isOn: $launchAtLogin)
             }
@@ -74,7 +78,7 @@ private struct GeneralSettings: View {
         .task { await notifier.refreshStatus() }
         .onChange(of: settings.refreshMinutes) { store.start() }
         .onChange(of: settings.notificationsEnabled) { _, enabled in
-            if enabled { notifier.requestAuthorization() }
+            if enabled { notifier.requestAuthorization() } else { notifier.removeDelivered() }
         }
         .onChange(of: launchAtLogin) { _, enabled in
             do {
@@ -93,34 +97,57 @@ private struct GeneralSettings: View {
 // MARK: - Bitbucket
 
 private struct BitbucketSettings: View {
+    private enum Status: Equatable {
+        case connecting
+        case connected(String)
+        case failed(String)
+    }
+
     @Environment(PRStore.self) private var store
-    @State private var token = ""
-    @State private var testResult: String?
+    /// Drafts: nothing is saved or sent anywhere until Save & Connect.
+    @State private var serverDraft = ""
+    @State private var tokenDraft = ""
+    @State private var status: Status?
+    @State private var confirmingSignOut = false
+
+    /// The saved token can be reused only when the draft is the same server.
+    private var canReuseSavedToken: Bool {
+        guard let draft = try? ServerAddress(parsing: serverDraft) else { return false }
+        return draft == store.settings.server && store.settings.hasToken(for: draft)
+    }
 
     var body: some View {
         @Bindable var settings = store.settings
 
         Form {
             Section {
-                TextField("Server URL", text: $settings.serverURL, prompt: Text("https://bitbucket.example.com"))
-                SecureField("Access token", text: $token)
+                TextField("Server URL", text: $serverDraft, prompt: Text("https://bitbucket.example.com"))
+                SecureField("Access token", text: $tokenDraft,
+                            prompt: Text(canReuseSavedToken ? "Saved – leave empty to keep" : "Required"))
                 HStack {
-                    if store.isLoading {
+                    switch status {
+                    case .connecting:
                         ProgressView().controlSize(.small)
-                    } else if let testResult {
-                        Text(testResult)
-                            .font(.caption)
-                            .foregroundStyle(store.errorMessage == nil ? Color.green : Color.red)
+                    case .connected(let name):
+                        Text("Connected as \(name)").font(.caption).foregroundStyle(.green)
+                    case .failed(let message):
+                        Text(message).font(.caption).foregroundStyle(.red)
+                    case nil:
+                        EmptyView()
                     }
                     Spacer()
+                    if store.isConfigured {
+                        Button("Sign Out…", role: .destructive) { confirmingSignOut = true }
+                    }
                     Button("Save & Connect", action: saveAndConnect)
                         .keyboardShortcut(.defaultAction)
-                        .disabled(token.isEmpty || settings.serverURL.isEmpty)
+                        .disabled(status == .connecting || serverDraft.isEmpty
+                                  || (tokenDraft.isEmpty && !canReuseSavedToken))
                 }
             } header: {
                 Text("Bitbucket Server")
             } footer: {
-                Text("Create a token under Profile → Manage account → HTTP access tokens with Read permission. It is stored in your Keychain.")
+                Text("Create a token under Profile → Manage account → HTTP access tokens with Read permission. It is stored in your Keychain and only sent to this server.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -137,20 +164,36 @@ private struct BitbucketSettings: View {
             }
         }
         .formStyle(.grouped)
-        .onAppear { token = store.settings.token }
+        .onAppear { serverDraft = store.settings.savedServerURL }
+        .onDisappear { tokenDraft = "" }
+        .confirmationDialog("Sign out of Bitbucket?", isPresented: $confirmingSignOut) {
+            Button("Sign Out", role: .destructive, action: signOut)
+        } message: {
+            Text("Removes the access token from your Keychain and the pull request data PR Checker stored for this server.")
+        }
     }
 
     private func saveAndConnect() {
-        store.settings.saveToken(token.trimmingCharacters(in: .whitespacesAndNewlines))
-        testResult = nil
+        status = .connecting
         Task {
-            await store.refresh()
-            if let error = store.errorMessage {
-                testResult = error
-            } else {
-                testResult = "Connected as \(store.username ?? "unknown")"
-                store.start()
+            do {
+                let name = try await store.connect(serverURL: serverDraft, token: tokenDraft)
+                tokenDraft = ""
+                serverDraft = store.settings.savedServerURL
+                status = .connected(name)
+            } catch {
+                status = .failed(error.localizedDescription)
             }
+        }
+    }
+
+    private func signOut() {
+        do {
+            try store.signOut()
+            tokenDraft = ""
+            status = nil
+        } catch {
+            status = .failed(error.localizedDescription)
         }
     }
 }

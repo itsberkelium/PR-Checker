@@ -1,15 +1,24 @@
 import Foundation
+import Synchronization
 
-enum APIError: LocalizedError {
+enum APIError: LocalizedError, Equatable {
     case unauthorized
+    case rateLimited
     case http(Int)
     case badResponse
+    case paginationStalled
+    case tooManyResults(limit: Int)
+    case responseTooLarge
 
     var errorDescription: String? {
         switch self {
         case .unauthorized: "The access token was rejected. Check it in Settings."
+        case .rateLimited: "Bitbucket is limiting requests. PR Checker will try again later."
         case .http(let code): "Bitbucket returned HTTP \(code)."
         case .badResponse: "Unexpected response from Bitbucket."
+        case .paginationStalled: "Bitbucket returned an inconsistent page sequence."
+        case .tooManyResults(let limit): "More than \(limit) open pull requests; narrow it down with filters."
+        case .responseTooLarge: "Bitbucket sent an unexpectedly large response."
         }
     }
 }
@@ -27,33 +36,59 @@ struct BitbucketClient {
         var username: String?
     }
 
-    let baseURL: URL
+    static let pageSize = 100
+    static let maxPages = 20
+    static let maxResponseBytes = 8 * 1024 * 1024
+
+    /// No disk cache or cookies, so API responses aren't persisted anywhere.
+    static let defaultSession: URLSession = {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.urlCache = nil
+        configuration.httpCookieStorage = nil
+        configuration.httpShouldSetCookies = false
+        configuration.requestCachePolicy = .reloadIgnoringLocalCacheData
+        configuration.httpMaximumConnectionsPerHost = 4
+        return URLSession(configuration: configuration)
+    }()
+
+    let server: ServerAddress
     let token: String
-    var session: URLSession = .shared
+    var session: URLSession = BitbucketClient.defaultSession
 
     func dashboard(role: Role) async throws -> Dashboard {
         var result = Dashboard(pullRequests: [])
         var start = 0
-        while true {
+        for _ in 0..<Self.maxPages {
+            try Task.checkCancellation()
             let (data, response) = try await get("rest/api/1.0/dashboard/pull-requests", query: [
                 URLQueryItem(name: "role", value: role.rawValue),
                 URLQueryItem(name: "state", value: "OPEN"),
-                URLQueryItem(name: "limit", value: "100"),
+                URLQueryItem(name: "limit", value: String(Self.pageSize)),
                 URLQueryItem(name: "start", value: String(start)),
             ])
             result.username = result.username ?? response.value(forHTTPHeaderField: "X-AUSERNAME")
             let page = try JSONDecoder().decode(Page<PullRequest>.self, from: data)
             result.pullRequests += page.values
-            guard !page.isLastPage, let next = page.nextPageStart else { break }
+            guard !page.isLastPage, let next = page.nextPageStart else { return result }
+            guard next > start else { throw APIError.paginationStalled }
             start = next
         }
-        return result
+        throw APIError.tooManyResults(limit: Self.maxPages * Self.pageSize)
+    }
+
+    /// The signed-in user name; one small request, used to validate a connection.
+    func currentUser() async throws -> String {
+        let (_, response) = try await get("rest/api/1.0/dashboard/pull-requests", query: [
+            URLQueryItem(name: "limit", value: "1"),
+        ])
+        if let name = response.value(forHTTPHeaderField: "X-AUSERNAME"), !name.isEmpty { return name }
+        return try await whoami()
     }
 
     func whoami() async throws -> String {
         let (data, _) = try await get("plugins/servlet/applinks/whoami")
         let name = String(decoding: data, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !name.isEmpty, !name.contains("<") else { throw APIError.badResponse }
+        guard !name.isEmpty, name.count < 256, !name.contains("<") else { throw APIError.badResponse }
         return name
     }
 
@@ -85,22 +120,111 @@ struct BitbucketClient {
     }
 
     private func pullRequestPath(projectKey: String, repoSlug: String, number: Int) -> String {
-        "rest/api/1.0/projects/\(projectKey)/repos/\(repoSlug)/pull-requests/\(number)"
+        let key = projectKey.addingPercentEncoding(withAllowedCharacters: .urlPathComponentAllowed) ?? ""
+        let slug = repoSlug.addingPercentEncoding(withAllowedCharacters: .urlPathComponentAllowed) ?? ""
+        return "rest/api/1.0/projects/\(key)/repos/\(slug)/pull-requests/\(number)"
     }
 
     private func get(_ path: String, query: [URLQueryItem] = []) async throws -> (Data, HTTPURLResponse) {
-        var url = baseURL.appending(path: path)
-        if !query.isEmpty { url.append(queryItems: query) }
+        guard var components = URLComponents(url: server.baseURL, resolvingAgainstBaseURL: false) else {
+            throw APIError.badResponse
+        }
+        components.percentEncodedPath = server.path + "/" + path
+        if !query.isEmpty { components.queryItems = query }
+        guard let url = components.url, server.owns(url) else { throw APIError.badResponse }
+
         var request = URLRequest(url: url, timeoutInterval: 30)
         request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
 
-        let (data, response) = try await session.data(for: request)
-        guard let http = response as? HTTPURLResponse else { throw APIError.badResponse }
+        let (data, http) = try await CappedRequest(server: server, maxBytes: Self.maxResponseBytes)
+            .run(request, in: session)
         switch http.statusCode {
         case 200..<300: return (data, http)
         case 401, 403: throw APIError.unauthorized
+        case 429: throw APIError.rateLimited
         default: throw APIError.http(http.statusCode)
         }
     }
+}
+
+/// Runs one request and collects its body in chunks, cancelling as soon as it
+/// exceeds `maxBytes`. Redirects are followed only within the configured server,
+/// so the Authorization header can't be carried to another host; a refused
+/// redirect comes back as its 3xx response.
+nonisolated private final class CappedRequest: NSObject, URLSessionDataDelegate, Sendable {
+    private struct State {
+        var data = Data()
+        var response: HTTPURLResponse?
+        var tooLarge = false
+        var continuation: CheckedContinuation<(Data, HTTPURLResponse), Error>?
+    }
+
+    private let server: ServerAddress
+    private let maxBytes: Int
+    private let state = Mutex(State())
+
+    init(server: ServerAddress, maxBytes: Int) {
+        self.server = server
+        self.maxBytes = maxBytes
+    }
+
+    func run(_ request: URLRequest, in session: URLSession) async throws -> (Data, HTTPURLResponse) {
+        let task = session.dataTask(with: request)
+        task.delegate = self
+        return try await withTaskCancellationHandler {
+            try await withCheckedThrowingContinuation { continuation in
+                state.withLock { $0.continuation = continuation }
+                task.resume()
+            }
+        } onCancel: {
+            task.cancel()
+        }
+    }
+
+    func urlSession(
+        _ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse,
+        completionHandler: @escaping @Sendable (URLSession.ResponseDisposition) -> Void
+    ) {
+        let tooLarge = response.expectedContentLength > maxBytes
+        state.withLock {
+            $0.response = response as? HTTPURLResponse
+            $0.tooLarge = tooLarge
+        }
+        completionHandler(tooLarge ? .cancel : .allow)
+    }
+
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        let overLimit = state.withLock { state -> Bool in
+            state.data.append(data)
+            if state.data.count > maxBytes { state.tooLarge = true }
+            return state.tooLarge
+        }
+        if overLimit { dataTask.cancel() }
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        let (continuation, result) = state.withLock { state -> (CheckedContinuation<(Data, HTTPURLResponse), Error>?, Result<(Data, HTTPURLResponse), Error>) in
+            let continuation = state.continuation
+            state.continuation = nil
+            if state.tooLarge { return (continuation, .failure(APIError.responseTooLarge)) }
+            if let error { return (continuation, .failure(error)) }
+            guard let response = state.response else { return (continuation, .failure(APIError.badResponse)) }
+            return (continuation, .success((state.data, response)))
+        }
+        continuation?.resume(with: result)
+    }
+
+    func urlSession(
+        _ session: URLSession, task: URLSessionTask,
+        willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest,
+        completionHandler: @escaping @Sendable (URLRequest?) -> Void
+    ) {
+        completionHandler(server.owns(request.url) ? request : nil)
+    }
+}
+
+extension CharacterSet {
+    /// Path-safe characters minus "/", for encoding a single path component.
+    nonisolated static let urlPathComponentAllowed = CharacterSet.urlPathAllowed.subtracting(CharacterSet(charactersIn: "/"))
 }

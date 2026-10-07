@@ -7,7 +7,7 @@ struct PRRow: View {
 
     var body: some View {
         Button {
-            NSWorkspace.shared.open(item.url)
+            Notifier.open(item.url)
         } label: {
             VStack(alignment: .leading, spacing: 4) {
                 HStack(alignment: .firstTextBaseline) {

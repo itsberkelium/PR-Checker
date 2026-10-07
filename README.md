@@ -40,10 +40,15 @@ Your own comments never notify you. Filters decide what gets announced, and chan
 
 ## Settings
 
-- **Server URL and access token**
-- **Refresh interval:** 1–15 minutes. The app also refreshes after wake and when you open the list with stale data.
-- **Filters:** hide drafts, and limit to project keys or `PROJECT/repo-slug` entries, comma-separated
-- **Notifications** and **Open at login**
+- **General:**
+  - Notifications, with an option to hide PR details
+  - Open at login
+  - Refresh interval of 1–15 minutes. The app also refreshes after wake and when you open the list with stale data.
+- **Bitbucket:**
+  - Server URL and access token. They're saved only when **Save & Connect** succeeds.
+  - **Sign Out…**
+  - Filters: hide drafts, and limit to project keys or `PROJECT/repo-slug` entries, comma-separated
+- **About:** version and **Check for Updates…**
 
 ## Privacy
 
@@ -53,21 +58,30 @@ PR Checker has no backend, accounts, analytics or telemetry. Your data stays on 
 
 | Data | Where |
 |---|---|
-| Bitbucket access token | Your login Keychain |
+| Bitbucket access token, one per server | Your login Keychain |
 | Server URL, refresh interval, filters, toggles | The app's preferences (`~/Library/Preferences/dev.berke.PRChecker.plist`) |
-| Last-seen PR state: IDs, titles, links, reviewer names, comment times. Used only to decide what to notify. | The same preferences file |
+| Last-seen PR state per server and user: IDs, titles, links, reviewer names, comment times. Used only to decide what to notify. | The same preferences file |
+
+API responses aren't cached and no cookies are kept. The app uses a private network session with caching and cookies turned off.
 
 **Network connections the app makes:**
 
-- **Your Bitbucket server**, directly from your Mac with your token. Nothing passes through any other server.
+- **Your Bitbucket server**, directly from your Mac.
+  - Your token is sent only to the server it was saved for. Switching servers requires that server's token.
+  - Redirects to other hosts aren't followed.
+  - Responses are limited in size and page count, and at most 4 requests run at a time.
 - **The update feed** (`SUFeedURL`), at most once a week or when you choose *Check for Updates…*. It's a plain download of a public file and sends no PR data or token. Sparkle's optional system-profile reporting is off. As with any web request, the host sees your IP address and the app version.
 
-Clicking a PR or a notification opens the link in your browser.
+**Links:** clicking a PR or a notification opens it in your browser. Links are built from your configured server, and anything pointing elsewhere is never opened.
 
-To remove everything:
-1. Quit the app and delete it.
-2. Delete the `dev.berke.PRChecker` item in Keychain Access.
-3. Run `defaults delete dev.berke.PRChecker`.
+**Notifications:** they show PR titles, names and results unless you turn off **Show pull request details**. Turning notifications off, or signing out, clears the ones already delivered.
+
+**To remove your data:**
+- **Settings → Bitbucket → Sign Out…** deletes the token and the stored PR state for that server.
+- **To remove everything:**
+  1. Quit the app and delete it.
+  2. Delete the `dev.berke.PRChecker` items in Keychain Access.
+  3. Run `defaults delete dev.berke.PRChecker`.
 
 ## Building from source
 
@@ -111,7 +125,7 @@ With `--publish`, it also uploads the update to the R2 bucket behind `SUFeedURL`
 - Notary credentials:
   `xcrun notarytool store-credentials "PRChecker" --apple-id <apple-id> --team-id <team-id>`
 - Sparkle's EdDSA signing key, created with `generate_keys` from Sparkle's `bin/`. Its public key is `SPARKLE_PUBLIC_KEY` in `project.yml`. **Back up the private key.** Without it, installed apps reject every future update.
-- `npx wrangler login`, needed for `--publish`
+- `npx wrangler@4.148.0 login`, needed for `--publish`. The script pins wrangler and Sparkle to exact versions; bump them deliberately.
 
 To release from another account or host, change `DEVELOPMENT_TEAM`, `SPARKLE_FEED_URL` and `SPARKLE_PUBLIC_KEY` in `project.yml`, and `TEAM_ID` and `R2_BUCKET` in the script.
 
@@ -119,17 +133,18 @@ To release from another account or host, change `DEVELOPMENT_TEAM`, `SPARKLE_FEE
 
 ```
 PRChecker/
-  BitbucketClient.swift   REST calls: dashboard, activities, build status, PR state
+  BitbucketClient.swift   REST calls with size/page limits and same-server redirects
+  ServerAddress.swift     server URL validation, link ownership, PR link building
   Models.swift            API payloads and the PRItem view model
   PRStore.swift           polling, enrichment, notification triggering
   ChangeDetector.swift    snapshot diffing that decides what to announce
   AppSettings.swift       preferences and filters
-  Keychain.swift          token storage
+  Keychain.swift          per-server token storage
   Notifier.swift          macOS notifications
   Updater.swift           Sparkle integration
   Views/                  menu bar popover, PR rows, settings window
   Assets.xcassets/        app icon
-PRCheckerTests/           Swift Testing suite
+PRCheckerTests/           Swift Testing suite, incl. security tests against a stub server
 Design/                   icon sources: macOS (SVG, 1024 PNG, .icns), Windows (SVG, .ico)
 scripts/package.sh        sign, notarize, publish
 ```

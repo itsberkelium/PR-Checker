@@ -6,27 +6,27 @@ import Testing
 struct ReviewFilterTests {
     @Test func hidesApprovedPRs() throws {
         let pr = try makePR(myStatus: "APPROVED", lastReviewed: "abc", latest: "abc")
-        #expect(PRItem(reviewing: pr, as: "sam.reviewer") == nil)
+        #expect(PRItem(reviewing: pr, as: "sam.reviewer", server: testServer) == nil)
     }
 
     @Test func showsUnapprovedPRs() throws {
         let pr = try makePR(myStatus: "UNAPPROVED", lastReviewed: nil, latest: "abc")
-        let item = try #require(PRItem(reviewing: pr, as: "Sam.Reviewer"))
+        let item = try #require(PRItem(reviewing: pr, as: "Sam.Reviewer", server: testServer))
         #expect(item.id == "PROJ/web-app#2583")
         #expect(!item.hasNewCommits)
     }
 
     @Test func needsWorkReappearsOnlyAfterNewCommits() throws {
         let unchanged = try makePR(myStatus: "NEEDS_WORK", lastReviewed: "abc", latest: "abc")
-        #expect(PRItem(reviewing: unchanged, as: "sam.reviewer") == nil)
+        #expect(PRItem(reviewing: unchanged, as: "sam.reviewer", server: testServer) == nil)
 
         let pushed = try makePR(myStatus: "NEEDS_WORK", lastReviewed: "abc", latest: "def")
-        let item = try #require(PRItem(reviewing: pushed, as: "sam.reviewer"))
+        let item = try #require(PRItem(reviewing: pushed, as: "sam.reviewer", server: testServer))
         #expect(item.hasNewCommits)
     }
 
     @Test func parsesStatusDetails() throws {
-        let item = try #require(PRItem(try makePR(myStatus: "APPROVED", lastReviewed: nil, latest: "abc", merge: "CONFLICTED")))
+        let item = PRItem(try makePR(myStatus: "APPROVED", lastReviewed: nil, latest: "abc", merge: "CONFLICTED"), server: testServer)
         #expect(item.hasConflicts)
         #expect(item.approvals == 1)
         #expect(item.commentCount == 3)
@@ -38,7 +38,7 @@ struct ReviewFilterTests {
 struct ChangeDetectorTests {
     private func item(_ status: String = "UNAPPROVED", merge: String = "CLEAN", build: BuildState = .none,
                       comments: [PRItem.Comment]? = []) throws -> PRItem {
-        var item = try #require(PRItem(try makePR(myStatus: status, lastReviewed: nil, latest: "a", merge: merge)))
+        var item = PRItem(try makePR(myStatus: status, lastReviewed: nil, latest: "a", merge: merge), server: testServer)
         item.build = build
         item.commentsByOthers = comments
         return item
@@ -49,7 +49,7 @@ struct ChangeDetectorTests {
     }
 
     @Test func announcesNewReviewRequests() throws {
-        let review = try #require(PRItem(reviewing: try makePR(myStatus: "UNAPPROVED", lastReviewed: nil, latest: "a"), as: "sam.reviewer"))
+        let review = try #require(PRItem(reviewing: try makePR(myStatus: "UNAPPROVED", lastReviewed: nil, latest: "a"), as: "sam.reviewer", server: testServer))
         let old = snapshot()
         let new = snapshot(review: [review], previous: old)
         let changes = ChangeDetector.changes(from: old, to: new, toReview: [review], mine: [])
@@ -82,7 +82,7 @@ struct ChangeDetectorTests {
     }
 
     @Test func announcesNewCommentsOnPRsIReview() throws {
-        var review = try #require(PRItem(reviewing: try makePR(myStatus: "UNAPPROVED", lastReviewed: nil, latest: "a"), as: "sam.reviewer"))
+        var review = try #require(PRItem(reviewing: try makePR(myStatus: "UNAPPROVED", lastReviewed: nil, latest: "a"), as: "sam.reviewer", server: testServer))
         review.commentsByOthers = [.init(id: 5, created: 5, author: "Ali")]
         let old = snapshot(review: [review])
         // Activity IDs aren't chronological: the newer comment has the lower ID.
@@ -102,7 +102,7 @@ struct ChangeDetectorTests {
     }
 
     @Test func widenedFilterDoesNotReannounce() throws {
-        let review = try #require(PRItem(reviewing: try makePR(myStatus: "UNAPPROVED", lastReviewed: nil, latest: "a"), as: "sam.reviewer"))
+        let review = try #require(PRItem(reviewing: try makePR(myStatus: "UNAPPROVED", lastReviewed: nil, latest: "a"), as: "sam.reviewer", server: testServer))
         // Last refresh tracked the PR while a filter hid it; now it's visible.
         let old = Snapshot(toReview: [review], mine: [], previous: nil, isShown: { _ in false })
         let new = snapshot(review: [review], previous: old)
@@ -125,8 +125,8 @@ struct SettingsFilterTests {
         let defaults = try #require(UserDefaults(suiteName: suite))
         defaults.removePersistentDomain(forName: suite)
         defer { defaults.removePersistentDomain(forName: suite) }
-        let settings = AppSettings(defaults: defaults)
-        let item = try #require(PRItem(try makePR(myStatus: "UNAPPROVED", lastReviewed: nil, latest: "a")))
+        let settings = AppSettings(defaults: defaults, tokens: MemoryTokenStore())
+        let item = PRItem(try makePR(myStatus: "UNAPPROVED", lastReviewed: nil, latest: "a"), server: testServer)
 
         #expect(settings.includes(item))
         settings.repoFilter = "proj"
@@ -140,7 +140,9 @@ struct SettingsFilterTests {
 
 // MARK: - Fixtures
 
-private func makePR(
+let testServer = try! ServerAddress(parsing: "https://bitbucket.example.com")
+
+func makePR(
     myStatus: String,
     lastReviewed: String?,
     latest: String,
@@ -163,7 +165,7 @@ private func makePR(
       "reviewers": [{"user": {"name": "Sam.Reviewer", "slug": "sam.reviewer", "displayName": "Sam Reviewer"},
         "status": "\(myStatus)", "lastReviewedCommit": \(lastReviewedJSON)}],
       "properties": {"mergeResult": {"outcome": "\(merge)"}, "commentCount": \(comments), "openTaskCount": 0},
-      "links": {"self": [{"href": "https://bitbucket.example.com/projects/PROJ/repos/web-app/pull-requests/2583"}]}
+      "links": {"self": [{"href": "file:///etc/passwd"}]}
     }
     """
     return try JSONDecoder().decode(PullRequest.self, from: Data(json.utf8))

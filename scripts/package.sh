@@ -13,7 +13,7 @@
 #   - "Developer ID Application" certificate in the login keychain
 #   - xcrun notarytool store-credentials "PRChecker" --apple-id <id> --team-id L4U4H3GS68
 #   - Sparkle EdDSA key in the login keychain (generate_keys)
-#   - npx wrangler login (for --publish)
+#   - npx wrangler@4.148.0 login (for --publish)
 set -euo pipefail
 
 PUBLISH=0
@@ -38,6 +38,9 @@ ZIP="$DIST/$APP_NAME.zip"
 UPDATES="$DIST/updates"
 R2_BUCKET="${R2_BUCKET:-gu-cdn-eeur}"
 SPARKLE_BIN="build/SourcePackages/artifacts/sparkle/Sparkle/bin"
+SPARKLE_VERSION="2.10.0" # keep in sync with project.yml
+# Exact version so publishing never runs a newly released, unreviewed wrangler.
+WRANGLER=(npx --yes wrangler@4.148.0)
 
 step() { printf '\n\033[1m==> %s\033[0m\n' "$1"; }
 
@@ -71,6 +74,9 @@ IDENTITY=$(security find-identity -v -p codesigning \
 [[ -n "$IDENTITY" ]] || { echo "No Developer ID Application identity for $TEAM_ID" >&2; exit 1; }
 sign() { codesign --force --sign "$IDENTITY" --options runtime --timestamp "$@"; }
 SPARKLE="$APP/Contents/Frameworks/Sparkle.framework"
+BUNDLED_SPARKLE=$(defaults read "$PWD/$SPARKLE/Versions/B/Resources/Info.plist" CFBundleShortVersionString)
+[[ "$BUNDLED_SPARKLE" == "$SPARKLE_VERSION" ]] \
+  || { echo "Bundled Sparkle is $BUNDLED_SPARKLE, expected $SPARKLE_VERSION" >&2; exit 1; }
 sign "$SPARKLE/Versions/B/XPCServices/Installer.xpc"
 sign --preserve-metadata=entitlements "$SPARKLE/Versions/B/XPCServices/Downloader.xpc"
 sign "$SPARKLE/Versions/B/Autoupdate"
@@ -136,9 +142,9 @@ if [[ $PUBLISH == 1 ]]; then
   PREFIX="${FEED_PATH%appcast.xml}"
   step "Publishing $VERSION to R2 bucket $R2_BUCKET/$PREFIX"
   # Upload the archive first so the feed never points at a missing file.
-  npx --yes wrangler r2 object put "$R2_BUCKET/$PREFIX$UPDATE_ZIP" --remote \
+  "${WRANGLER[@]}" r2 object put "$R2_BUCKET/$PREFIX$UPDATE_ZIP" --remote \
     --file "$UPDATES/$UPDATE_ZIP" --content-type application/zip
-  npx --yes wrangler r2 object put "$R2_BUCKET/${PREFIX}appcast.xml" --remote \
+  "${WRANGLER[@]}" r2 object put "$R2_BUCKET/${PREFIX}appcast.xml" --remote \
     --file "$UPDATES/appcast.xml" --content-type application/xml \
     --cache-control "no-cache"
   curl -fsS "$FEED_URL" | grep -q "<sparkle:shortVersionString>$VERSION<" \

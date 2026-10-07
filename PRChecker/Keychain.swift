@@ -1,21 +1,42 @@
 import Foundation
 import Security
 
-/// Stores the Bitbucket access token in the login keychain.
-enum Keychain {
-    private static let service = "dev.berke.PRChecker"
-    private static let account = "bitbucket-access-token"
+/// Where access tokens are kept. Abstracted so failures can be tested.
+protocol TokenStore {
+    func read(account: String) -> String?
+    func save(_ token: String, account: String) throws
+    func delete(account: String) throws
+}
 
-    private static var baseQuery: [String: Any] {
+struct KeychainError: LocalizedError {
+    let status: OSStatus
+
+    var errorDescription: String? {
+        let detail = SecCopyErrorMessageString(status, nil) as String? ?? "error \(status)"
+        return "Couldn't save the access token to the Keychain: \(detail)"
+    }
+}
+
+/// Generic-password items in the login keychain, one per server.
+struct Keychain: TokenStore {
+    private static let service = "dev.berke.PRChecker"
+    /// Before tokens were scoped per server there was one item under this account.
+    static let legacyAccount = "bitbucket-access-token"
+
+    static func account(for server: ServerAddress) -> String {
+        "token:\(server.id)"
+    }
+
+    private func query(account: String) -> [String: Any] {
         [
             kSecClass as String: kSecClassGenericPassword,
-            kSecAttrService as String: service,
+            kSecAttrService as String: Self.service,
             kSecAttrAccount as String: account,
         ]
     }
 
-    static func readToken() -> String? {
-        var query = baseQuery
+    func read(account: String) -> String? {
+        var query = query(account: account)
         query[kSecReturnData as String] = true
         query[kSecMatchLimit as String] = kSecMatchLimitOne
         var result: AnyObject?
@@ -24,12 +45,29 @@ enum Keychain {
         return String(data: data, encoding: .utf8)
     }
 
-    static func saveToken(_ token: String) {
-        SecItemDelete(baseQuery as CFDictionary)
-        guard !token.isEmpty else { return }
-        var item = baseQuery
-        item[kSecValueData as String] = Data(token.utf8)
-        item[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
-        SecItemAdd(item as CFDictionary, nil)
+    /// Updates the item in place, adding it only when missing, so a failed write
+    /// never leaves the previous token deleted.
+    func save(_ token: String, account: String) throws {
+        let data = Data(token.utf8)
+        let status = SecItemUpdate(query(account: account) as CFDictionary,
+                                   [kSecValueData as String: data] as CFDictionary)
+        switch status {
+        case errSecSuccess:
+            return
+        case errSecItemNotFound:
+            var item = query(account: account)
+            item[kSecValueData as String] = data
+            let added = SecItemAdd(item as CFDictionary, nil)
+            guard added == errSecSuccess else { throw KeychainError(status: added) }
+        default:
+            throw KeychainError(status: status)
+        }
+    }
+
+    func delete(account: String) throws {
+        let status = SecItemDelete(query(account: account) as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            throw KeychainError(status: status)
+        }
     }
 }

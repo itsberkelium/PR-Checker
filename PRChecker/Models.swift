@@ -18,7 +18,6 @@ struct PullRequest: Decodable {
     let author: Participant
     let reviewers: [Participant]
     let properties: Properties?
-    let links: Links
 
     struct Ref: Decodable {
         let displayId: String
@@ -63,13 +62,6 @@ struct PullRequest: Decodable {
         let outcome: String
     }
 
-    struct Links: Decodable {
-        let `self`: [Link]
-    }
-
-    struct Link: Decodable {
-        let href: String
-    }
 }
 
 enum ReviewStatus: String, Codable, Sendable {
@@ -151,8 +143,8 @@ struct PRItem: Identifiable, Equatable {
 }
 
 extension PRItem {
-    init?(_ pr: PullRequest) {
-        guard let href = pr.links.`self`.first?.href, let url = URL(string: href) else { return nil }
+    /// The link is built from the configured server, never taken from the API response.
+    init(_ pr: PullRequest, server: ServerAddress) {
         let repo = pr.toRef.repository
         self.init(
             id: "\(repo.project.key)/\(repo.slug)#\(pr.id)",
@@ -164,7 +156,7 @@ extension PRItem {
             sourceBranch: pr.fromRef.displayId,
             targetBranch: pr.toRef.displayId,
             authorName: pr.author.user.displayName ?? pr.author.user.name,
-            url: url,
+            url: server.pullRequestURL(projectKey: repo.project.key, repoSlug: repo.slug, number: pr.id),
             updated: Date(timeIntervalSince1970: TimeInterval(pr.updatedDate) / 1000),
             isDraft: pr.draft ?? false,
             latestCommit: pr.fromRef.latestCommit,
@@ -177,9 +169,9 @@ extension PRItem {
 
     /// Builds a review-list item, or nil when the PR doesn't need my attention:
     /// already approved, or marked needs-work with no new commits since.
-    init?(reviewing pr: PullRequest, as username: String) {
-        guard let me = pr.reviewers.first(where: { $0.user.isSameUser(as: username) }),
-              var item = PRItem(pr) else { return nil }
+    init?(reviewing pr: PullRequest, as username: String, server: ServerAddress) {
+        guard let me = pr.reviewers.first(where: { $0.user.isSameUser(as: username) }) else { return nil }
+        var item = PRItem(pr, server: server)
         let pushedSinceReview = me.lastReviewedCommit.map { $0 != pr.fromRef.latestCommit } ?? false
         switch me.status {
         case .approved:
