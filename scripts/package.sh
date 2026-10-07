@@ -122,5 +122,5 @@ if [[ $PUBLISH == 1 ]]; then
 fi
 
 step "Done: $ZIP (version $VERSION)"
-[[ $PUBLISH == 1 ]] && echo "Installed apps will offer $VERSION within a day." \
+[[ $PUBLISH == 1 ]] && echo "Installed apps will offer $VERSION within a week, or right away via Check for Updates…" \
   || echo "Not published. Run with --publish to push the update."

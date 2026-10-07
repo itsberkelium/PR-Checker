@@ -18,7 +18,7 @@ A macOS menu bar app for **Bitbucket Server / Data Center** that shows the pull 
 1. Download `PR-Checker-<version>.zip` from [Releases](../../releases), unzip it and move **PR Checker** to Applications.
 2. Open it, enter your server URL and token in Settings, and click **Save & Connect**.
 
-The app is signed and notarized. It updates itself with [Sparkle](https://sparkle-project.org): it checks once a day and asks before installing. To check right away, use **⚙ → Check for Updates…**
+The app is signed and notarized. It updates itself with [Sparkle](https://sparkle-project.org): it checks once a week and asks before installing. To check right away, use **⚙ → Check for Updates…**
 
 The token is kept in your login Keychain. Everything else is stored in the app's preferences.
 
@@ -58,7 +58,7 @@ PR Checker has no backend, accounts, analytics or telemetry. Your data stays on 
 **Network connections the app makes:**
 
 - **Your Bitbucket server**, directly from your Mac with your token. Nothing passes through any other server.
-- **The update feed** (`SUFeedURL`), at most once a day or when you choose *Check for Updates…*. It's a plain download of a public file and sends no PR data or token. Sparkle's optional system-profile reporting is off. As with any web request, the host sees your IP address and the app version.
+- **The update feed** (`SUFeedURL`), at most once a week or when you choose *Check for Updates…*. It's a plain download of a public file and sends no PR data or token. Sparkle's optional system-profile reporting is off. As with any web request, the host sees your IP address and the app version.
 
 Clicking a PR or a notification opens the link in your browser.
 

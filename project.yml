@@ -41,6 +41,7 @@ targets:
         SUFeedURL: $(SPARKLE_FEED_URL)
         SUPublicEDKey: $(SPARKLE_PUBLIC_KEY)
         SUEnableAutomaticChecks: true
+        SUScheduledCheckInterval: 604800 # one week, in seconds
         SUAutomaticallyUpdate: false
         PRCheckerDefaultServerURL: $(DEFAULT_SERVER_URL)
     settings:

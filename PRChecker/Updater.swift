@@ -1,7 +1,7 @@
 import AppKit
 import Sparkle
 
-/// Sparkle auto-updates: checks the appcast daily and asks before installing.
+/// Sparkle auto-updates: checks the appcast weekly (SUScheduledCheckInterval) and asks before installing.
 final class Updater: NSObject, SPUStandardUserDriverDelegate {
     static let shared = Updater()
 
