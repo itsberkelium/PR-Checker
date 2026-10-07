@@ -18,7 +18,7 @@ A macOS menu bar app for **Bitbucket Server / Data Center** that shows the pull 
 1. Download `PR-Checker-<version>.zip` from [Releases](../../releases), unzip it and move **PR Checker** to Applications.
 2. Open it, enter your server URL and token in Settings, and click **Save & Connect**.
 
-The app is signed and notarized. It updates itself with [Sparkle](https://sparkle-project.org): it checks once a week and asks before installing. To check right away, use **⚙ → Check for Updates…**
+The app is signed and notarized. It updates itself with [Sparkle](https://sparkle-project.org): it checks once a week and asks before installing. To check right away, use **Settings → About → Check for Updates…**
 
 The token is kept in your login Keychain. Everything else is stored in the app's preferences.
 

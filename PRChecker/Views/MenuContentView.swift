@@ -93,18 +93,12 @@ struct MenuContentView: View {
                 }
                 .keyboardShortcut("r")
             }
-            Menu {
-                Button("Settings…", action: openSettings)
-                    .keyboardShortcut(",")
-                Button("Check for Updates…") { Updater.shared.checkForUpdates() }
-                Divider()
-                Button("Quit PR Checker") { NSApp.terminate(nil) }
-                    .keyboardShortcut("q")
-            } label: {
-                Label("More", systemImage: "gearshape")
-            }
-            .menuIndicator(.hidden)
-            .fixedSize()
+            Button("Settings", systemImage: "gearshape", action: openSettings)
+                .keyboardShortcut(",")
+                .help("Settings")
+            Button("Quit", systemImage: "power", action: confirmQuit)
+                .keyboardShortcut("q")
+                .help("Quit PR Checker")
         }
         .labelStyle(.iconOnly)
         .buttonStyle(.borderless)
@@ -115,5 +109,18 @@ struct MenuContentView: View {
     private func openSettings() {
         openWindow(id: SettingsView.windowID)
         NSApp.activate()
+    }
+
+    /// A standalone alert rather than a sheet: the menu bar panel closes when it loses focus.
+    private func confirmQuit() {
+        let alert = NSAlert()
+        alert.messageText = "Quit PR Checker?"
+        alert.informativeText = "You won't see pull requests or get notifications until you open it again."
+        alert.addButton(withTitle: "Quit")
+        alert.addButton(withTitle: "Cancel")
+        NSApp.activate()
+        if alert.runModal() == .alertFirstButtonReturn {
+            NSApp.terminate(nil)
+        }
     }
 }
