@@ -137,7 +137,7 @@ private struct BitbucketSettings: View {
                     }
                     Spacer()
                     if store.isConfigured {
-                        Button("Sign Out…", role: .destructive) { confirmingSignOut = true }
+                        Button("Sign Out", role: .destructive) { confirmingSignOut = true }
                     }
                     Button("Save & Connect", action: saveAndConnect)
                         .keyboardShortcut(.defaultAction)

@@ -46,7 +46,7 @@ Your own comments never notify you. Filters decide what gets announced, and chan
   - Refresh interval of 1–15 minutes. The app also refreshes after wake and when you open the list with stale data.
 - **Bitbucket:**
   - Server URL and access token. They're saved only when **Save & Connect** succeeds.
-  - **Sign Out…**
+  - **Sign Out**
   - Filters: hide drafts, and limit to project keys or `PROJECT/repo-slug` entries, comma-separated
 - **About:** version and **Check for Updates…**
 
@@ -77,7 +77,7 @@ API responses aren't cached and no cookies are kept. The app uses a private netw
 **Notifications:** they show PR titles, names and results unless you turn off **Show pull request details**. Turning notifications off, or signing out, clears the ones already delivered.
 
 **To remove your data:**
-- **Settings → Bitbucket → Sign Out…** deletes the token and the stored PR state for that server.
+- **Settings → Bitbucket → Sign Out** deletes the token and the stored PR state for that server.
 - **To remove everything:**
   1. Quit the app and delete it.
   2. Delete the `dev.berke.PRChecker` items in Keychain Access.
