@@ -3,6 +3,7 @@
 // See Local.xcconfig.example.
 
 // Bitbucket server pre-filled in Settings on first launch. Empty = users type it.
+// It ends up in the app's Info.plist, so leave it empty for publicly distributed builds.
 DEFAULT_SERVER_URL =
 
 #include? "Local.xcconfig"

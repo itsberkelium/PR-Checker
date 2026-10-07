@@ -34,7 +34,12 @@ final class AppSettings {
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        serverURL = defaults.string(forKey: Key.serverURL) ?? Self.bundledServerURL
+        let savedURL = defaults.string(forKey: Key.serverURL)
+        // Save a build-time default so later builds without one keep working.
+        if savedURL == nil && !Self.bundledServerURL.isEmpty {
+            defaults.set(Self.bundledServerURL, forKey: Key.serverURL)
+        }
+        serverURL = savedURL ?? Self.bundledServerURL
         refreshMinutes = defaults.object(forKey: Key.refreshMinutes) as? Int ?? 5
         hideDrafts = defaults.object(forKey: Key.hideDrafts) as? Bool ?? true
         repoFilter = defaults.string(forKey: Key.repoFilter) ?? ""

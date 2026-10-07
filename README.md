@@ -80,7 +80,7 @@ open PRChecker.xcodeproj
 
 The Xcode project is generated from `project.yml` and isn't checked in.
 
-To pre-fill a server URL in your builds (handy when you hand the app to a team), copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig` and set `DEFAULT_SERVER_URL`. That file is git-ignored.
+To pre-fill a server URL in your builds, copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig` and set `DEFAULT_SERVER_URL`. That file is git-ignored, but the URL is readable in the built app's `Info.plist`, so don't set it for builds you publish.
 
 Run the tests:
 
