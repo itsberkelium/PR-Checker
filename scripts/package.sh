@@ -27,7 +27,7 @@ DIST="dist"
 APP="$DIST/$APP_NAME.app"
 ZIP="$DIST/$APP_NAME.zip"
 UPDATES="$DIST/updates"
-R2_BUCKET="${R2_BUCKET:-gu-cdn}"
+R2_BUCKET="${R2_BUCKET:-gu-cdn-eeur}"
 SPARKLE_BIN="build/SourcePackages/artifacts/sparkle/Sparkle/bin"
 
 step() { printf '\n\033[1m==> %s\033[0m\n' "$1"; }
