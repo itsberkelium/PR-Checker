@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppLifecycle;
@@ -23,8 +24,21 @@ public sealed partial class App : Application, IDisposable
     public App()
     {
         InitializeComponent();
+        UnhandledException += (_, e) =>
+        {
+            Log.Error("Unhandled UI exception", e.Exception);
+            e.Handled = true; // keep the tray app alive; the error is in the log
+        };
         _notifier.LinkClicked += url => _dispatcher.TryEnqueue(() => { if (_store is { } store) Platform.OpenLink(url, store.Settings); });
-        _notifier.Register();
+        try
+        {
+            _notifier.Register();
+            Log.Info("Notifications registered");
+        }
+        catch (Exception error) when (error is COMException or InvalidOperationException or UnauthorizedAccessException)
+        {
+            Log.Error("Couldn't register for notifications; continuing without them", error);
+        }
     }
 
     internal PrStore Store => _store!;
@@ -32,12 +46,21 @@ public sealed partial class App : Application, IDisposable
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
+        Log.Info("Launched");
         var files = new JsonFileStore(Platform.DataDirectory);
         var settings = new AppSettings(files, new CredentialTokenStore());
         _store = new PrStore(settings, files, _notifier);
 
-        _tray = new TrayController(this);
-        _tray.Create();
+        try
+        {
+            _tray = new TrayController(this);
+            _tray.Create();
+            Log.Info("Tray icon created");
+        }
+        catch (Exception error) when (error is COMException or InvalidOperationException or ArgumentException or IOException)
+        {
+            Log.Error("Couldn't create the tray icon", error);
+        }
 
         // Later activations: a second launch shows the list; a notification click opens its PR.
         AppInstance.GetCurrent().Activated += (_, activation) => _dispatcher.TryEnqueue(() => HandleActivation(activation));
@@ -45,7 +68,9 @@ public sealed partial class App : Application, IDisposable
         var launch = AppInstance.GetCurrent().GetActivatedEventArgs();
         if (launch.Kind == ExtendedActivationKind.AppNotification) HandleActivation(launch);
 
-        if (_store.IsConfigured) _store.Start();
+        var configured = _store.IsConfigured;
+        Log.Info(configured ? "Connected; polling" : "Not connected; opening Settings");
+        if (configured) _store.Start();
         else ShowSettings(SettingsWindow.Page.Bitbucket);
 
         StartUpdateChecks();

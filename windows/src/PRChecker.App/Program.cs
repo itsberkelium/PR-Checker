@@ -1,6 +1,8 @@
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
+using System.Runtime.InteropServices;
 using Microsoft.Windows.AppLifecycle;
+using PRChecker.App.Services;
 using Velopack;
 
 namespace PRChecker.App;
@@ -10,19 +12,38 @@ public static class Program
     [STAThread]
     public static int Main(string[] args)
     {
-        // Must run first: handles Velopack's install, update and uninstall hooks.
-        VelopackApp.Build().Run();
-
-        WinRT.ComWrappersSupport.InitializeComWrappers();
-        if (RedirectToRunningInstance()) return 0;
-
-        Application.Start(callback =>
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
         {
-            SynchronizationContext.SetSynchronizationContext(
-                new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread()));
-            _ = new App();
-        });
-        return 0;
+            if (e.ExceptionObject is Exception error) Log.Fatal("Unhandled exception", error);
+        };
+        try
+        {
+            Log.Info($"Starting {Platform.Version} ({RuntimeInformation.ProcessArchitecture}, {RuntimeInformation.OSDescription})");
+
+            // Must run first: handles Velopack's install, update and uninstall hooks.
+            VelopackApp.Build().Run();
+
+            WinRT.ComWrappersSupport.InitializeComWrappers();
+            if (RedirectToRunningInstance())
+            {
+                Log.Info("Already running; handed this launch to it");
+                return 0;
+            }
+
+            Application.Start(callback =>
+            {
+                SynchronizationContext.SetSynchronizationContext(
+                    new DispatcherQueueSynchronizationContext(DispatcherQueue.GetForCurrentThread()));
+                _ = new App();
+            });
+            Log.Info("Exited");
+            return 0;
+        }
+        catch (Exception error)
+        {
+            Log.Fatal("Startup failed", error);
+            return 1;
+        }
     }
 
     /// <summary>

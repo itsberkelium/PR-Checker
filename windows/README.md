@@ -48,5 +48,6 @@ Use `win-x64` for Intel/AMD PCs. CI publishes both for every push; download them
 |---|---|
 | Bitbucket access token, one per server | Windows Credential Manager, `PRChecker/token:<server>` |
 | Settings and last-seen PR state | `%LOCALAPPDATA%\PRChecker\` (`settings.json`, `snapshots\`) |
+| Diagnostic log: startup steps and errors, no tokens or PR data, max 512 KB | `%LOCALAPPDATA%\PRChecker\logs\pr-checker.log` |
 
 To remove everything: uninstall the app, delete the `PRChecker/token:` entries in Credential Manager, and delete `%LOCALAPPDATA%\PRChecker`.
