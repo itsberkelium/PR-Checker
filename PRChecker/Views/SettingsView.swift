@@ -79,6 +79,20 @@ struct SettingsView: View {
                 }
                 Toggle("Open at login", isOn: $launchAtLogin)
             }
+
+            Section("About") {
+                LabeledContent("Version", value: Self.appVersion)
+                LabeledContent {
+                    Button("Check for Updates…") { Updater.shared.checkForUpdates() }
+                } label: {
+                    Text("Updates")
+                    if let last = Updater.shared.lastCheckDate {
+                        Text("Last checked \(last, format: .relative(presentation: .named))")
+                    } else {
+                        Text("Checked automatically once a week")
+                    }
+                }
+            }
         }
         .formStyle(.grouped)
         .frame(width: 480)
@@ -100,6 +114,13 @@ struct SettingsView: View {
                 launchAtLogin = SMAppService.mainApp.status == .enabled
             }
         }
+    }
+
+    private static var appVersion: String {
+        let info = Bundle.main.infoDictionary
+        let version = info?["CFBundleShortVersionString"] as? String ?? "?"
+        let build = info?["CFBundleVersion"] as? String ?? version
+        return build == version ? version : "\(version) (\(build))"
     }
 
     private func saveAndConnect() {

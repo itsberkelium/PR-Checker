@@ -13,6 +13,9 @@ final class Updater: NSObject, SPUStandardUserDriverDelegate {
         _ = controller
     }
 
+    /// When Sparkle last checked the feed, automatically or by hand.
+    var lastCheckDate: Date? { controller.updater.lastUpdateCheckDate }
+
     func checkForUpdates() {
         NSApp.activate()
         controller.checkForUpdates(nil)

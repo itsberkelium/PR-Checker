@@ -5,6 +5,9 @@
 #   scripts/package.sh            build only
 #   scripts/package.sh --publish  build, then upload the update to R2 so
 #                                 installed apps offer it to their users
+#   scripts/package.sh --local    sign with Developer ID and install into
+#                                 /Applications for testing; no notarization,
+#                                 nothing published. Don't distribute this build.
 #
 # One-time setup:
 #   - "Developer ID Application" certificate in the login keychain
@@ -14,7 +17,13 @@
 set -euo pipefail
 
 PUBLISH=0
-[[ "${1:-}" == "--publish" ]] && PUBLISH=1
+LOCAL=0
+case "${1:-}" in
+  --publish) PUBLISH=1 ;;
+  --local) LOCAL=1 ;;
+  "") ;;
+  *) echo "usage: $0 [--publish | --local]" >&2; exit 2 ;;
+esac
 
 cd "$(dirname "$0")/.."
 
@@ -76,6 +85,21 @@ grep -q "Authority=Developer ID Application" <<<"$SIGNATURE" \
   || { echo "App is not signed with a Developer ID Application certificate" >&2; exit 1; }
 grep -q "flags=.*runtime" <<<"$SIGNATURE" \
   || { echo "App is not signed with hardened runtime" >&2; exit 1; }
+
+if [[ $LOCAL == 1 ]]; then
+  step "Installing into /Applications"
+  INSTALLED="/Applications/$APP_NAME.app"
+  osascript -e 'tell application id "dev.berke.PRChecker" to quit' 2>/dev/null || true
+  for _ in 1 2 3 4 5; do pgrep -f "$APP_NAME.app/Contents/MacOS" >/dev/null || break; sleep 1; done
+  if pgrep -f "$APP_NAME.app/Contents/MacOS" >/dev/null; then
+    echo "$APP_NAME is still running; quit it and try again." >&2; exit 1
+  fi
+  rm -rf "$INSTALLED"
+  ditto "$APP" "$INSTALLED"
+  open "$INSTALLED"
+  step "Done: local build installed (not notarized, not published)"
+  exit 0
+fi
 
 step "Submitting to Apple notary service (usually 1–5 min)"
 ditto -c -k --keepParent "$APP" "$ZIP"
