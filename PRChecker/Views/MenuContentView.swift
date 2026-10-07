@@ -7,7 +7,11 @@ struct MenuContentView: View {
 
     @Environment(PRStore.self) private var store
     @Environment(\.openWindow) private var openWindow
-    @State private var tab: Tab = .review
+    @State private var tab: Tab
+
+    init(initialTab: Tab = .review) {
+        _tab = State(initialValue: initialTab)
+    }
 
     private var items: [PRItem] { tab == .review ? store.toReview : store.mine }
 

@@ -286,6 +286,17 @@ final class PRStore {
         return results.compactMap { $0 }
     }
 
+    #if DEBUG
+    /// Shows the given PRs without any network access; for rendering screenshots.
+    func showDemoData(review: [PRItem], mine: [PRItem], username: String) {
+        reset()
+        reviewItems = review
+        mineItems = mine
+        self.username = username
+        lastUpdated = .now.addingTimeInterval(-40)
+    }
+    #endif
+
     private static func isCancellation(_ error: Error) -> Bool {
         error is CancellationError || (error as? URLError)?.code == .cancelled
     }

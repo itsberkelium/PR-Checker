@@ -1,11 +1,27 @@
 # PR Checker
 
+[![Release](https://img.shields.io/github/v/release/itsberkelium/PR-Checker)](https://github.com/itsberkelium/PR-Checker/releases/latest)
+[![Build](https://github.com/itsberkelium/PR-Checker/actions/workflows/build.yml/badge.svg)](https://github.com/itsberkelium/PR-Checker/actions/workflows/build.yml)
+[![Tag](https://img.shields.io/github/v/tag/itsberkelium/PR-Checker)](https://github.com/itsberkelium/PR-Checker/tags)
+
 A macOS menu bar app for **Bitbucket Server / Data Center** that shows the pull requests waiting for your review and the status of the ones you opened, and notifies you when something changes.
 
 - **To review**: open PRs where you're a reviewer and haven't approved. PRs you marked *needs work* come back once the author pushes new commits.
 - **Mine**: your open PRs with approvals, needs-work, merge conflicts, build status, comments and open tasks.
 - The menu bar shows how many PRs wait for your review, plus a `•` when one of your own PRs needs attention.
 - Click any PR or notification to open it in the browser.
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/menu-review-dark.png">
+    <img src="docs/screenshots/menu-review-light.png" width="400" alt="The To review tab listing pull requests with approval, comment and new-commit badges">
+  </picture>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/menu-mine-dark.png">
+    <img src="docs/screenshots/menu-mine-light.png" width="400" alt="The Mine tab showing approvals, needs work, merge conflicts and build results">
+  </picture>
+</p>
+<p align="center"><sub>Screenshots use made-up data.</sub></p>
 
 ## Requirements
 
@@ -96,10 +112,16 @@ The Xcode project is generated from `project.yml` and isn't checked in.
 
 To pre-fill a server URL in your builds, copy `Config/Local.xcconfig.example` to `Config/Local.xcconfig` and set `DEFAULT_SERVER_URL`. That file is git-ignored, but the URL is readable in the built app's `Info.plist`, so don't set it for builds you publish.
 
-Run the tests:
+Run the tests (CI runs them on every push):
 
 ```bash
 xcodebuild -project PRChecker.xcodeproj -scheme PRChecker test
+```
+
+Regenerate the README screenshots from made-up data. This builds a Debug build and renders offscreen, with no network or real settings:
+
+```bash
+./scripts/screenshots.sh
 ```
 
 ## Releasing
@@ -143,10 +165,13 @@ PRChecker/
   Notifier.swift          macOS notifications
   Updater.swift           Sparkle integration
   Views/                  menu bar popover, PR rows, settings window
+  Debug/                  screenshot renderer with made-up data (Debug builds only)
   Assets.xcassets/        app icon
 PRCheckerTests/           Swift Testing suite, incl. security tests against a stub server
 Design/                   icon sources: macOS (SVG, 1024 PNG, .icns), Windows (SVG, .ico)
 scripts/package.sh        sign, notarize, publish
+scripts/screenshots.sh    regenerate docs/screenshots
+.github/workflows/        CI: build and test on every push
 ```
 
 ## License
