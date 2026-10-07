@@ -1,0 +1,13 @@
+<Project>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <Authors>Berke Sütçü</Authors>
+    <Product>PR Checker</Product>
+    <!-- Bump for every Windows release; Velopack compares it to decide what's newer. -->
+    <Version>0.1.0</Version>
+  </PropertyGroup>
+</Project>

@@ -10,9 +10,13 @@ permissions:
   contents: read
 
 jobs:
-  build-and-test:
+  macos:
+    name: macOS app
     runs-on: macos-26
     timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: macos
     steps:
       - uses: actions/checkout@v5
 
@@ -35,3 +39,20 @@ jobs:
             CODE_SIGN_IDENTITY=- \
             DEVELOPMENT_TEAM= \
             ENABLE_HARDENED_RUNTIME=NO
+
+  windows:
+    name: Windows app
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: windows
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: windows/global.json
+
+      - name: Build and test
+        run: dotnet test --solution PRChecker.slnx --configuration Release

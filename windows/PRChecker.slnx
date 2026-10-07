@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/PRChecker.Core/PRChecker.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/PRChecker.Core.Tests/PRChecker.Core.Tests.csproj" />
+  </Folder>
+</Solution>

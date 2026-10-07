@@ -58,7 +58,12 @@ targets:
   PRCheckerTests:
     type: bundle.unit-test
     platform: macOS
-    sources: [PRCheckerTests]
+    sources:
+      - PRCheckerTests
+      # Shared with the Windows tests; loaded from the bundle's "fixtures" folder.
+      - path: ../shared/fixtures
+        type: folder
+        buildPhase: resources
     dependencies:
       - target: PRChecker
     settings:

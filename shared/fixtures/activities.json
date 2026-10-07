@@ -1,0 +1,102 @@
+{
+  "description": "PR activities page and the comments by others it must yield for user sam.reviewer. Activity ids are deliberately not in time order.",
+  "user": "sam.reviewer",
+  "page": {
+    "values": [
+      {
+        "id": 900,
+        "createdDate": 1791300000000,
+        "action": "COMMENTED",
+        "user": {
+          "name": "Priya.Natarajan",
+          "slug": "priya.natarajan",
+          "displayName": "Priya Natarajan"
+        },
+        "commentAction": "ADDED"
+      },
+      {
+        "id": 950,
+        "createdDate": 1791200000000,
+        "action": "COMMENTED",
+        "user": {
+          "name": "Sam.Reviewer",
+          "slug": "sam.reviewer",
+          "displayName": "Sam Reviewer"
+        },
+        "commentAction": "ADDED"
+      },
+      {
+        "id": 800,
+        "createdDate": 1791400000000,
+        "action": "COMMENTED",
+        "user": {
+          "name": "Mateo.Garcia",
+          "slug": "mateo.garcia",
+          "displayName": "Mateo Garcia"
+        },
+        "commentAction": "REPLIED"
+      },
+      {
+        "id": 990,
+        "createdDate": 1791500000000,
+        "action": "COMMENTED",
+        "user": {
+          "name": "Priya.Natarajan",
+          "slug": "priya.natarajan",
+          "displayName": "Priya Natarajan"
+        },
+        "commentAction": "EDITED"
+      },
+      {
+        "id": 970,
+        "createdDate": 1791450000000,
+        "action": "COMMENTED",
+        "user": {
+          "name": "Jordan.Lee",
+          "slug": "jordan.lee",
+          "displayName": "Jordan Lee"
+        },
+        "commentAction": "DELETED"
+      },
+      {
+        "id": 700,
+        "createdDate": 1791350000000,
+        "action": "APPROVED",
+        "user": {
+          "name": "Jordan.Lee",
+          "slug": "jordan.lee",
+          "displayName": "Jordan Lee"
+        }
+      },
+      {
+        "id": 600,
+        "createdDate": 1791360000000,
+        "action": "COMMENTED",
+        "user": {
+          "name": "Alex.Author",
+          "slug": "alex.author",
+          "displayName": "Alex Author"
+        },
+        "commentAction": "ADDED"
+      }
+    ],
+    "isLastPage": true
+  },
+  "expected": [
+    {
+      "id": 900,
+      "created": 1791300000000,
+      "author": "Priya Natarajan"
+    },
+    {
+      "id": 800,
+      "created": 1791400000000,
+      "author": "Mateo Garcia"
+    },
+    {
+      "id": 600,
+      "created": 1791360000000,
+      "author": "Alex Author"
+    }
+  ]
+}

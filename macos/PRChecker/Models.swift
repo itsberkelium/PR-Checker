@@ -97,6 +97,13 @@ struct BuildStats: Decodable {
 
 enum BuildState: String, Codable, Sendable {
     case none, running, passed, failed
+
+    init(_ stats: BuildStats) {
+        if (stats.failed ?? 0) > 0 { self = .failed }
+        else if (stats.inProgress ?? 0) > 0 { self = .running }
+        else if (stats.successful ?? 0) > 0 { self = .passed }
+        else { self = .none }
+    }
 }
 
 struct PRItem: Identifiable, Equatable {

@@ -1,0 +1,37 @@
+{
+  "description": "Build status stats and the build state they map to.",
+  "cases": [
+    {
+      "stats": {
+        "successful": 3,
+        "failed": 1,
+        "inProgress": 1
+      },
+      "expected": "failed"
+    },
+    {
+      "stats": {
+        "successful": 2,
+        "inProgress": 1
+      },
+      "expected": "running"
+    },
+    {
+      "stats": {
+        "successful": 2
+      },
+      "expected": "passed"
+    },
+    {
+      "stats": {
+        "cancelled": 1,
+        "unknown": 2
+      },
+      "expected": "none"
+    },
+    {
+      "stats": {},
+      "expected": "none"
+    }
+  ]
+}

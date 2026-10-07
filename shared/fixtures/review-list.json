@@ -1,0 +1,532 @@
+{
+  "description": "REVIEWER dashboard page and the review list it must produce for user sam.reviewer. See docs/behavior.md#review-list-to-review. API links are hostile on purpose and must be ignored.",
+  "server": "https://bitbucket.example.com",
+  "user": "sam.reviewer",
+  "dashboard": {
+    "values": [
+      {
+        "id": 1,
+        "title": "Never reviewed",
+        "draft": false,
+        "updatedDate": 1791266000000,
+        "fromRef": {
+          "displayId": "feature/1",
+          "latestCommit": "c1",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "toRef": {
+          "displayId": "main",
+          "latestCommit": "base",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "author": {
+          "user": {
+            "name": "Alex.Author",
+            "slug": "alex.author",
+            "displayName": "Alex Author"
+          },
+          "status": "UNAPPROVED",
+          "lastReviewedCommit": null
+        },
+        "reviewers": [
+          {
+            "user": {
+              "name": "Sam.Reviewer",
+              "slug": "sam.reviewer",
+              "displayName": "Sam Reviewer"
+            },
+            "status": "UNAPPROVED",
+            "lastReviewedCommit": null
+          },
+          {
+            "user": {
+              "name": "Jordan.Lee",
+              "slug": "jordan.lee",
+              "displayName": "Jordan Lee"
+            },
+            "status": "APPROVED",
+            "lastReviewedCommit": "c1"
+          }
+        ],
+        "properties": {
+          "mergeResult": {
+            "outcome": "CLEAN"
+          },
+          "commentCount": 0,
+          "openTaskCount": 0
+        },
+        "links": {
+          "self": [
+            {
+              "href": "file:///etc/passwd"
+            }
+          ]
+        }
+      },
+      {
+        "id": 2,
+        "title": "Viewed, then author pushed (from a fork)",
+        "draft": false,
+        "updatedDate": 1791266000000,
+        "fromRef": {
+          "displayId": "feature/2",
+          "latestCommit": "c2",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "~ALEX.AUTHOR"
+            }
+          }
+        },
+        "toRef": {
+          "displayId": "main",
+          "latestCommit": "base",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "author": {
+          "user": {
+            "name": "Alex.Author",
+            "slug": "alex.author",
+            "displayName": "Alex Author"
+          },
+          "status": "UNAPPROVED",
+          "lastReviewedCommit": null
+        },
+        "reviewers": [
+          {
+            "user": {
+              "name": "Sam.Reviewer",
+              "slug": "sam.reviewer",
+              "displayName": "Sam Reviewer"
+            },
+            "status": "UNAPPROVED",
+            "lastReviewedCommit": "old"
+          },
+          {
+            "user": {
+              "name": "Jordan.Lee",
+              "slug": "jordan.lee",
+              "displayName": "Jordan Lee"
+            },
+            "status": "APPROVED",
+            "lastReviewedCommit": "c2"
+          }
+        ],
+        "properties": {
+          "mergeResult": {
+            "outcome": "CLEAN"
+          },
+          "commentCount": 0,
+          "openTaskCount": 0
+        },
+        "links": {
+          "self": [
+            {
+              "href": "file:///etc/passwd"
+            }
+          ]
+        }
+      },
+      {
+        "id": 3,
+        "title": "Already approved",
+        "draft": false,
+        "updatedDate": 1791266000000,
+        "fromRef": {
+          "displayId": "feature/3",
+          "latestCommit": "c3",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "toRef": {
+          "displayId": "main",
+          "latestCommit": "base",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "author": {
+          "user": {
+            "name": "Alex.Author",
+            "slug": "alex.author",
+            "displayName": "Alex Author"
+          },
+          "status": "UNAPPROVED",
+          "lastReviewedCommit": null
+        },
+        "reviewers": [
+          {
+            "user": {
+              "name": "Sam.Reviewer",
+              "slug": "sam.reviewer",
+              "displayName": "Sam Reviewer"
+            },
+            "status": "APPROVED",
+            "lastReviewedCommit": "c3"
+          },
+          {
+            "user": {
+              "name": "Jordan.Lee",
+              "slug": "jordan.lee",
+              "displayName": "Jordan Lee"
+            },
+            "status": "APPROVED",
+            "lastReviewedCommit": "c3"
+          }
+        ],
+        "properties": {
+          "mergeResult": {
+            "outcome": "CLEAN"
+          },
+          "commentCount": 0,
+          "openTaskCount": 0
+        },
+        "links": {
+          "self": [
+            {
+              "href": "file:///etc/passwd"
+            }
+          ]
+        }
+      },
+      {
+        "id": 4,
+        "title": "Needs work, nothing new",
+        "draft": false,
+        "updatedDate": 1791266000000,
+        "fromRef": {
+          "displayId": "feature/4",
+          "latestCommit": "c4",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "toRef": {
+          "displayId": "main",
+          "latestCommit": "base",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "author": {
+          "user": {
+            "name": "Alex.Author",
+            "slug": "alex.author",
+            "displayName": "Alex Author"
+          },
+          "status": "UNAPPROVED",
+          "lastReviewedCommit": null
+        },
+        "reviewers": [
+          {
+            "user": {
+              "name": "Sam.Reviewer",
+              "slug": "sam.reviewer",
+              "displayName": "Sam Reviewer"
+            },
+            "status": "NEEDS_WORK",
+            "lastReviewedCommit": "c4"
+          },
+          {
+            "user": {
+              "name": "Jordan.Lee",
+              "slug": "jordan.lee",
+              "displayName": "Jordan Lee"
+            },
+            "status": "APPROVED",
+            "lastReviewedCommit": "c4"
+          }
+        ],
+        "properties": {
+          "mergeResult": {
+            "outcome": "CLEAN"
+          },
+          "commentCount": 0,
+          "openTaskCount": 0
+        },
+        "links": {
+          "self": [
+            {
+              "href": "file:///etc/passwd"
+            }
+          ]
+        }
+      },
+      {
+        "id": 5,
+        "title": "Needs work, author pushed",
+        "draft": false,
+        "updatedDate": 1791266000000,
+        "fromRef": {
+          "displayId": "feature/5",
+          "latestCommit": "c5",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "toRef": {
+          "displayId": "main",
+          "latestCommit": "base",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "author": {
+          "user": {
+            "name": "Alex.Author",
+            "slug": "alex.author",
+            "displayName": "Alex Author"
+          },
+          "status": "UNAPPROVED",
+          "lastReviewedCommit": null
+        },
+        "reviewers": [
+          {
+            "user": {
+              "name": "Sam.Reviewer",
+              "slug": "sam.reviewer",
+              "displayName": "Sam Reviewer"
+            },
+            "status": "NEEDS_WORK",
+            "lastReviewedCommit": "old"
+          },
+          {
+            "user": {
+              "name": "Jordan.Lee",
+              "slug": "jordan.lee",
+              "displayName": "Jordan Lee"
+            },
+            "status": "APPROVED",
+            "lastReviewedCommit": "c5"
+          }
+        ],
+        "properties": {
+          "mergeResult": {
+            "outcome": "CONFLICTED"
+          },
+          "commentCount": 4,
+          "openTaskCount": 2
+        },
+        "links": {
+          "self": [
+            {
+              "href": "file:///etc/passwd"
+            }
+          ]
+        }
+      },
+      {
+        "id": 6,
+        "title": "Not a reviewer",
+        "draft": false,
+        "updatedDate": 1791266000000,
+        "fromRef": {
+          "displayId": "feature/6",
+          "latestCommit": "c6",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "toRef": {
+          "displayId": "main",
+          "latestCommit": "base",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "author": {
+          "user": {
+            "name": "Alex.Author",
+            "slug": "alex.author",
+            "displayName": "Alex Author"
+          },
+          "status": "UNAPPROVED",
+          "lastReviewedCommit": null
+        },
+        "reviewers": [
+          {
+            "user": {
+              "name": "Jordan.Lee",
+              "slug": "jordan.lee",
+              "displayName": "Jordan Lee"
+            },
+            "status": "APPROVED",
+            "lastReviewedCommit": "c6"
+          }
+        ],
+        "properties": {
+          "mergeResult": {
+            "outcome": "CLEAN"
+          },
+          "commentCount": 0,
+          "openTaskCount": 0
+        },
+        "links": {
+          "self": [
+            {
+              "href": "file:///etc/passwd"
+            }
+          ]
+        }
+      },
+      {
+        "id": 7,
+        "title": "Unknown status counts as unapproved",
+        "draft": false,
+        "updatedDate": 1791266000000,
+        "fromRef": {
+          "displayId": "feature/7",
+          "latestCommit": "c7",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "toRef": {
+          "displayId": "main",
+          "latestCommit": "base",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "author": {
+          "user": {
+            "name": "Alex.Author",
+            "slug": "alex.author",
+            "displayName": "Alex Author"
+          },
+          "status": "UNAPPROVED",
+          "lastReviewedCommit": null
+        },
+        "reviewers": [
+          {
+            "user": {
+              "name": "SAM.REVIEWER",
+              "slug": "sam.reviewer",
+              "displayName": "Sam Reviewer"
+            },
+            "status": "SOMETHING_NEW",
+            "lastReviewedCommit": null
+          },
+          {
+            "user": {
+              "name": "Jordan.Lee",
+              "slug": "jordan.lee",
+              "displayName": "Jordan Lee"
+            },
+            "status": "APPROVED",
+            "lastReviewedCommit": "c7"
+          }
+        ],
+        "properties": {
+          "mergeResult": {
+            "outcome": "CLEAN"
+          },
+          "commentCount": 0,
+          "openTaskCount": 0
+        },
+        "links": {
+          "self": [
+            {
+              "href": "file:///etc/passwd"
+            }
+          ]
+        }
+      }
+    ],
+    "isLastPage": true
+  },
+  "expected": [
+    {
+      "id": "PROJ/web-app#1",
+      "link": "https://bitbucket.example.com/projects/PROJ/repos/web-app/pull-requests/1",
+      "newCommits": false,
+      "conflicts": false,
+      "comments": 0,
+      "openTasks": 0
+    },
+    {
+      "id": "PROJ/web-app#2",
+      "link": "https://bitbucket.example.com/projects/PROJ/repos/web-app/pull-requests/2",
+      "newCommits": true,
+      "conflicts": false,
+      "comments": 0,
+      "openTasks": 0
+    },
+    {
+      "id": "PROJ/web-app#5",
+      "link": "https://bitbucket.example.com/projects/PROJ/repos/web-app/pull-requests/5",
+      "newCommits": true,
+      "conflicts": true,
+      "comments": 4,
+      "openTasks": 2
+    },
+    {
+      "id": "PROJ/web-app#7",
+      "link": "https://bitbucket.example.com/projects/PROJ/repos/web-app/pull-requests/7",
+      "newCommits": false,
+      "conflicts": false,
+      "comments": 0,
+      "openTasks": 0
+    }
+  ]
+}

@@ -94,11 +94,7 @@ struct BitbucketClient {
 
     func buildState(commit: String) async throws -> BuildState {
         let (data, _) = try await get("rest/build-status/1.0/commits/stats/\(commit)")
-        let stats = try JSONDecoder().decode(BuildStats.self, from: data)
-        if (stats.failed ?? 0) > 0 { return .failed }
-        if (stats.inProgress ?? 0) > 0 { return .running }
-        if (stats.successful ?? 0) > 0 { return .passed }
-        return .none
+        return BuildState(try JSONDecoder().decode(BuildStats.self, from: data))
     }
 
     /// Most recent comments and replies on a PR, excluding the given user's own.
@@ -107,7 +103,13 @@ struct BitbucketClient {
         let (data, _) = try await get(path + "/activities", query: [
             URLQueryItem(name: "limit", value: "50"),
         ])
-        return try JSONDecoder().decode(Page<Activity>.self, from: data).values
+        return Self.commentsByOthers(in: try JSONDecoder().decode(Page<Activity>.self, from: data).values,
+                                     excluding: username)
+    }
+
+    /// Added comments and replies, minus the given user's own.
+    static func commentsByOthers(in activities: [Activity], excluding username: String) -> [PRItem.Comment] {
+        activities
             .filter { $0.action == "COMMENTED" && ["ADDED", "REPLIED"].contains($0.commentAction ?? "") }
             .filter { !$0.user.isSameUser(as: username) }
             .map { PRItem.Comment(id: $0.id, created: $0.createdDate, author: $0.user.displayName ?? $0.user.name) }

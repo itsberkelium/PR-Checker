@@ -1,0 +1,78 @@
+{
+  "description": "Server URL parsing and link ownership. 'id' is the normalized server id; 'error' names the rejection.",
+  "parse": [
+    {
+      "input": "  HTTPS://Bitbucket.Example.com:443/context/ ",
+      "id": "https://bitbucket.example.com/context"
+    },
+    {
+      "input": "https://bitbucket.example.com",
+      "id": "https://bitbucket.example.com"
+    },
+    {
+      "input": "https://bitbucket.example.com:8443/bb",
+      "id": "https://bitbucket.example.com:8443/bb"
+    },
+    {
+      "input": "http://bitbucket.example.com",
+      "error": "notHTTPS"
+    },
+    {
+      "input": "https://me:pw@bitbucket.example.com",
+      "error": "hasCredentials"
+    },
+    {
+      "input": "https://bitbucket.example.com/?x=1",
+      "error": "hasQueryOrFragment"
+    },
+    {
+      "input": "https://bitbucket.example.com/#top",
+      "error": "hasQueryOrFragment"
+    },
+    {
+      "input": "not a url",
+      "error": "invalid"
+    }
+  ],
+  "owns": {
+    "server": "https://bitbucket.example.com/bb",
+    "cases": [
+      {
+        "url": "https://BITBUCKET.example.com/bb/projects/P",
+        "owned": true
+      },
+      {
+        "url": "https://bitbucket.example.com/bb",
+        "owned": true
+      },
+      {
+        "url": "https://bitbucket.example.com/other",
+        "owned": false
+      },
+      {
+        "url": "https://bitbucket.example.com/bbx",
+        "owned": false
+      },
+      {
+        "url": "https://evil.example.com/bb/projects/P",
+        "owned": false
+      },
+      {
+        "url": "https://bitbucket.example.com:8443/bb",
+        "owned": false
+      },
+      {
+        "url": "http://bitbucket.example.com/bb",
+        "owned": false
+      },
+      {
+        "url": "file:///etc/passwd",
+        "owned": false
+      },
+      {
+        "url": "otherapp://bitbucket.example.com/bb",
+        "owned": false
+      }
+    ]
+  }
+}
