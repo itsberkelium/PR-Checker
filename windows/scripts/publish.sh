@@ -21,9 +21,17 @@ step "Downloading release files from run $RUN_ID"
 WORK=$(mktemp -d)
 trap 'rm -rf "$WORK"' EXIT
 gh run download "$RUN_ID" --repo "$REPO" --dir "$WORK"
-DIR=$(find "$WORK" -maxdepth 1 -type d -name 'windows-release-*' | head -1)
-[[ -n "$DIR" ]] || { echo "No windows-release-* artifact in run $RUN_ID" >&2; exit 1; }
-VERSION="${DIR##*windows-release-}"
+# The workflow uploads one artifact per architecture; publish them together.
+ARM=$(find "$WORK" -maxdepth 1 -type d -name 'windows-release-*-win-arm64' | head -1)
+[[ -n "$ARM" ]] || { echo "No windows-release-*-win-arm64 artifact in run $RUN_ID" >&2; exit 1; }
+VERSION="${ARM##*windows-release-}"
+VERSION="${VERSION%-win-arm64}"
+DIR="$WORK/all"
+mkdir -p "$DIR"
+for rid in win-arm64 win-x64; do
+  [[ -d "$WORK/windows-release-$VERSION-$rid" ]] || { echo "Missing $rid artifact for $VERSION" >&2; exit 1; }
+  cp "$WORK/windows-release-$VERSION-$rid"/* "$DIR"/
+done
 ls -la "$DIR"
 
 for rid in win-arm64 win-x64; do
