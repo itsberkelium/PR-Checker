@@ -33,6 +33,7 @@ final class PRStore {
     }
 
     private static let snapshotPrefix = "snapshot.v2|"
+    private static let automationPrefix = "automation.v1|"
     private static let legacySnapshotKey = "snapshot"
 
     init(settings: AppSettings) {
@@ -84,7 +85,7 @@ final class PRStore {
     func signOut() throws {
         if let server = settings.server {
             for key in settings.defaults.dictionaryRepresentation().keys
-            where key.hasPrefix(Self.snapshotPrefix + server.id + "|") {
+            where key.hasPrefix(Self.snapshotPrefix + server.id + "|") || key.hasPrefix(Self.automationPrefix + server.id + "|") {
                 settings.defaults.removeObject(forKey: key)
             }
         }
@@ -149,6 +150,8 @@ final class PRStore {
             lastUpdated = .now
             errorMessage = rateLimited ? APIError.rateLimited.errorDescription : nil
             await notifyChanges(client: client, me: me, generation: generation)
+            guard isCurrent(generation) else { return }
+            runAutomation(server: client.server, me: me)
         } catch {
             guard isCurrent(generation), !Self.isCancellation(error) else { return }
             errorMessage = error.localizedDescription
@@ -233,6 +236,19 @@ final class PRStore {
         let liveCommits = Set(mine.map(\.latestCommit))
         buildCache = buildCache.filter { liveCommits.contains($0.key) }
         return rateLimited
+    }
+
+    /// Starts the automation command for review PRs that are new or have new commits. Commits it
+    /// already ran for are remembered per server and user; while it's off nothing is recorded,
+    /// so turning it on catches up with the current list.
+    private func runAutomation(server: ServerAddress, me: String) {
+        let command = settings.automationCommand.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard settings.automationEnabled, !command.isEmpty else { return }
+        let key = Self.automationPrefix + server.id + "|" + me.lowercased()
+        let done = Set(settings.defaults.stringArray(forKey: key) ?? [])
+        let (items, triggered) = Automation.pending(toReview, alreadyTriggered: done)
+        settings.defaults.set(Array(triggered), forKey: key)
+        Automation.run(command, for: items)
     }
 
     /// Compares against the snapshot saved for this server and user, so restarts

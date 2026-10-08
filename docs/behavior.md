@@ -77,6 +77,15 @@ PRs where I'm not a reviewer are skipped.
 - Each refresh belongs to a connection generation; results from an older generation or a cancelled refresh are discarded.
 - A refresh that fails keeps the previous lists and shows the error.
 
+## Automation command
+
+Optional, off by default. *Implemented on macOS; Windows: not yet.*
+
+- After a successful refresh, run the configured command once for each PR in the (filtered) review list whose current commit hasn't triggered it yet: new review requests and PRs with new commits.
+- Triggered commits are remembered per **server id + lowercased user name** as `{pr id}@{commit}`, pruned to PRs still in the list. While the option is off nothing is recorded, so turning it on runs for the current list.
+- The command is split into arguments once (whitespace, `'…'`, `"…"`, backslash escapes; no variables, globbing or substitution), then placeholders are filled **inside each argument**: `{link} {commit} {project} {repo} {id} {source} {target} {title} {author}`. A leading `~/` expands to the home folder. PR content never passes through a shell. `{link}` is the link built from the server address.
+- Runs without waiting; output is appended to a log file. Sign Out forgets the triggered commits for that server.
+
 ## Notifications
 
 Snapshots are stored per **server id + lowercased user name**. The first refresh for a connection only records a snapshot (silent). Snapshots cover every tracked PR, including filtered-out ones.

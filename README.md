@@ -61,6 +61,7 @@ Your own comments never notify you. Filters decide what gets announced, and chan
 
 - **General:**
   - Notifications, with an option to hide PR details
+  - Automation (macOS): run a command when a PR enters your review list or gets new commits, e.g. an automated pre-check. Values are passed as separate arguments, never through a shell.
   - Open at login
   - Refresh interval of 1–15 minutes. The app also refreshes after wake and when you open the list with stale data.
 - **Bitbucket:**

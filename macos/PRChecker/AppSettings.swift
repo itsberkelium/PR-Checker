@@ -21,6 +21,8 @@ final class AppSettings {
         static let repoFilter = "repoFilter"
         static let notificationsEnabled = "notificationsEnabled"
         static let notificationDetails = "notificationDetails"
+        static let automationEnabled = "automationEnabled"
+        static let automationCommand = "automationCommand"
     }
 
     @ObservationIgnored let defaults: UserDefaults
@@ -45,6 +47,9 @@ final class AppSettings {
     var notificationsEnabled: Bool { didSet { defaults.set(notificationsEnabled, forKey: Key.notificationsEnabled) } }
     /// Off: notifications say only that something changed, without titles or names.
     var notificationDetails: Bool { didSet { defaults.set(notificationDetails, forKey: Key.notificationDetails) } }
+    /// Runs `automationCommand` when a PR enters the review list or gets new commits.
+    var automationEnabled: Bool { didSet { defaults.set(automationEnabled, forKey: Key.automationEnabled) } }
+    var automationCommand: String { didSet { defaults.set(automationCommand, forKey: Key.automationCommand) } }
 
     init(defaults: UserDefaults = .standard, tokens: TokenStore = Keychain()) {
         self.defaults = defaults
@@ -59,6 +64,8 @@ final class AppSettings {
         repoFilter = defaults.string(forKey: Key.repoFilter) ?? ""
         notificationsEnabled = defaults.object(forKey: Key.notificationsEnabled) as? Bool ?? true
         notificationDetails = defaults.object(forKey: Key.notificationDetails) as? Bool ?? true
+        automationEnabled = defaults.object(forKey: Key.automationEnabled) as? Bool ?? false
+        automationCommand = defaults.string(forKey: Key.automationCommand) ?? ""
         filterPatterns = Self.parsePatterns(repoFilter)
     }
 

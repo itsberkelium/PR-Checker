@@ -170,3 +170,41 @@ func makePR(
     """
     return try JSONDecoder().decode(PullRequest.self, from: Data(json.utf8))
 }
+
+@MainActor
+struct AutomationTests {
+    @Test func splitsLikeAShellWithoutExpansion() throws {
+        #expect(try Automation.split(#"run --title "a b" 'c $HOME' d\ e"#) == ["run", "--title", "a b", "c $HOME", "d e"])
+        #expect(throws: Automation.TemplateError.unterminatedQuote) { try Automation.split(#"run "open"#) }
+        #expect(throws: Automation.TemplateError.empty) { try Automation.split("   ") }
+    }
+
+    @Test func fillsPlaceholdersPerArgumentWithoutShellInjection() throws {
+        var item = PRItem(try makePR(myStatus: "UNAPPROVED", lastReviewed: nil, latest: "abc123"), server: testServer)
+        item = PRItem(id: item.id, number: item.number, title: "x; rm -rf ~ $(whoami)", projectKey: item.projectKey,
+                      repoSlug: item.repoSlug, repoName: item.repoName, sourceBranch: item.sourceBranch,
+                      targetBranch: item.targetBranch, authorName: item.authorName, url: item.url, updated: item.updated,
+                      isDraft: false, latestCommit: item.latestCommit, reviewers: item.reviewers,
+                      hasConflicts: false, commentCount: 0, openTaskCount: 0)
+        let arguments = try Automation.arguments(
+            for: "~/bin/check --pr {link} --commit {commit} --title {title} --tag {project}/{repo}#{id}", item: item)
+        #expect(arguments[0] == FileManager.default.homeDirectoryForCurrentUser.path + "/bin/check")
+        #expect(arguments[2] == "https://bitbucket.example.com/projects/PROJ/repos/web-app/pull-requests/2583")
+        #expect(arguments[4] == "abc123")
+        #expect(arguments[6] == "x; rm -rf ~ $(whoami)") // one argument, untouched
+        #expect(arguments[8] == "PROJ/web-app#2583")
+        #expect(arguments.count == 9)
+    }
+
+    @Test func triggersOncePerCommit() throws {
+        let first = PRItem(try makePR(myStatus: "UNAPPROVED", lastReviewed: nil, latest: "a1"), server: testServer)
+        let (initial, recorded) = Automation.pending([first], alreadyTriggered: [])
+        #expect(initial.map(\.latestCommit) == ["a1"])
+        #expect(Automation.pending([first], alreadyTriggered: recorded).items.isEmpty)
+
+        let pushed = PRItem(try makePR(myStatus: "UNAPPROVED", lastReviewed: nil, latest: "b2"), server: testServer)
+        let (again, updated) = Automation.pending([pushed], alreadyTriggered: recorded)
+        #expect(again.map(\.latestCommit) == ["b2"])
+        #expect(updated == ["PROJ/web-app#2583@b2"]) // PRs that left the list are forgotten
+    }
+}
