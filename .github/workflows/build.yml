@@ -64,6 +64,16 @@ jobs:
           dotnet publish src/PRChecker.App -c Release -r win-arm64 -o artifacts/PRChecker-win-arm64
           dotnet publish src/PRChecker.App -c Release -r win-x64 -o artifacts/PRChecker-win-x64
 
+      # The app crashes at startup without its own PRI (compiled XAML resources).
+      - name: Check app resources
+        shell: pwsh
+        run: |
+          foreach ($dir in "artifacts/PRChecker-win-arm64", "artifacts/PRChecker-win-x64") {
+            $pri = Get-ChildItem $dir -Filter *.pri | Where-Object { $_.Name -in "PRChecker.pri", "resources.pri" }
+            if (-not $pri) { Get-ChildItem $dir -Filter *.pri | Format-Table Name; throw "No app PRI in $dir" }
+            Write-Host "$dir has $($pri.Name)"
+          }
+
       - uses: actions/upload-artifact@v5
         with:
           name: PRChecker-win-arm64
