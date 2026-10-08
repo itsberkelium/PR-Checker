@@ -24,6 +24,8 @@ public sealed partial class App : Application, IDisposable
     public App()
     {
         InitializeComponent();
+        // A tray app keeps running with no windows open; only Quit (Exit) ends it.
+        DispatcherShutdownMode = DispatcherShutdownMode.OnExplicitShutdown;
         UnhandledException += (_, e) =>
         {
             Log.Error("Unhandled UI exception", e.Exception);
