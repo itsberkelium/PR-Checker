@@ -67,6 +67,10 @@ Installed apps check the feed once a week, or right away via **Settings → Abou
 - The installers aren't code-signed yet, so SmartScreen asks once.
 - Updates are verified against the SHA-256 checksums in the feed, which is served over HTTPS.
 
+## Notifications
+
+The app uses the Windows App SDK's notifications when they're available. They need the Windows App Runtime's "Singleton" package, which self-contained apps don't install, so on many PCs the app falls back to Windows' built-in toast API instead. That fallback only needs a per-user registry entry with the app's name and icon. With it, clicking a notification opens the PR while PR Checker is running, which a tray app normally is. The log shows which one is in use.
+
 ## Data storage on Windows
 
 | Data | Where |
@@ -74,8 +78,9 @@ Installed apps check the feed once a week, or right away via **Settings → Abou
 | Bitbucket access token, one per server | Windows Credential Manager, `PRChecker/token:<server>` |
 | Settings and last-seen PR state | `%LOCALAPPDATA%\PRChecker\` (`settings.json`, `snapshots\`) |
 | Diagnostic log: startup steps and errors, no tokens or PR data, max 512 KB | `%LOCALAPPDATA%\PRChecker\logs\pr-checker.log` |
+| Notification name and icon, only when Windows' built-in notifications are used | `HKCU\Software\Classes\AppUserModelId\Berke.PRChecker` |
 
 To remove everything:
-1. Uninstall PR Checker in **Settings → Apps**. This also removes the open-at-login entry.
+1. Uninstall PR Checker in **Settings → Apps**. This also removes the open-at-login and notification registry entries.
 2. Delete the `PRChecker/token:` entries in Credential Manager.
 3. Delete `%LOCALAPPDATA%\PRChecker`.

@@ -7,17 +7,21 @@ namespace PRChecker.App.Services;
 
 /// <summary>
 /// Windows notifications; clicking one opens its PR (if it's on the configured server).
-/// Registration can fail on some PCs (e.g. locked-down ones); then every call is a no-op and
+/// Uses the Windows App SDK's notifications when they register, otherwise Windows' built-in
+/// toast API (<see cref="SystemToastNotifier"/>). If neither works, every call is a no-op and
 /// <see cref="UnavailableReason"/> says why, so the rest of the app keeps working.
 /// </summary>
 internal sealed class WindowsNotifier : INotifier
 {
     private const string UrlArgument = "url";
 
+    private bool _appSdk;
+    private SystemToastNotifier? _system;
+
     /// <summary>Called on a background thread with the clicked notification's link.</summary>
     public event Action<string>? LinkClicked;
 
-    public bool IsAvailable { get; private set; }
+    public bool IsAvailable => _appSdk || _system is not null;
     public string? UnavailableReason { get; private set; }
 
     public void Register()
@@ -26,21 +30,35 @@ internal sealed class WindowsNotifier : INotifier
         {
             AppNotificationManager.Default.NotificationInvoked += (_, args) => HandleArguments(args.Arguments);
             AppNotificationManager.Default.Register();
-            IsAvailable = true;
-            Log.Info("Notifications registered");
+            _appSdk = true;
+            Log.Info("Notifications registered (Windows App SDK)");
+            return;
         }
         catch (Exception error) when (IsPlatformError(error))
         {
+            Log.Error("Windows App SDK notifications unavailable; trying Windows' built-in notifications", error);
             UnavailableReason = FirstLine(error.Message);
-            Log.Error("Couldn't register for notifications; continuing without them", error);
+        }
+
+        try
+        {
+            _system = SystemToastNotifier.Create();
+            _system.LinkClicked += url => LinkClicked?.Invoke(url);
+            UnavailableReason = null;
+            Log.Info("Notifications registered (built-in Windows toasts)");
+        }
+        catch (Exception error) when (IsPlatformError(error))
+        {
+            Log.Error("Built-in notifications unavailable too; continuing without notifications", error);
+            UnavailableReason = FirstLine(error.Message);
         }
     }
 
     public void Unregister()
     {
-        if (!IsAvailable) return;
+        if (!_appSdk) return;
         Try("unregister notifications", () => AppNotificationManager.Default.Unregister());
-        IsAvailable = false;
+        _appSdk = false;
     }
 
     /// <summary>For a launch caused by clicking a notification while the app wasn't running.</summary>
@@ -54,43 +72,47 @@ internal sealed class WindowsNotifier : INotifier
     {
         get
         {
-            if (!IsAvailable) return false;
-            try { return AppNotificationManager.Default.Setting != AppNotificationSetting.Enabled; }
+            try
+            {
+                if (_appSdk) return AppNotificationManager.Default.Setting != AppNotificationSetting.Enabled;
+                return _system?.IsBlockedBySystem ?? false;
+            }
             catch (Exception error) when (IsPlatformError(error)) { return false; }
         }
     }
 
     public void Post(Change change, bool showDetails)
     {
-        if (!IsAvailable) return;
-        var builder = new AppNotificationBuilder().AddArgument(UrlArgument, change.Url.AbsoluteUri);
-        if (showDetails)
-        {
-            builder.AddText(change.Title);
-            foreach (var line in change.Body.Split('\n')) builder.AddText(line);
-        }
-        else
-        {
-            // No titles, names or outcomes, e.g. for screen sharing or a locked screen.
-            builder.AddText("PR Checker").AddText("A pull request has an update. Click to open it.");
-        }
-        Try("show a notification", () => AppNotificationManager.Default.Show(builder.BuildNotification()));
+        // No titles, names or outcomes when details are off, e.g. for screen sharing or a locked screen.
+        var lines = showDetails
+            ? [change.Title, .. change.Body.Split('\n')]
+            : new[] { "PR Checker", "A pull request has an update. Click to open it." };
+        Show(lines, change.Url.AbsoluteUri, "show a notification");
     }
 
     /// <summary>Has no link, so clicking it just dismisses it.</summary>
-    public void SendTest()
-    {
-        if (!IsAvailable) return;
-        Try("show the test notification", () => AppNotificationManager.Default.Show(new AppNotificationBuilder()
-            .AddText("PR Checker notifications work")
-            .AddText("Click a notification to open its pull request.")
-            .BuildNotification()));
-    }
+    public void SendTest() =>
+        Show(["PR Checker notifications work", "Click a notification to open its pull request."], url: null, "show the test notification");
 
     public void RemoveDelivered()
     {
-        if (!IsAvailable) return;
-        Try("clear notifications", () => _ = AppNotificationManager.Default.RemoveAllAsync());
+        if (_appSdk) Try("clear notifications", () => _ = AppNotificationManager.Default.RemoveAllAsync());
+        else if (_system is not null) Try("clear notifications", SystemToastNotifier.Clear);
+    }
+
+    private void Show(string[] lines, string? url, string action)
+    {
+        if (_appSdk)
+        {
+            var builder = new AppNotificationBuilder();
+            if (url is not null) builder.AddArgument(UrlArgument, url);
+            foreach (var line in lines) builder.AddText(line);
+            Try(action, () => AppNotificationManager.Default.Show(builder.BuildNotification()));
+        }
+        else if (_system is { } system)
+        {
+            Try(action, () => system.Show(lines, url));
+        }
     }
 
     private static void Try(string action, Action operation)
@@ -100,7 +122,7 @@ internal sealed class WindowsNotifier : INotifier
     }
 
     private static bool IsPlatformError(Exception error) =>
-        error is COMException or InvalidOperationException or UnauthorizedAccessException or FileNotFoundException;
+        error is COMException or InvalidOperationException or UnauthorizedAccessException or FileNotFoundException or ArgumentException;
 
     private static string FirstLine(string message) => message.Split('\n', 2)[0].Trim();
 }

@@ -22,7 +22,11 @@ public static class Program
 
             // Must run first: handles Velopack's install, update and uninstall hooks.
             VelopackApp.Build()
-                .OnBeforeUninstallFastCallback(_ => Platform.OpenAtLogin = false)
+                .OnBeforeUninstallFastCallback(_ =>
+                {
+                    Platform.OpenAtLogin = false;
+                    SystemToastNotifier.Unregister();
+                })
                 .Run();
 
             WinRT.ComWrappersSupport.InitializeComWrappers();
