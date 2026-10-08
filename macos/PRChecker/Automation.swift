@@ -1,8 +1,40 @@
 import Foundation
+import Observation
 
 /// Runs a user-configured command when a PR enters the review list or gets new commits,
 /// e.g. to start an automated pre-check. The command is split into arguments once and
 /// placeholders are filled into each argument, so PR content never passes through a shell.
+/// What the automation command is doing, for the Settings window.
+@Observable
+final class AutomationMonitor {
+    static let shared = AutomationMonitor()
+
+    struct LastRun {
+        let pullRequest: String
+        let started: Date
+        /// nil while running.
+        var exitCode: Int32?
+        var startError: String?
+    }
+
+    private(set) var running = 0
+    private(set) var last: LastRun?
+
+    func started(_ pullRequest: String) {
+        running += 1
+        last = LastRun(pullRequest: pullRequest, started: .now)
+    }
+
+    func finished(_ pullRequest: String, exitCode: Int32) {
+        running = max(0, running - 1)
+        if last?.pullRequest == pullRequest { last?.exitCode = exitCode }
+    }
+
+    func failedToStart(_ pullRequest: String, _ message: String) {
+        last = LastRun(pullRequest: pullRequest, started: .now, startError: message)
+    }
+}
+
 enum Automation {
     static let placeholders = ["link", "commit", "project", "repo", "id", "source", "target", "title", "author"]
 
@@ -79,6 +111,17 @@ enum Automation {
         return (fresh, Set(keys))
     }
 
+    /// A made-up PR for previewing the command when the review list is empty.
+    static var sample: PRItem {
+        let server = try! ServerAddress(parsing: "https://bitbucket.example.com")
+        return PRItem(id: "PROJ/web-app#42", number: 42, title: "Add retry to payment webhooks",
+                      projectKey: "PROJ", repoSlug: "web-app", repoName: "Web App",
+                      sourceBranch: "feature/retries", targetBranch: "main", authorName: "Alex Author",
+                      url: server.pullRequestURL(projectKey: "PROJ", repoSlug: "web-app", number: 42),
+                      updated: .now, isDraft: false, latestCommit: "0123456789abcdef0123456789abcdef01234567",
+                      reviewers: [], hasConflicts: false, commentCount: 0, openTaskCount: 0)
+    }
+
     nonisolated static var logFile: URL {
         FileManager.default.homeDirectoryForCurrentUser
             .appending(path: "Library/Logs/PR Checker/automation.log")
@@ -106,11 +149,15 @@ enum Automation {
                 let id = item.id
                 write("\(Date.now.ISO8601Format()) \(id) @ \(item.latestCommit.prefix(10)): starting \(arguments[0])\n")
                 process.terminationHandler = { finished in
-                    write("\(Date.now.ISO8601Format()) \(id): exited \(finished.terminationStatus)\n")
+                    let code = finished.terminationStatus
+                    write("\(Date.now.ISO8601Format()) \(id): exited \(code)\n")
+                    Task { @MainActor in AutomationMonitor.shared.finished(id, exitCode: code) }
                 }
                 try process.run()
+                AutomationMonitor.shared.started(id)
             } catch {
                 write("\(Date.now.ISO8601Format()) \(item.id): couldn't start: \(error.localizedDescription)\n")
+                AutomationMonitor.shared.failedToStart(item.id, error.localizedDescription)
             }
         }
     }

@@ -2,7 +2,7 @@
 import AppKit
 import SwiftUI
 
-/// Debug-only: `--render-screenshots <dir>` renders the menu with made-up pull
+/// Debug-only: `--render-screenshots <dir> [--include-settings]` renders the menu with made-up pull
 /// requests in light and dark mode, writes PNGs and quits. It uses throwaway
 /// settings and never touches the network, the Keychain or real preferences.
 enum ScreenshotRenderer {
@@ -35,6 +35,20 @@ enum ScreenshotRenderer {
                         try await render(MenuContentView(initialTab: tab).environment(store), appearance: appearance, to: file)
                         print("Wrote \(file.path)")
                     }
+                }
+                if ProcessInfo.processInfo.arguments.contains("--include-settings") {
+                    settings.automationEnabled = true
+                    settings.automationCommand = "/usr/bin/python3 ~/Code/pr-precheck/precheck.py run --pr {link} --commit {commit} --target {target} --jitter 180"
+                    let section = Form { AutomationSection() }.formStyle(.grouped).frame(width: 480).environment(store)
+                    let editor = AutomationCommandEditor(command: settings.automationCommand,
+                                                         previewItem: DemoData.review.first) { _ in }
+                    for (appearance, appearanceName) in [(NSAppearance.Name.aqua, "light"), (.darkAqua, "dark")] {
+                        try await render(section, appearance: appearance,
+                                         to: directory.appending(component: "automation-section-\(appearanceName).png"))
+                        try await render(editor, appearance: appearance,
+                                         to: directory.appending(component: "automation-editor-\(appearanceName).png"))
+                    }
+                    print("Wrote settings screenshots")
                 }
                 defaults.removePersistentDomain(forName: suite)
                 exit(0)

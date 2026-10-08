@@ -37,7 +37,7 @@ Both need Bitbucket Server or Data Center and a personal **HTTP access token** w
 
 ## Install
 
-**macOS:** download `PR-Checker-<version>.zip` from [Releases](../../releases), unzip it and move **PR Checker** to Applications. Open it, enter your server URL and token in Settings, and click **Save & Connect**. The app checks for updates once a week and asks before installing; to check right away, use **Settings → About → Check for Updates…**
+**macOS:** download `PR-Checker-<version>.zip` from [Releases](../../releases), unzip it and move **PR Checker** to Applications. Open it, enter your server URL and token in Settings, and click **Save & Connect**. The app checks for updates once a week and asks before installing; to check right away, use **Settings → About → Check for Updates**
 
 **Windows:** coming soon.
 
@@ -68,7 +68,7 @@ Your own comments never notify you. Filters decide what gets announced, and chan
   - Server URL and access token. They're saved only when **Save & Connect** succeeds.
   - **Sign Out**
   - Filters: hide drafts, and limit to project keys or `PROJECT/repo-slug` entries, comma-separated
-- **About:** version and **Check for Updates…**
+- **About:** version and **Check for Updates**
 
 ## Privacy
 
@@ -90,7 +90,7 @@ API responses aren't cached and no cookies are kept.
   - Your token is sent only to the server it was saved for. Switching servers requires that server's token.
   - Redirects to other hosts aren't followed.
   - Responses are limited in size and page count, and at most 4 requests run at a time.
-- **The update feed**, at most once a week or when you choose *Check for Updates…*. It's a plain download of a public file and sends no PR data or token. As with any web request, the host sees your IP address and the app version.
+- **The update feed**, at most once a week or when you choose *Check for Updates*. It's a plain download of a public file and sends no PR data or token. As with any web request, the host sees your IP address and the app version.
 
 **Links:** clicking a PR or a notification opens it in your browser. Links are built from your configured server, and anything pointing elsewhere is never opened.
 

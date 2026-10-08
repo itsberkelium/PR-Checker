@@ -44,7 +44,7 @@ private struct GeneralSettings: View {
                 if settings.notificationsEnabled {
                     if notifier.isBlockedBySystem {
                         LabeledContent {
-                            Button("Open Notification Settings…") { notifier.openSystemSettings() }
+                            Button("Open Notification Settings") { notifier.openSystemSettings() }
                         } label: {
                             Label {
                                 Text("Turned off in System Settings")
@@ -74,36 +74,7 @@ private struct GeneralSettings: View {
                 }
             }
 
-            Section {
-                Toggle(isOn: $settings.automationEnabled) {
-                    Text("Run a command for new review requests")
-                    Text("Also when they get new commits, e.g. to start an automated pre-check.")
-                }
-                if settings.automationEnabled {
-                    TextField("Command", text: $settings.automationCommand,
-                              prompt: Text("/path/to/script --pr {link} --commit {commit}"), axis: .vertical)
-                        .lineLimit(2...5)
-                        .font(.body.monospaced())
-                    if let problem = commandProblem(settings.automationCommand) {
-                        Label(problem, systemImage: "exclamationmark.triangle.fill")
-                            .font(.caption)
-                            .foregroundStyle(.orange)
-                    }
-                    HStack {
-                        Spacer()
-                        Button("Show Log") { NSWorkspace.shared.open(Automation.logFile) }
-                            .disabled(!FileManager.default.fileExists(atPath: Automation.logFile.path))
-                    }
-                }
-            } header: {
-                Text("Automation")
-            } footer: {
-                if settings.automationEnabled {
-                    Text("Runs for pull requests in To review, once per commit. Placeholders: \(Automation.placeholders.map { "{\($0)}" }.joined(separator: " ")). Values are passed as separate arguments, never through a shell.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            }
+            AutomationSection()
         }
         .formStyle(.grouped)
         .task { await notifier.refreshStatus() }
@@ -122,16 +93,6 @@ private struct GeneralSettings: View {
                 launchAtLogin = SMAppService.mainApp.status == .enabled
             }
         }
-    }
-}
-
-private func commandProblem(_ command: String) -> String? {
-    guard !command.trimmingCharacters(in: .whitespaces).isEmpty else { return nil }
-    do {
-        _ = try Automation.split(command)
-        return nil
-    } catch {
-        return error.localizedDescription
     }
 }
 
@@ -247,7 +208,7 @@ private struct AboutSettings: View {
             Section {
                 LabeledContent("Version", value: Self.appVersion)
                 LabeledContent {
-                    Button("Check for Updates…") { Updater.shared.checkForUpdates() }
+                    Button("Check for Updates") { Updater.shared.checkForUpdates() }
                 } label: {
                     Text("Updates")
                     if let last = Updater.shared.lastCheckDate {

@@ -244,11 +244,40 @@ final class PRStore {
     private func runAutomation(server: ServerAddress, me: String) {
         let command = settings.automationCommand.trimmingCharacters(in: .whitespacesAndNewlines)
         guard settings.automationEnabled, !command.isEmpty else { return }
-        let key = Self.automationPrefix + server.id + "|" + me.lowercased()
+        let key = automationKey(server: server, me: me)
         let done = Set(settings.defaults.stringArray(forKey: key) ?? [])
         let (items, triggered) = Automation.pending(toReview, alreadyTriggered: done)
         settings.defaults.set(Array(triggered), forKey: key)
         Automation.run(command, for: items)
+    }
+
+    private func automationKey(server: ServerAddress, me: String) -> String {
+        Self.automationPrefix + server.id + "|" + me.lowercased()
+    }
+
+    private var currentAutomationKey: String? {
+        guard let server = settings.server, let username else { return nil }
+        return automationKey(server: server, me: username)
+    }
+
+    /// PRs in To review whose current commit hasn't triggered the command yet.
+    var automationBacklog: [PRItem] {
+        guard let key = currentAutomationKey else { return [] }
+        return Automation.pending(toReview, alreadyTriggered: Set(settings.defaults.stringArray(forKey: key) ?? [])).items
+    }
+
+    /// Runs the command for every PR in To review now, including commits it already ran for.
+    func runAutomationNow() {
+        let command = settings.automationCommand.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !command.isEmpty, let key = currentAutomationKey else { return }
+        settings.defaults.set(Array(Automation.pending(toReview, alreadyTriggered: []).triggered), forKey: key)
+        Automation.run(command, for: toReview)
+    }
+
+    /// Marks the current list as done without running, so only later arrivals trigger the command.
+    func skipAutomationBacklog() {
+        guard let key = currentAutomationKey else { return }
+        settings.defaults.set(Array(Automation.pending(toReview, alreadyTriggered: []).triggered), forKey: key)
     }
 
     /// Compares against the snapshot saved for this server and user, so restarts
