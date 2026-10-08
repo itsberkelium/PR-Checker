@@ -21,7 +21,9 @@ public static class Program
             Log.Info($"Starting {Platform.Version} ({RuntimeInformation.ProcessArchitecture}, {RuntimeInformation.OSDescription})");
 
             // Must run first: handles Velopack's install, update and uninstall hooks.
-            VelopackApp.Build().Run();
+            VelopackApp.Build()
+                .OnBeforeUninstallFastCallback(_ => Platform.OpenAtLogin = false)
+                .Run();
 
             WinRT.ComWrappersSupport.InitializeComWrappers();
             if (RedirectToRunningInstance())

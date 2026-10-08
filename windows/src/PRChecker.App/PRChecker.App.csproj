@@ -22,6 +22,8 @@
     <!-- Program.cs runs Velopack and single-instance checks before XAML starts. -->
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- English UI only: skip localized resource folders of dependencies. -->
+    <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <!-- Lets `dotnet restore` and `dotnet add package` work on macOS too. -->
     <EnableWindowsTargeting>true</EnableWindowsTargeting>
   </PropertyGroup>
@@ -32,7 +34,11 @@
     <Content Include="Assets\app.ico" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.5.1" />
+    <!-- Only the Windows App SDK parts the app uses; the full Microsoft.WindowsAppSDK package
+         would also bundle AI, ML, Search and Widgets (~45 MB of onnxruntime, DirectML, ...). -->
+    <PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="2.3.9" />
+    <PackageReference Include="Microsoft.WindowsAppSDK.Foundation" Version="2.3.12" />
+    <PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="2.1.9" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.2705" />
     <PackageReference Include="H.NotifyIcon.WinUI" Version="2.4.1" />
     <PackageReference Include="Velopack" Version="1.2.161" />

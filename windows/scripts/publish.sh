@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Publishes a Windows release built by the "Windows release" workflow:
+# uploads the Velopack feed to the CDN and creates the GitHub release.
+#
+#   windows/scripts/publish.sh <run-id>
+#
+# Needs: gh (logged in), npx wrangler@4.148.0 login.
+set -euo pipefail
+cd "$(dirname "$0")/.."
+
+RUN_ID="${1:?usage: $0 <run-id of the Windows release workflow>}"
+REPO="itsberkelium/PR-Checker"
+R2_BUCKET="${R2_BUCKET:-gu-cdn-eeur}"
+PREFIX="pr-checker/windows"
+FEED="https://gu-cdn.berke.dev/$PREFIX"
+WRANGLER=(npx --yes wrangler@4.148.0)
+
+step() { printf '\n\033[1m==> %s\033[0m\n' "$1"; }
+
+step "Downloading release files from run $RUN_ID"
+WORK=$(mktemp -d)
+trap 'rm -rf "$WORK"' EXIT
+gh run download "$RUN_ID" --repo "$REPO" --dir "$WORK"
+DIR=$(find "$WORK" -maxdepth 1 -type d -name 'windows-release-*' | head -1)
+[[ -n "$DIR" ]] || { echo "No windows-release-* artifact in run $RUN_ID" >&2; exit 1; }
+VERSION="${DIR##*windows-release-}"
+ls -la "$DIR"
+
+for rid in win-arm64 win-x64; do
+  [[ -f "$DIR/releases.$rid.json" && -f "$DIR/PRCheckerApp-$rid-Setup.exe" ]] \
+    || { echo "Missing $rid feed or installer" >&2; exit 1; }
+  grep -qE "\"Version\": *\"$VERSION\"" "$DIR/releases.$rid.json" \
+    || { echo "releases.$rid.json doesn't list $VERSION" >&2; exit 1; }
+done
+
+step "Uploading $VERSION to $R2_BUCKET/$PREFIX"
+# Packages and installers first, feeds last, so a feed never points at a missing file.
+for file in "$DIR"/*; do
+  name=$(basename "$file")
+  case "$name" in releases.*.json|RELEASES*|assets.*.json) continue ;; esac
+  "${WRANGLER[@]}" r2 object put "$R2_BUCKET/$PREFIX/$name" --remote --file "$file" 2>&1 | grep -E "Upload complete|rror"
+done
+for file in "$DIR"/releases.*.json "$DIR"/RELEASES* "$DIR"/assets.*.json; do
+  [[ -f "$file" ]] || continue
+  "${WRANGLER[@]}" r2 object put "$R2_BUCKET/$PREFIX/$(basename "$file")" --remote --file "$file" \
+    --cache-control "no-cache" 2>&1 | grep -E "Upload complete|rror"
+done
+
+for rid in win-arm64 win-x64; do
+  curl -fsS "$FEED/releases.$rid.json" | grep -qE "\"Version\": *\"$VERSION\"" \
+    || { echo "Published $rid feed doesn't list $VERSION" >&2; exit 1; }
+done
+
+step "Creating GitHub release windows-v$VERSION"
+gh release create "windows-v$VERSION" --repo "$REPO" --target main \
+  --title "PR Checker for Windows $VERSION" \
+  --notes "Windows installers for PR Checker $VERSION. Pick **arm64** for ARM PCs (e.g. Windows on Apple Silicon or Snapdragon), **x64** otherwise. The installers aren't code-signed yet: Windows SmartScreen asks once, choose **More info → Run anyway**. Installed apps update themselves." \
+  "$DIR/PRCheckerApp-win-arm64-Setup.exe" "$DIR/PRCheckerApp-win-x64-Setup.exe" \
+  "$DIR/PRCheckerApp-win-arm64-Portable.zip" "$DIR/PRCheckerApp-win-x64-Portable.zip"
+
+step "Done: $VERSION published; installed apps are offered it within a week"

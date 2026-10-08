@@ -1,0 +1,60 @@
+name: Windows release
+
+# Builds the Velopack installer, portable zip and update feed for both
+# architectures. Publishing (upload to the CDN, GitHub release) is done from a
+# maintainer's machine with windows/scripts/publish.sh, so no Cloudflare
+# credentials live in GitHub.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: windows
+        shell: pwsh
+    env:
+      FEED: https://gu-cdn.berke.dev/pr-checker/windows/
+      VPK_VERSION: 1.2.161 # keep in sync with the Velopack package
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: windows/global.json
+
+      - name: Test core
+        run: dotnet test --project tests/PRChecker.Core.Tests --configuration Release
+
+      - name: Install vpk
+        run: dotnet tool install --global vpk --version $env:VPK_VERSION
+
+      - name: Package
+        run: |
+          $version = dotnet msbuild src/PRChecker.App/PRChecker.App.csproj -getProperty:Version
+          "VERSION=$version" | Out-File -Append $env:GITHUB_ENV
+          foreach ($rid in "win-arm64", "win-x64") {
+            dotnet publish src/PRChecker.App -c Release -r $rid -o "publish/$rid"
+            if (-not (Test-Path "publish/$rid/PRChecker.pri")) { throw "No app PRI in publish/$rid" }
+            # The previously published release, so vpk can build a small delta update.
+            vpk download http --url $env:FEED --channel $rid --outputDir releases
+            if ($LASTEXITCODE -ne 0) { Write-Host "No previous $rid release; full package only"; $global:LASTEXITCODE = 0 }
+            vpk pack --packId PRCheckerApp --packVersion $version --packDir "publish/$rid" `
+              --mainExe PRChecker.exe --packTitle "PR Checker" --packAuthors "Berke Sütçü" `
+              --icon src/PRChecker.App/Assets/app.ico --channel $rid --runtime $rid `
+              --shortcuts StartMenuRoot --outputDir releases
+            if ($LASTEXITCODE -ne 0) { throw "vpk pack failed for $rid" }
+          }
+          Get-ChildItem releases | Format-Table Name, @{ n = "MB"; e = { [math]::Round($_.Length / 1MB, 1) } }
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: windows-release-${{ env.VERSION }}
+          path: windows/releases
+          retention-days: 30
