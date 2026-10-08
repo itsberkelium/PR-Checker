@@ -2,7 +2,7 @@
 
 A system tray app for Windows 10 (1809) and later, built with C#, .NET 10 and WinUI 3. It follows the same rules as the macOS app, described in [docs/behavior.md](../docs/behavior.md). See the [main README](../README.md) for features, notifications and privacy.
 
-**Status: in development.** The core (API client, rules, notifications logic, storage) is done and tested. The tray app builds in CI and is being tried out; releases and updates aren't published yet.
+**Status: in testing.** The app works on Windows 11 (ARM64 and x64). The first installer release is being prepared.
 
 ## Layout
 
@@ -21,7 +21,8 @@ src/PRChecker.App/         WinUI 3 tray app
   App.xaml.cs              tray app lifecycle, update checks, notification clicks
   TrayController.cs        tray icon with count badge and menu
   Views/                   PR list popup and Settings window
-  Services/                Credential Manager tokens, notifications, Velopack updates, open at login
+  Services/                Credential Manager tokens, notifications, Velopack updates, open at login, log
+scripts/publish.sh         upload a release built by CI and create the GitHub release
 ```
 
 ## Building and testing
@@ -42,6 +43,30 @@ Use `win-x64` for Intel/AMD PCs. CI publishes both for every push; download them
 
 `nuget.config` limits package sources to nuget.org, regardless of feeds configured on your machine.
 
+## Releasing
+
+Releases are built in CI and published from a maintainer's Mac or PC, so no Cloudflare credentials are stored in GitHub.
+
+1. Bump `<Version>` in `Directory.Build.props`. Velopack compares it to decide what's newer.
+2. Commit and push, then start **Actions → Windows release → Run workflow**.
+   - It tests the core, publishes both architectures, and packs them with Velopack. Each architecture gets a `Setup.exe`, a portable zip and its update feed (`releases.<rid>.json`).
+   - It also builds a delta update against the version currently on the CDN.
+3. Publish that run:
+
+   ```bash
+   windows/scripts/publish.sh <run-id>
+   ```
+
+   This uploads the packages, then the feeds, to `gu-cdn.berke.dev/pr-checker/windows/`. It checks that the live feeds list the new version and creates the GitHub release `windows-v<version>` with the installers.
+
+Installed apps check the feed once a week, or right away via **Settings → About → Check for updates**. They ask before installing.
+
+**About the packages:**
+- The app is installed per user into `%LOCALAPPDATA%\PRCheckerApp`, with a Start menu shortcut.
+- Each architecture has its own update channel (`win-arm64`, `win-x64`).
+- The installers aren't code-signed yet, so SmartScreen asks once.
+- Updates are verified against the SHA-256 checksums in the feed, which is served over HTTPS.
+
 ## Data storage on Windows
 
 | Data | Where |
@@ -50,4 +75,7 @@ Use `win-x64` for Intel/AMD PCs. CI publishes both for every push; download them
 | Settings and last-seen PR state | `%LOCALAPPDATA%\PRChecker\` (`settings.json`, `snapshots\`) |
 | Diagnostic log: startup steps and errors, no tokens or PR data, max 512 KB | `%LOCALAPPDATA%\PRChecker\logs\pr-checker.log` |
 
-To remove everything: uninstall the app, delete the `PRChecker/token:` entries in Credential Manager, and delete `%LOCALAPPDATA%\PRChecker`.
+To remove everything:
+1. Uninstall PR Checker in **Settings → Apps**. This also removes the open-at-login entry.
+2. Delete the `PRChecker/token:` entries in Credential Manager.
+3. Delete `%LOCALAPPDATA%\PRChecker`.
