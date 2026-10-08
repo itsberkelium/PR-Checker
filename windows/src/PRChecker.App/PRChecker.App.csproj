@@ -26,6 +26,8 @@
          full Windows API bindings to ship. Roughly halves the install size. -->
     <PublishAot>true</PublishAot>
     <OptimizationPreference>Size</OptimizationPreference>
+    <!-- The native debug symbols are ~60 MB; users don't need them (stack traces still name methods). -->
+    <CopyOutputSymbolsToPublishDirectory>false</CopyOutputSymbolsToPublishDirectory>
     <!-- English UI only: skip localized resource folders of dependencies. -->
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <!-- Lets `dotnet restore` and `dotnet add package` work on macOS too. -->
