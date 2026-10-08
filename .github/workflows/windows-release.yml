@@ -53,7 +53,20 @@ jobs:
           }
           Get-ChildItem releases -Recurse -File | Format-Table Name, @{ n = "MB"; e = { [math]::Round($_.Length / 1MB, 1) } }
 
-      # One download per architecture, so trying an installer doesn't mean fetching both.
+      # Just the installers, for trying a build before publishing it.
+      - uses: actions/upload-artifact@v5
+        with:
+          name: Setup-win-arm64
+          path: windows/releases/win-arm64/PRCheckerApp-win-arm64-Setup.exe
+          retention-days: 30
+
+      - uses: actions/upload-artifact@v5
+        with:
+          name: Setup-win-x64
+          path: windows/releases/win-x64/PRCheckerApp-win-x64-Setup.exe
+          retention-days: 30
+
+      # Everything publish.sh needs, one download per architecture.
       - uses: actions/upload-artifact@v5
         with:
           name: windows-release-${{ env.VERSION }}-win-arm64
