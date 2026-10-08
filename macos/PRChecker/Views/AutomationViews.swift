@@ -129,10 +129,8 @@ struct AutomationCommandEditor: View {
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
 
-            TextEditor(text: $command)
-                .font(.body.monospaced())
+            CommandTextView(text: $command)
                 .frame(height: 90)
-                .scrollContentBackground(.hidden)
                 .padding(6)
                 .background(Color(nsColor: .textBackgroundColor), in: .rect(cornerRadius: 6))
                 .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color(nsColor: .separatorColor)))
@@ -203,5 +201,57 @@ struct AutomationCommandEditor: View {
     private func insert(_ placeholder: String) {
         if !command.isEmpty && !command.hasSuffix(" ") { command += " " }
         command += placeholder
+    }
+}
+
+/// A monospaced text view that wraps long commands only at spaces, so an argument like
+/// `--commit` or a long path is never split across lines (the standard text view also
+/// breaks after hyphens, which looks like a line break inside the command).
+private struct CommandTextView: NSViewRepresentable {
+    @Binding var text: String
+
+    func makeCoordinator() -> Coordinator { Coordinator(text: $text) }
+
+    func makeNSView(context: Context) -> NSScrollView {
+        let scrollView = NSTextView.scrollableTextView()
+        scrollView.drawsBackground = false
+        guard let textView = scrollView.documentView as? NSTextView else { return scrollView }
+        textView.font = .monospacedSystemFont(ofSize: NSFont.systemFontSize, weight: .regular)
+        textView.drawsBackground = false
+        textView.isRichText = false
+        textView.allowsUndo = true
+        textView.isAutomaticQuoteSubstitutionEnabled = false
+        textView.isAutomaticDashSubstitutionEnabled = false
+        textView.isAutomaticTextReplacementEnabled = false
+        textView.isAutomaticSpellingCorrectionEnabled = false
+        textView.isContinuousSpellCheckingEnabled = false
+        textView.textContainerInset = .zero
+        textView.layoutManager?.delegate = context.coordinator
+        textView.delegate = context.coordinator
+        textView.string = text
+        return scrollView
+    }
+
+    func updateNSView(_ scrollView: NSScrollView, context: Context) {
+        guard let textView = scrollView.documentView as? NSTextView, textView.string != text else { return }
+        textView.string = text
+    }
+
+    final class Coordinator: NSObject, NSTextViewDelegate, NSLayoutManagerDelegate {
+        var text: Binding<String>
+
+        init(text: Binding<String>) { self.text = text }
+
+        func textDidChange(_ notification: Notification) {
+            guard let textView = notification.object as? NSTextView else { return }
+            text.wrappedValue = textView.string
+        }
+
+        /// Break lines only right after whitespace.
+        func layoutManager(_ layoutManager: NSLayoutManager, shouldBreakLineByWordBeforeCharacterAt charIndex: Int) -> Bool {
+            guard charIndex > 0, let storage = layoutManager.textStorage else { return true }
+            let previous = (storage.string as NSString).character(at: charIndex - 1)
+            return CharacterSet.whitespacesAndNewlines.contains(UnicodeScalar(previous) ?? " ")
+        }
     }
 }

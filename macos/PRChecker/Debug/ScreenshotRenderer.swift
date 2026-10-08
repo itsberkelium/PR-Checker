@@ -38,7 +38,7 @@ enum ScreenshotRenderer {
                 }
                 if ProcessInfo.processInfo.arguments.contains("--include-settings") {
                     settings.automationEnabled = true
-                    settings.automationCommand = "/usr/bin/python3 ~/Code/pr-precheck/precheck.py run --pr {link} --commit {commit} --target {target} --jitter 180"
+                    settings.automationCommand = "/usr/bin/python3 ~/Code/pr-precheck/precheck.py run --pr {link} --commit {commit} --target {target} --source {source} --title {title} --author {author} --jitter 180"
                     let section = Form { AutomationSection() }.formStyle(.grouped).frame(width: 480).environment(store)
                     let editor = AutomationCommandEditor(command: settings.automationCommand,
                                                          previewItem: DemoData.review.first) { _ in }
