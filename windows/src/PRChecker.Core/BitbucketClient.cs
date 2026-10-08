@@ -1,6 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace PRChecker.Core;
 
@@ -67,7 +68,7 @@ public sealed class BitbucketClient(ServerAddress server, string token, HttpMess
                 $"rest/api/1.0/dashboard/pull-requests?role={(role == Role.Reviewer ? "REVIEWER" : "AUTHOR")}&state=OPEN&limit={PageSize}&start={start}",
                 cancellation);
             username ??= Header(headers, "X-AUSERNAME");
-            var result = Decode<Page<PullRequest>>(body);
+            var result = Decode(body, JsonContext.Default.PagePullRequest);
             prs.AddRange(result.Values);
             if (result.IsLastPage || result.NextPageStart is not { } next) return new Dashboard(prs, username);
             if (next <= start) throw new ApiException(ApiErrorKind.PaginationStalled);
@@ -94,14 +95,14 @@ public sealed class BitbucketClient(ServerAddress server, string token, HttpMess
     public async Task<BuildState> BuildStateAsync(string commit, CancellationToken cancellation = default)
     {
         var (body, _) = await GetAsync($"rest/build-status/1.0/commits/stats/{ServerAddress.Segment(commit)}", cancellation);
-        return BuildStates.From(Decode<BuildStats>(body));
+        return BuildStates.From(Decode(body, JsonContext.Default.BuildStats));
     }
 
     /// <summary>Most recent comments and replies on a PR, excluding the given user's own.</summary>
     public async Task<IReadOnlyList<Comment>> CommentsByOthersAsync(PrItem item, string username, CancellationToken cancellation = default)
     {
         var (body, _) = await GetAsync(PullRequestPath(item.ProjectKey, item.RepoSlug, item.Number) + "/activities?limit=50", cancellation);
-        return CommentsByOthers(Decode<Page<Activity>>(body).Values, username);
+        return CommentsByOthers(Decode(body, JsonContext.Default.PageActivity).Values, username);
     }
 
     /// <summary>Added comments and replies, minus the given user's own.</summary>
@@ -116,15 +117,15 @@ public sealed class BitbucketClient(ServerAddress server, string token, HttpMess
     public async Task<string> StateAsync(string projectKey, string repoSlug, int number, CancellationToken cancellation = default)
     {
         var (body, _) = await GetAsync(PullRequestPath(projectKey, repoSlug, number), cancellation);
-        return Decode<PullRequestState>(body).State;
+        return Decode(body, JsonContext.Default.PullRequestState).State;
     }
 
     private static string PullRequestPath(string projectKey, string repoSlug, int number) =>
         $"rest/api/1.0/projects/{ServerAddress.Segment(projectKey)}/repos/{ServerAddress.Segment(repoSlug)}/pull-requests/{number}";
 
-    private static T Decode<T>(byte[] body)
+    private static T Decode<T>(byte[] body, JsonTypeInfo<T> type)
     {
-        try { return JsonSerializer.Deserialize<T>(body, Json.Options) ?? throw new ApiException(ApiErrorKind.BadResponse); }
+        try { return JsonSerializer.Deserialize(body, type) ?? throw new ApiException(ApiErrorKind.BadResponse); }
         catch (JsonException) { throw new ApiException(ApiErrorKind.BadResponse); }
     }
 

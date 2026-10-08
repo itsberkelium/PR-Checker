@@ -56,20 +56,20 @@ public sealed class JsonFileStore(string directory) : ISettingsStore, ISnapshotS
 
     public SettingsData Load()
     {
-        try { return JsonSerializer.Deserialize<SettingsData>(File.ReadAllBytes(SettingsPath), Json.Options) ?? new(); }
+        try { return JsonSerializer.Deserialize(File.ReadAllBytes(SettingsPath), JsonContext.Default.SettingsData) ?? new(); }
         catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException) { return new(); }
     }
 
-    public void Save(SettingsData settings) => WriteAtomically(SettingsPath, JsonSerializer.SerializeToUtf8Bytes(settings, Json.Options));
+    public void Save(SettingsData settings) => WriteAtomically(SettingsPath, JsonSerializer.SerializeToUtf8Bytes(settings, JsonContext.Default.SettingsData));
 
     public Snapshot? Load(string serverId, string username)
     {
-        try { return JsonSerializer.Deserialize<Snapshot>(File.ReadAllBytes(SnapshotPath(serverId, username)), Json.Options); }
+        try { return JsonSerializer.Deserialize(File.ReadAllBytes(SnapshotPath(serverId, username)), JsonContext.Default.Snapshot); }
         catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException) { return null; }
     }
 
     public void Save(string serverId, string username, Snapshot snapshot) =>
-        WriteAtomically(SnapshotPath(serverId, username), JsonSerializer.SerializeToUtf8Bytes(snapshot, Json.Options));
+        WriteAtomically(SnapshotPath(serverId, username), JsonSerializer.SerializeToUtf8Bytes(snapshot, JsonContext.Default.Snapshot));
 
     public void DeleteAll(string serverId)
     {

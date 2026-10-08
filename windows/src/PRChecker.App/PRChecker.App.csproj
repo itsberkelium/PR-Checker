@@ -22,6 +22,10 @@
     <!-- Program.cs runs Velopack and single-instance checks before XAML starts. -->
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- Native AOT: one native exe with only the code the app uses; no .NET runtime, JIT or
+         full Windows API bindings to ship. Roughly halves the install size. -->
+    <PublishAot>true</PublishAot>
+    <OptimizationPreference>Size</OptimizationPreference>
     <!-- English UI only: skip localized resource folders of dependencies. -->
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
     <!-- Lets `dotnet restore` and `dotnet add package` work on macOS too. -->

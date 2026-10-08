@@ -47,12 +47,12 @@ internal sealed partial class CredentialTokenStore : ITokenStore
     [LibraryImport("advapi32.dll", EntryPoint = "CredFree")]
     private static partial void CredFree(IntPtr buffer);
 
-    public string? Read(string account)
+    public unsafe string? Read(string account)
     {
         if (!CredRead(account, CredTypeGeneric, 0, out var pointer)) return null;
         try
         {
-            var credential = Marshal.PtrToStructure<Credential>(pointer);
+            var credential = *(Credential*)pointer;
             if (credential.CredentialBlob == IntPtr.Zero || credential.CredentialBlobSize == 0) return null;
             return Marshal.PtrToStringUni(credential.CredentialBlob, (int)credential.CredentialBlobSize / 2);
         }

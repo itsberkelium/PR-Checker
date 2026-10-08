@@ -76,13 +76,22 @@ public static class BuildStates
         : BuildState.None;
 }
 
+/// <summary>
+/// Source-generated JSON metadata for every type the app reads or writes, so the app can be
+/// compiled with Native AOT (no reflection at runtime).
+/// </summary>
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+[JsonSerializable(typeof(Page<PullRequest>))]
+[JsonSerializable(typeof(Page<Activity>))]
+[JsonSerializable(typeof(BuildStats))]
+[JsonSerializable(typeof(PullRequestState))]
+[JsonSerializable(typeof(SettingsData))]
+[JsonSerializable(typeof(Snapshot))]
+internal sealed partial class JsonContext : JsonSerializerContext;
+
 internal static class Json
 {
-    public static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web)
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        PropertyNameCaseInsensitive = false,
-    };
+    public static JsonSerializerOptions Options => JsonContext.Default.Options;
 }
 
 // MARK: App model

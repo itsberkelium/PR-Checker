@@ -73,7 +73,8 @@ internal sealed partial class TrayController(App app) : IDisposable
         _icon.Dispose();
     }
 
-    private sealed class Command(Action action) : ICommand
+    // Partial so the WinRT source generator can make it usable from XAML under Native AOT.
+    private sealed partial class Command(Action action) : ICommand
     {
         public event EventHandler? CanExecuteChanged { add { } remove { } }
         public bool CanExecute(object? parameter) => true;

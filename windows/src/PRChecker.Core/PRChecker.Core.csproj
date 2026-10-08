@@ -4,6 +4,8 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>PRChecker.Core</RootNamespace>
+    <!-- The app is published with Native AOT; this turns on the trimming/AOT analyzers here too. -->
+    <IsAotCompatible>true</IsAotCompatible>
   </PropertyGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="PRChecker.Core.Tests" />

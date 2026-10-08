@@ -6,10 +6,11 @@ using Windows.UI;
 
 namespace PRChecker.App.Views;
 
-public sealed record Badge(string Glyph, string Text, Brush Foreground);
+// Partial so the WinRT source generator can project them into XAML lists under Native AOT.
+public sealed partial record Badge(string Glyph, string Text, Brush Foreground);
 
 /// <summary>Display strings and badges for one PR, same as the macOS row.</summary>
-public sealed class PrRow(PrItem item, bool showsAuthor)
+public sealed partial class PrRow(PrItem item, bool showsAuthor)
 {
     private static SolidColorBrush Brush(Color color) => new(color);
     private static readonly Brush Green = Brush(Color.FromArgb(255, 16, 137, 62));
