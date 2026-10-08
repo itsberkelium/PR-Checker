@@ -110,7 +110,10 @@ public sealed partial class PopupWindow : Window
         ToolTipService.SetToolTip(ErrorIcon, store.ErrorMessage);
         UpdatedText.Text = store.LastUpdated is { } updated ? $"Updated {PrRow.Relative(updated)}" : "";
         RefreshButton.IsEnabled = !store.IsLoading;
-        NotificationsBlocked.IsOpen = store.Settings.NotificationsEnabled && WindowsNotifier.IsBlockedBySystem;
+        var notifier = _app.Notifier;
+        NotificationsBlocked.Title = notifier.IsAvailable ? "Notifications are off in Windows Settings" : "Notifications aren't available on this PC";
+        NotificationsBlocked.ActionButton.Visibility = notifier.IsAvailable ? Visibility.Visible : Visibility.Collapsed;
+        NotificationsBlocked.IsOpen = store.Settings.NotificationsEnabled && (notifier.IsBlockedBySystem || !notifier.IsAvailable);
     }
 
     private void OnItemClick(object sender, ItemClickEventArgs e)

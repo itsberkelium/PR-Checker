@@ -336,6 +336,33 @@ public sealed class ConnectionTests
         Assert.False(store.IsConfigured);
     }
 
+    [Fact]
+    public async Task A_failing_notifier_shows_an_error_instead_of_stopping_refreshes()
+    {
+        var stub = new StubServer
+        {
+            Handler = (request, _) => Task.FromResult(request.RequestUri!.AbsolutePath.Contains("dashboard", StringComparison.Ordinal)
+                ? StubServer.Json(DashboardWithOnePr, "sam.reviewer")
+                : StubServer.Json("""{"values":[],"isLastPage":true}""")),
+        };
+        var settings = new AppSettings(new MemoryStore(), new MemoryTokenStore()) { HttpHandler = stub };
+        settings.ApplyConnection(new BitbucketClient(ServerAddress.Parse("https://a.example.com"), "token-a"));
+        var snapshots = new MemoryStore();
+        // An earlier snapshot without the PR, so this refresh announces it.
+        snapshots.Save("https://a.example.com", "sam.reviewer", new Snapshot());
+        using var store = new PrStore(settings, snapshots, new ThrowingNotifier());
+
+        await store.RefreshAsync();
+        Assert.StartsWith("Refresh failed", store.ErrorMessage, StringComparison.Ordinal);
+        Assert.Single(store.ReviewItems);
+    }
+
+    private sealed class ThrowingNotifier : INotifier
+    {
+        public void Post(Change change, bool showDetails) => throw new InvalidOperationException("Not registered");
+        public void RemoveDelivered() => throw new InvalidOperationException("Not registered");
+    }
+
     private const string DashboardWithOnePr = """
     {"values":[{"id":7,"title":"T","updatedDate":0,
       "fromRef":{"displayId":"f","latestCommit":"c","repository":{"slug":"r","name":"R","project":{"key":"P"}}},

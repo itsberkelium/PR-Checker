@@ -188,6 +188,12 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
         {
             if (IsCurrent(generation, cancellation)) ErrorMessage = error is ApiException ? error.Message : $"Couldn't reach Bitbucket: {error.Message}";
         }
+#pragma warning disable CA1031 // The polling loop must survive anything; the error is shown instead.
+        catch (Exception error)
+        {
+            if (IsCurrent(generation, cancellation)) ErrorMessage = $"Refresh failed: {error.Message}";
+        }
+#pragma warning restore CA1031
         finally
         {
             if (generation == _generation) IsLoading = false;

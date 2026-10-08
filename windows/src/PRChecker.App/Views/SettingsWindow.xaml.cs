@@ -73,7 +73,13 @@ public sealed partial class SettingsWindow : Window
 
     private void RefreshNotificationState()
     {
-        var blocked = Settings.NotificationsEnabled && WindowsNotifier.IsBlockedBySystem;
+        var notifier = _app.Notifier;
+        var blocked = Settings.NotificationsEnabled && (notifier.IsBlockedBySystem || !notifier.IsAvailable);
+        NotificationsBlocked.Title = notifier.IsAvailable ? "Turned off in Windows Settings" : "Not available on this PC";
+        NotificationsBlocked.Message = notifier.IsAvailable
+            ? "Windows is blocking PR Checker's notifications. Turn them on for PR Checker."
+            : $"Windows couldn't set up notifications for PR Checker ({notifier.UnavailableReason}). Pull requests still show in the tray.";
+        NotificationsBlocked.ActionButton.Visibility = notifier.IsAvailable ? Visibility.Visible : Visibility.Collapsed;
         NotificationsBlocked.IsOpen = blocked;
         TestNotificationButton.Visibility = Settings.NotificationsEnabled && !blocked ? Visibility.Visible : Visibility.Collapsed;
         DetailsToggle.IsEnabled = Settings.NotificationsEnabled;
@@ -83,7 +89,7 @@ public sealed partial class SettingsWindow : Window
     {
         if (_loading) return;
         Settings.NotificationsEnabled = NotificationsToggle.IsOn;
-        if (!NotificationsToggle.IsOn) new WindowsNotifier().RemoveDelivered();
+        if (!NotificationsToggle.IsOn) _app.Notifier.RemoveDelivered();
         RefreshNotificationState();
     }
 
@@ -92,7 +98,7 @@ public sealed partial class SettingsWindow : Window
         if (!_loading) Settings.NotificationDetails = DetailsToggle.IsOn;
     }
 
-    private void OnSendTest(object sender, RoutedEventArgs e) => WindowsNotifier.SendTest();
+    private void OnSendTest(object sender, RoutedEventArgs e) => _app.Notifier.SendTest();
 
     private void OnOpenNotificationSettings(object sender, RoutedEventArgs e) => Platform.OpenNotificationSettings();
 

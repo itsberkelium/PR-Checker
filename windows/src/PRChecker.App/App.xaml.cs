@@ -32,19 +32,12 @@ public sealed partial class App : Application, IDisposable
             e.Handled = true; // keep the tray app alive; the error is in the log
         };
         _notifier.LinkClicked += url => _dispatcher.TryEnqueue(() => { if (_store is { } store) Platform.OpenLink(url, store.Settings); });
-        try
-        {
-            _notifier.Register();
-            Log.Info("Notifications registered");
-        }
-        catch (Exception error) when (error is COMException or InvalidOperationException or UnauthorizedAccessException)
-        {
-            Log.Error("Couldn't register for notifications; continuing without them", error);
-        }
+        _notifier.Register();
     }
 
     internal PrStore Store => _store!;
     internal UpdateService Updates => _updates;
+    internal WindowsNotifier Notifier => _notifier;
 
     protected override void OnLaunched(LaunchActivatedEventArgs args)
     {
@@ -147,6 +140,6 @@ public sealed partial class App : Application, IDisposable
         _updateTimer?.Stop();
         _store?.Dispose();
         _tray?.Dispose();
-        WindowsNotifier.Unregister();
+        _notifier.Unregister();
     }
 }
