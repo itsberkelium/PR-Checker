@@ -1,6 +1,7 @@
 # PR Checker
 
-[![Release](https://img.shields.io/github/v/release/itsberkelium/PR-Checker)](https://github.com/itsberkelium/PR-Checker/releases/latest)
+[![macOS](https://img.shields.io/github/v/release/itsberkelium/PR-Checker?filter=v*&label=macOS)](https://github.com/itsberkelium/PR-Checker/releases)
+[![Windows](https://img.shields.io/github/v/release/itsberkelium/PR-Checker?filter=windows-v*&label=Windows)](https://github.com/itsberkelium/PR-Checker/releases)
 [![Build](https://github.com/itsberkelium/PR-Checker/actions/workflows/build.yml/badge.svg)](https://github.com/itsberkelium/PR-Checker/actions/workflows/build.yml)
 [![Tag](https://img.shields.io/github/v/tag/itsberkelium/PR-Checker)](https://github.com/itsberkelium/PR-Checker/tags)
 
@@ -27,7 +28,7 @@ A menu bar (macOS) and system tray (Windows) app for **Bitbucket Server / Data C
 
 | | macOS | Windows |
 |---|---|---|
-| Status | Released | In development |
+| Status | Released | Released (tested on Windows 11, ARM64 and x64) |
 | Requires | macOS 15 or later | Windows 10 (1809) or later |
 | Built with | Swift, SwiftUI | C#, .NET 10, WinUI 3 |
 | Updates | Automatic (Sparkle), signed and notarized | Automatic (Velopack); unsigned for now |
@@ -39,7 +40,11 @@ Both need Bitbucket Server or Data Center and a personal **HTTP access token** w
 
 **macOS:** download `PR-Checker-<version>.zip` from [Releases](../../releases), unzip it and move **PR Checker** to Applications. Open it, enter your server URL and token in Settings, and click **Save & Connect**. The app checks for updates once a week and asks before installing; to check right away, use **Settings → About → Check for Updates**
 
-**Windows:** coming soon.
+**Windows:** from the latest **PR Checker for Windows** release on [Releases](../../releases), download the installer for your PC:
+- `PRCheckerApp-win-x64-Setup.exe` for most PCs
+- `PRCheckerApp-win-arm64-Setup.exe` for ARM PCs, e.g. Snapdragon laptops or Windows running on Apple Silicon
+
+Run it. It's not code-signed yet, so Windows SmartScreen asks once: choose **More info → Run anyway**. It installs for your user only, with no admin rights needed, and starts the app. The first time, Settings opens on **Bitbucket**: enter your server URL and token, then click **Save & Connect**. The app checks for updates once a week and asks before installing; to check right away, use **Settings → About → Check for updates**. A portable zip is also attached to each release if you can't run installers.
 
 ## Notifications
 

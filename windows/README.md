@@ -2,7 +2,7 @@
 
 A system tray app for Windows 10 (1809) and later, built with C#, .NET 10 and WinUI 3. It follows the same rules as the macOS app, described in [docs/behavior.md](../docs/behavior.md). See the [main README](../README.md) for features, notifications and privacy.
 
-**Status: in testing.** The app works on Windows 11 (ARM64 and x64). The first installer release is being prepared.
+**Status: released**, tested on Windows 11 (ARM64 and x64). Not yet available on Windows: the Automation command from the macOS app.
 
 ## Layout
 
