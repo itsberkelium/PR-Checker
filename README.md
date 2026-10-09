@@ -1,7 +1,7 @@
 # PR Checker
 
-[![macOS](https://img.shields.io/badge/macOS-v0.2.8-blue?logo=apple&logoColor=white)](https://github.com/itsberkelium/PR-Checker/releases/tag/macOS-v0.2.8)
-[![Windows](https://img.shields.io/badge/Windows-v0.1.1-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xIDFoMTAuNXYxMC41SDF6TTEyLjUgMUgyM3YxMC41SDEyLjV6TTEgMTIuNWgxMC41VjIzSDF6TTEyLjUgMTIuNUgyM1YyM0gxMi41eiIvPjwvc3ZnPg==)](https://github.com/itsberkelium/PR-Checker/releases/tag/windows-v0.1.1)
+[![macOS](https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fgu-cdn.berke.dev%2Fpr-checker%2Fappcast.xml&query=%2F%2Fitem%5B1%5D%2F*%5Blocal-name%28%29%3D%27shortVersionString%27%5D&prefix=v&label=macOS&color=blue&logo=apple&logoColor=white)](https://github.com/itsberkelium/PR-Checker/releases?q=macOS-v&expanded=true)
+[![Windows](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgu-cdn.berke.dev%2Fpr-checker%2Fwindows%2Freleases.win-x64.json&query=%24.Assets%5B0%5D.Version&prefix=v&label=Windows&color=blue&logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xIDFoMTAuNXYxMC41SDF6TTEyLjUgMUgyM3YxMC41SDEyLjV6TTEgMTIuNWgxMC41VjIzSDF6TTEyLjUgMTIuNUgyM1YyM0gxMi41eiIvPjwvc3ZnPg==)](https://github.com/itsberkelium/PR-Checker/releases?q=windows-v&expanded=true)
 [![Build](https://github.com/itsberkelium/PR-Checker/actions/workflows/build.yml/badge.svg)](https://github.com/itsberkelium/PR-Checker/actions/workflows/build.yml)
 
 A menu bar (macOS) and system tray (Windows) app for **Bitbucket Server / Data Center** that shows the pull requests waiting for your review and the status of the ones you opened, and notifies you when something changes.
@@ -102,9 +102,8 @@ The full details are in the [Privacy Policy](PRIVACY.md): what's stored where, e
 | [`shared/localization/`](shared/localization) | Every user-facing string in English and Turkish; `generate.py` writes each app's typed `L10n` accessors |
 | [`Design/`](Design) | Icon sources for both platforms |
 | [`.github/workflows/`](.github/workflows) | CI: builds and tests both apps on every push |
-| [`scripts/release-badge.sh`](scripts/release-badge.sh) | Sets a README release badge's version and link to a new release; called by the release scripts |
 
-Releases are tagged and titled per platform: `macOS-v0.2.7` "PR Checker for macOS 0.2.7", `windows-v0.1.0` "PR Checker for Windows 0.1.0". The release scripts create the tag and the GitHub release, and open a pull request that points the badge at it, so the rule holds without manual steps. `main` only accepts changes through pull requests.
+Releases are tagged and titled per platform: `macOS-v0.2.7` "PR Checker for macOS 0.2.7", `windows-v0.1.0` "PR Checker for Windows 0.1.0". The release scripts create the tag and the GitHub release, so the rule holds without manual steps. The version badges read the live update feeds on the CDN, so a release doesn't change the README. `main` only accepts changes through pull requests.
 
 ## License
 

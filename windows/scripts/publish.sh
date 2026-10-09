@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Publishes a Windows release built by the "Windows release" workflow:
-# uploads the Velopack feed to the CDN, creates the GitHub release and opens a PR
-# pointing the README badge at it.
+# uploads the Velopack feed to the CDN and creates the GitHub release.
 #
 #   windows/scripts/publish.sh <run-id> [notes.md]
 #
@@ -84,7 +83,5 @@ gh release create "$TAG" --repo "$REPO" --verify-tag \
     echo "Download **PRCheckerApp-win-x64-Setup.exe** for most PCs, or **PRCheckerApp-win-arm64-Setup.exe** for ARM PCs (e.g. Snapdragon, or Windows on Apple Silicon). The installers aren't code-signed yet: Windows SmartScreen asks once, choose **More info → Run anyway**. Installed apps update themselves." )" \
   "$DIR/PRCheckerApp-win-arm64-Setup.exe" "$DIR/PRCheckerApp-win-x64-Setup.exe" \
   "$DIR/PRCheckerApp-win-arm64-Portable.zip" "$DIR/PRCheckerApp-win-x64-Portable.zip"
-
-../scripts/release-badge.sh Windows "$TAG"
 
 step "Done: $VERSION published; installed apps are offered it within a week"

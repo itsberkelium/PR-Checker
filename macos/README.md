@@ -42,7 +42,6 @@ With `--publish`, it also:
 1. checks the working tree is clean and pushed, since the release is tagged at `HEAD`
 2. uploads the update to the R2 bucket behind `SUFeedURL`, under the same path as the feed
 3. tags the commit `macOS-v<version>` and creates the GitHub release "PR Checker for macOS <version>" with the zip. The release notes come from the optional notes file, or are generated from commits without one.
-4. opens a pull request pointing the README's macOS badge at the new release (`main` only accepts changes through pull requests)
 
 With `--local`, it signs the app and installs it into `/Applications` to try changes, skipping notarization and publishing.
 

@@ -7,8 +7,7 @@
 #                                 build, upload the update to R2 so installed
 #                                 apps offer it, create the GitHub release
 #                                 macOS-v<version> (notes from notes.md, or
-#                                 generated) and open a PR pointing the README
-#                                 badge at it
+#                                 generated)
 #   scripts/package.sh --local    sign with Developer ID and install into
 #                                 /Applications for testing; no notarization,
 #                                 nothing published. Don't distribute this build.
@@ -179,7 +178,6 @@ if [[ $PUBLISH == 1 ]]; then
   [[ -n "$NOTES_FILE" ]] && NOTES=(--notes-file "$NOTES_FILE")
   gh release create "$TAG" --verify-tag --title "PR Checker for macOS $VERSION" "${NOTES[@]}" \
     "$UPDATES/$UPDATE_ZIP"
-  ../scripts/release-badge.sh macOS "$TAG"
 fi
 
 step "Done: $ZIP (version $VERSION)"
