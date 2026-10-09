@@ -3,7 +3,6 @@
 [![macOS](https://img.shields.io/github/v/release/itsberkelium/PR-Checker?filter=v*&label=macOS)](https://github.com/itsberkelium/PR-Checker/releases)
 [![Windows](https://img.shields.io/github/v/release/itsberkelium/PR-Checker?filter=windows-v*&label=Windows)](https://github.com/itsberkelium/PR-Checker/releases)
 [![Build](https://github.com/itsberkelium/PR-Checker/actions/workflows/build.yml/badge.svg)](https://github.com/itsberkelium/PR-Checker/actions/workflows/build.yml)
-[![Tag](https://img.shields.io/github/v/tag/itsberkelium/PR-Checker)](https://github.com/itsberkelium/PR-Checker/tags)
 
 A menu bar (macOS) and system tray (Windows) app for **Bitbucket Server / Data Center** that shows the pull requests waiting for your review and the status of the ones you opened, and notifies you when something changes.
 
