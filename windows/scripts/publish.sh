@@ -16,6 +16,10 @@ RUN_ID="${1:?usage: $0 <run-id of the Windows release workflow> [notes.md]}"
 NOTES_FILE="${2:-}"
 [[ -z "$NOTES_FILE" || -f "$NOTES_FILE" ]] || { echo "No notes file: $NOTES_FILE" >&2; exit 1; }
 [[ -z "$NOTES_FILE" ]] || NOTES_FILE="$(cd "$(dirname "$NOTES_FILE")" && pwd)/$(basename "$NOTES_FILE")"
+# wrangler 4 needs Node.js 20+; an older node first on PATH fails mid-release.
+NODE_MAJOR=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
+(( NODE_MAJOR >= 20 )) || { echo "Publishing needs Node.js 20 or later on PATH (found $(node --version 2>/dev/null || echo none))" >&2; exit 1; }
+
 REPO="itsberkelium/PR-Checker"
 R2_BUCKET="${R2_BUCKET:-gu-cdn-eeur}"
 PREFIX="pr-checker/windows"

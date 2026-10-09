@@ -1,6 +1,6 @@
 # PR Checker
 
-[![macOS](https://img.shields.io/badge/macOS-v0.2.7-blue?logo=apple&logoColor=white)](https://github.com/itsberkelium/PR-Checker/releases/tag/macOS-v0.2.7)
+[![macOS](https://img.shields.io/badge/macOS-v0.2.8-blue?logo=apple&logoColor=white)](https://github.com/itsberkelium/PR-Checker/releases/tag/macOS-v0.2.8)
 [![Windows](https://img.shields.io/badge/Windows-v0.1.1-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xIDFoMTAuNXYxMC41SDF6TTEyLjUgMUgyM3YxMC41SDEyLjV6TTEgMTIuNWgxMC41VjIzSDF6TTEyLjUgMTIuNUgyM1YyM0gxMi41eiIvPjwvc3ZnPg==)](https://github.com/itsberkelium/PR-Checker/releases/tag/windows-v0.1.1)
 [![Build](https://github.com/itsberkelium/PR-Checker/actions/workflows/build.yml/badge.svg)](https://github.com/itsberkelium/PR-Checker/actions/workflows/build.yml)
 
