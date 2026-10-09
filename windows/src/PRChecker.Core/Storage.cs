@@ -31,6 +31,8 @@ public sealed record SettingsData
     public bool NotificationDetails { get; init; } = true;
     public bool OpenAtLogin { get; init; }
     public LanguagePreference Language { get; init; } = LanguagePreference.System;
+    /// <summary>The Terms of Use version the user agreed to; 0 if never.</summary>
+    public int AcceptedTermsVersion { get; init; }
 }
 
 public interface ISettingsStore

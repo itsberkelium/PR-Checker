@@ -22,6 +22,7 @@ final class AppSettings {
         static let notificationsEnabled = "notificationsEnabled"
         static let notificationDetails = "notificationDetails"
         static let language = "language"
+        static let acceptedTermsVersion = "acceptedTermsVersion"
         static let automationEnabled = "automationEnabled"
         static let automationCommand = "automationCommand"
     }
@@ -48,6 +49,8 @@ final class AppSettings {
     var notificationsEnabled: Bool { didSet { defaults.set(notificationsEnabled, forKey: Key.notificationsEnabled) } }
     /// Off: notifications say only that something changed, without titles or names.
     var notificationDetails: Bool { didSet { defaults.set(notificationDetails, forKey: Key.notificationDetails) } }
+    /// The Terms of Use version the user agreed to; 0 if never.
+    var acceptedTermsVersion: Int { didSet { defaults.set(acceptedTermsVersion, forKey: Key.acceptedTermsVersion) } }
     /// `.system` follows the macOS preferred language; takes effect immediately.
     var language: LanguagePreference {
         didSet {
@@ -73,6 +76,7 @@ final class AppSettings {
         notificationsEnabled = defaults.object(forKey: Key.notificationsEnabled) as? Bool ?? true
         notificationDetails = defaults.object(forKey: Key.notificationDetails) as? Bool ?? true
         language = defaults.string(forKey: Key.language).flatMap(LanguagePreference.init) ?? .system
+        acceptedTermsVersion = defaults.integer(forKey: Key.acceptedTermsVersion)
         automationEnabled = defaults.object(forKey: Key.automationEnabled) as? Bool ?? false
         automationCommand = defaults.string(forKey: Key.automationCommand) ?? ""
         filterPatterns = Self.parsePatterns(repoFilter)

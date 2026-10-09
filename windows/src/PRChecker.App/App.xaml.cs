@@ -39,12 +39,21 @@ public sealed partial class App : Application, IDisposable
     internal UpdateService Updates => _updates;
     internal WindowsNotifier Notifier => _notifier;
 
-    protected override void OnLaunched(LaunchActivatedEventArgs args)
+    protected override async void OnLaunched(LaunchActivatedEventArgs args)
     {
         Log.Info("Launched");
         var files = new JsonFileStore(Platform.DataDirectory);
         var settings = new AppSettings(files, new CredentialTokenStore());
         _store = new PrStore(settings, files, _notifier);
+
+        // Nothing connects anywhere until the user has agreed to the Terms of Use.
+        if (!await TermsWindow.EnsureAcceptedAsync(settings))
+        {
+            Log.Info("Terms of Use not accepted; quitting");
+            Dispose();
+            Exit();
+            return;
+        }
 
         try
         {

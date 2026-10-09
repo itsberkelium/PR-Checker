@@ -125,7 +125,8 @@
       "en": "Quit",
       "tr": "Çık",
       "platforms": [
-        "macos"
+        "macos",
+        "windows"
       ]
     },
     {
@@ -884,6 +885,50 @@
       "id": "trademarkNote",
       "en": "Not affiliated with or endorsed by Atlassian. Bitbucket is a trademark of Atlassian.",
       "tr": "Atlassian ile bağlantılı değildir ve Atlassian tarafından onaylanmamıştır. Bitbucket, Atlassian'ın ticari markasıdır.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "welcomeTitle",
+      "en": "Welcome to PR Checker",
+      "tr": "PR Checker'a hoş geldiniz",
+      "platforms": [
+        "macos",
+        "windows"
+      ],
+      "note": "First-run terms prompt"
+    },
+    {
+      "id": "termsPromptMac",
+      "en": "By using PR Checker, you agree to its Terms of Use.",
+      "tr": "PR Checker'ı kullanarak Kullanım koşullarını kabul etmiş olursunuz.",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "termsPromptWindows",
+      "en": "By using PR Checker, you agree to its Terms of Use, including Microsoft's license terms for the bundled Windows App SDK components.",
+      "tr": "PR Checker'ı kullanarak, birlikte gelen Windows App SDK bileşenleri için Microsoft'un lisans koşulları dahil Kullanım koşullarını kabul etmiş olursunuz.",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "agree",
+      "en": "Agree",
+      "tr": "Kabul ediyorum",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "viewTerms",
+      "en": "View Terms",
+      "tr": "Koşulları görüntüle",
       "platforms": [
         "macos",
         "windows"

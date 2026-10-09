@@ -65,6 +65,12 @@ public static class L10n
             ? "Ayarlar"
             : "Settings";
 
+    /// <summary>Quit</summary>
+    public static string Quit =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Çık"
+            : "Quit";
+
     /// <summary>Quit PR Checker</summary>
     public static string QuitApp =>
         Localizer.Language == AppLanguage.Turkish
@@ -484,6 +490,30 @@ public static class L10n
         Localizer.Language == AppLanguage.Turkish
             ? "Atlassian ile bağlantılı değildir ve Atlassian tarafından onaylanmamıştır. Bitbucket, Atlassian'ın ticari markasıdır."
             : "Not affiliated with or endorsed by Atlassian. Bitbucket is a trademark of Atlassian.";
+
+    /// <summary>Welcome to PR Checker</summary>
+    public static string WelcomeTitle =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "PR Checker'a hoş geldiniz"
+            : "Welcome to PR Checker";
+
+    /// <summary>By using PR Checker, you agree to its Terms of Use, including Microsoft's license terms for the bundled Windows App SDK components.</summary>
+    public static string TermsPromptWindows =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "PR Checker'ı kullanarak, birlikte gelen Windows App SDK bileşenleri için Microsoft'un lisans koşulları dahil Kullanım koşullarını kabul etmiş olursunuz."
+            : "By using PR Checker, you agree to its Terms of Use, including Microsoft's license terms for the bundled Windows App SDK components.";
+
+    /// <summary>Agree</summary>
+    public static string Agree =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Kabul ediyorum"
+            : "Agree";
+
+    /// <summary>View Terms</summary>
+    public static string ViewTerms =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Koşulları görüntüle"
+            : "View Terms";
 
     /// <summary>Show Log</summary>
     public static string ShowLog =>

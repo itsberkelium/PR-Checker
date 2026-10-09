@@ -10,6 +10,12 @@ The rules both apps implement. The macOS app (`macos/`) is the reference impleme
 - Logs stay in English.
 - Turkish strings are confirmed by the maintainer; don't change them without asking.
 
+## Terms of Use
+
+- At launch, before anything connects anywhere, the app asks the user to agree to the [Terms of Use](../TERMS.md) if they haven't agreed to the current terms version: **Agree**, **View Terms** (opens TERMS.md and asks again), **Quit**.
+- The agreed version is saved in settings. Bump the terms version (`Terms.version` on macOS, `TermsWindow.Version` on Windows, kept equal) only when TERMS.md changes in a way users must agree to again.
+- On Windows the prompt also covers Microsoft's license terms for the bundled Windows App SDK, whose license requires end users to agree to protective terms.
+
 ## Bitbucket API
 
 All requests go to the configured server with `Authorization: Bearer <token>` and `Accept: application/json`.

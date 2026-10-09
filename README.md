@@ -86,7 +86,7 @@ The full details are in the [Privacy Policy](PRIVACY.md): what's stored where, e
 
 ## Legal
 
-- **[Terms of Use](TERMS.md).** On Windows, these include Microsoft's license terms for the bundled Windows App SDK components.
+- **[Terms of Use](TERMS.md).** On Windows, these include Microsoft's license terms for the bundled Windows App SDK components. Both apps ask you to agree once, at first launch.
 - **[Privacy Policy](PRIVACY.md)**
 - **Third-party licenses:** included in each app under **Settings → About → Third-Party Licenses**. To regenerate them after changing a dependency, run `scripts/third-party-notices.py`.
 - PR Checker isn't affiliated with or endorsed by Atlassian. Bitbucket is a trademark of Atlassian.

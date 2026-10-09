@@ -64,6 +64,7 @@ public sealed class AppSettings : ObservableObject
     /// <summary>Off: notifications say only that something changed, without titles or names.</summary>
     public bool NotificationDetails { get => _data.NotificationDetails; set => Update(_data with { NotificationDetails = value }); }
     public bool OpenAtLogin { get => _data.OpenAtLogin; set => Update(_data with { OpenAtLogin = value }); }
+    public int AcceptedTermsVersion { get => _data.AcceptedTermsVersion; set => Update(_data with { AcceptedTermsVersion = value }); }
     /// <summary>System follows the Windows display language; takes effect immediately.</summary>
     public LanguagePreference Language
     {

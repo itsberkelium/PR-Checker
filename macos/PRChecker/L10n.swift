@@ -564,6 +564,38 @@ nonisolated enum L10n {
         }
     }
 
+    /// Welcome to PR Checker
+    static var welcomeTitle: String {
+        switch Localizer.current {
+        case .english: "Welcome to PR Checker"
+        case .turkish: "PR Checker'a hoş geldiniz"
+        }
+    }
+
+    /// By using PR Checker, you agree to its Terms of Use.
+    static var termsPromptMac: String {
+        switch Localizer.current {
+        case .english: "By using PR Checker, you agree to its Terms of Use."
+        case .turkish: "PR Checker'ı kullanarak Kullanım koşullarını kabul etmiş olursunuz."
+        }
+    }
+
+    /// Agree
+    static var agree: String {
+        switch Localizer.current {
+        case .english: "Agree"
+        case .turkish: "Kabul ediyorum"
+        }
+    }
+
+    /// View Terms
+    static var viewTerms: String {
+        switch Localizer.current {
+        case .english: "View Terms"
+        case .turkish: "Koşulları görüntüle"
+        }
+    }
+
     /// Automation
     static var automation: String {
         switch Localizer.current {

@@ -60,6 +60,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         #endif
         guard !Self.isRunningTests else { return }
+        guard Terms.ensureAccepted() else { return }
 
         if AppSettings.shared.notificationsEnabled {
             Notifier.shared.requestAuthorization()
