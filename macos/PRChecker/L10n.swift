@@ -16,7 +16,7 @@ nonisolated enum L10n {
     static func mineTab(n: Int) -> String {
         switch Localizer.current {
         case .english: "Mine (\(n))"
-        case .turkish: "Benimkiler (\(n))"
+        case .turkish: "PR'larım (\(n))"
         }
     }
 

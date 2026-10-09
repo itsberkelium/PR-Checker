@@ -14,7 +14,7 @@ public static class L10n
     /// <summary>Mine ({n})</summary>
     public static string MineTab(int n) =>
         Localizer.Language == AppLanguage.Turkish
-            ? $"Benimkiler ({n})"
+            ? $"PR'larım ({n})"
             : $"Mine ({n})";
 
     /// <summary>Nothing to review</summary>

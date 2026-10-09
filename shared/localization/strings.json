@@ -23,7 +23,7 @@
         "n": "int"
       },
       "en": "Mine ({n})",
-      "tr": "Benimkiler ({n})",
+      "tr": "PR'larım ({n})",
       "platforms": [
         "macos",
         "windows"
