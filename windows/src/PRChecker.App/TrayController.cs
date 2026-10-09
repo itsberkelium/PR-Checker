@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using PRChecker.App.Views;
+using PRChecker.Core;
 
 namespace PRChecker.App;
 

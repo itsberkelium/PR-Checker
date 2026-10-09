@@ -1,4 +1,5 @@
 using System.Runtime.InteropServices;
+using PRChecker.Core;
 
 namespace PRChecker.App.Services;
 
