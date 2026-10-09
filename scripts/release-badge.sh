@@ -37,9 +37,15 @@ if count != 1:
 open(path, "w").write(new)
 PY
 
+# The worktree uses the branch, so it has to go before the branch can be deleted.
+cleanup() {
+  git worktree remove --force "$WORKTREE"
+  git branch --quiet -D "$BRANCH"
+}
+
 if git -C "$WORKTREE" diff --quiet -- README.md; then
   echo "$LABEL badge already links to $TAG"
-  git branch --quiet -D "$BRANCH"
+  cleanup
   exit 0
 fi
 git -C "$WORKTREE" commit --quiet -m "README: point the $LABEL badge at $TAG" -- README.md
@@ -47,4 +53,4 @@ git -C "$WORKTREE" push --quiet -u origin "$BRANCH"
 gh pr create --repo itsberkelium/PR-Checker --base main --head "$BRANCH" \
   --title "README: point the $LABEL badge at $TAG" \
   --body "Updates the $LABEL release badge's version and link to [$TAG](https://github.com/itsberkelium/PR-Checker/releases/tag/$TAG). Opened by \`scripts/release-badge.sh\`."
-git branch --quiet -D "$BRANCH"
+cleanup
