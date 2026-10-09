@@ -3,8 +3,11 @@
 # plus a Sparkle update feed in dist/updates/.
 #
 #   scripts/package.sh            build only
-#   scripts/package.sh --publish  build, then upload the update to R2 so
-#                                 installed apps offer it to their users
+#   scripts/package.sh --publish [notes.md]
+#                                 build, upload the update to R2 so installed
+#                                 apps offer it, create the GitHub release
+#                                 macOS-v<version> (notes from notes.md, or
+#                                 generated) and point the README badge at it
 #   scripts/package.sh --local    sign with Developer ID and install into
 #                                 /Applications for testing; no notarization,
 #                                 nothing published. Don't distribute this build.
@@ -13,19 +16,33 @@
 #   - "Developer ID Application" certificate in the login keychain
 #   - xcrun notarytool store-credentials "PRChecker" --apple-id <id> --team-id L4U4H3GS68
 #   - Sparkle EdDSA key in the login keychain (generate_keys)
-#   - npx wrangler@4.148.0 login (for --publish)
+#   - npx wrangler@4.148.0 login and gh auth login (for --publish)
+#
+# Releases are tagged <OS>-v<version>: macOS-v0.2.7, windows-v0.1.0.
 set -euo pipefail
 
 PUBLISH=0
 LOCAL=0
+NOTES_FILE=""
 case "${1:-}" in
-  --publish) PUBLISH=1 ;;
+  --publish) PUBLISH=1; NOTES_FILE="${2:-}" ;;
   --local) LOCAL=1 ;;
   "") ;;
-  *) echo "usage: $0 [--publish | --local]" >&2; exit 2 ;;
+  *) echo "usage: $0 [--publish [notes.md] | --local]" >&2; exit 2 ;;
 esac
+[[ -z "$NOTES_FILE" ]] || NOTES_FILE="$(cd "$(dirname "$NOTES_FILE")" && pwd)/$(basename "$NOTES_FILE")"
 
 cd "$(dirname "$0")/.."
+
+if [[ $PUBLISH == 1 ]]; then
+  # The release is tagged at HEAD, so it must be exactly what's on GitHub.
+  git diff --quiet && git diff --cached --quiet \
+    || { echo "Uncommitted changes; commit them before publishing" >&2; exit 1; }
+  git fetch --quiet
+  [[ "$(git rev-parse HEAD)" == "$(git rev-parse @{u})" ]] \
+    || { echo "HEAD isn't the pushed upstream; push or pull first" >&2; exit 1; }
+  [[ -z "$NOTES_FILE" || -f "$NOTES_FILE" ]] || { echo "No notes file: $NOTES_FILE" >&2; exit 1; }
+fi
 
 TEAM_ID="L4U4H3GS68"
 NOTARY_PROFILE="${NOTARY_PROFILE:-PRChecker}"
@@ -149,6 +166,16 @@ if [[ $PUBLISH == 1 ]]; then
     --cache-control "no-cache"
   curl -fsS "$FEED_URL" | grep -q "<sparkle:shortVersionString>$VERSION<" \
     || { echo "Published feed doesn't list $VERSION yet: $FEED_URL" >&2; exit 1; }
+
+  TAG="macOS-v$VERSION"
+  step "Creating GitHub release $TAG"
+  git tag -a "$TAG" -m "PR Checker for macOS $VERSION"
+  git push --quiet origin "$TAG"
+  NOTES=(--generate-notes)
+  [[ -n "$NOTES_FILE" ]] && NOTES=(--notes-file "$NOTES_FILE")
+  gh release create "$TAG" --verify-tag --title "PR Checker for macOS $VERSION" "${NOTES[@]}" \
+    "$UPDATES/$UPDATE_ZIP"
+  ../scripts/release-badge.sh macOS "$TAG"
 fi
 
 step "Done: $ZIP (version $VERSION)"

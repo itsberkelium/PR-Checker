@@ -51,13 +51,16 @@ Releases are built in CI and published from a maintainer's Mac or PC, so no Clou
 2. Commit and push, then start **Actions → Windows release → Run workflow**.
    - It tests the core, publishes both architectures, and packs them with Velopack. Each architecture gets a `Setup.exe`, a portable zip and its update feed (`releases.<rid>.json`).
    - It also builds a delta update against the version currently on the CDN.
-3. Publish that run:
+3. Publish that run, with optional release notes:
 
    ```bash
-   windows/scripts/publish.sh <run-id>
+   windows/scripts/publish.sh <run-id> notes.md
    ```
 
-   This uploads the packages, then the feeds, to `gu-cdn.berke.dev/pr-checker/windows/`. It checks that the live feeds list the new version and creates the GitHub release `windows-v<version>` with the installers.
+   This:
+   - uploads the packages, then the feeds, to `gu-cdn.berke.dev/pr-checker/windows/`, and checks that the live feeds list the new version
+   - tags the commit CI built `windows-v<version>` and creates the GitHub release "PR Checker for Windows <version>" with the installers. The notes file's content opens the notes, and install instructions are added after it.
+   - points the README's Windows badge at the new release
 
 Installed apps check the feed once a week, or right away via **Settings → About → Check for updates**. They ask before installing.
 

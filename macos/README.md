@@ -38,12 +38,18 @@ Regenerate the main README's screenshots from made-up data. This builds a Debug 
 3. notarizes and staples the app
 4. writes `dist/PR Checker.zip` and the Sparkle appcast
 
-With `--publish`, it also uploads the update to the R2 bucket behind `SUFeedURL`, under the same path as the feed. With `--local`, it signs the app and installs it into `/Applications` to try changes, skipping notarization and publishing.
+With `--publish`, it also:
+1. checks the working tree is clean and pushed, since the release is tagged at `HEAD`
+2. uploads the update to the R2 bucket behind `SUFeedURL`, under the same path as the feed
+3. tags the commit `macOS-v<version>` and creates the GitHub release "PR Checker for macOS <version>" with the zip. The release notes come from the optional notes file, or are generated from commits without one.
+4. points the README's macOS badge at the new release and pushes that one-line change
+
+With `--local`, it signs the app and installs it into `/Applications` to try changes, skipping notarization and publishing.
 
 ```bash
-# 1. Bump MARKETING_VERSION in project.yml
-# 2. Build, notarize and publish the update
-./scripts/package.sh --publish
+# 1. Bump MARKETING_VERSION in project.yml, commit and push
+# 2. Build, notarize, publish the update and create the release
+./scripts/package.sh --publish notes.md
 ```
 
 **One-time setup**
@@ -52,7 +58,7 @@ With `--publish`, it also uploads the update to the R2 bucket behind `SUFeedURL`
 - Notary credentials:
   `xcrun notarytool store-credentials "PRChecker" --apple-id <apple-id> --team-id <team-id>`
 - Sparkle's EdDSA signing key, created with `generate_keys` from Sparkle's `bin/`. Its public key is `SPARKLE_PUBLIC_KEY` in `project.yml`. **Back up the private key.** Without it, installed apps reject every future update.
-- `npx wrangler@4.148.0 login`, needed for `--publish`. The script pins wrangler and Sparkle to exact versions; bump them deliberately.
+- `npx wrangler@4.148.0 login` and `gh auth login`, needed for `--publish`. The script pins wrangler and Sparkle to exact versions; bump them deliberately.
 
 To release from another account or host, change `DEVELOPMENT_TEAM`, `SPARKLE_FEED_URL` and `SPARKLE_PUBLIC_KEY` in `project.yml`, and `TEAM_ID` and `R2_BUCKET` in the script.
 

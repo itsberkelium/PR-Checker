@@ -2,13 +2,19 @@
 # Publishes a Windows release built by the "Windows release" workflow:
 # uploads the Velopack feed to the CDN and creates the GitHub release.
 #
-#   windows/scripts/publish.sh <run-id>
+#   windows/scripts/publish.sh <run-id> [notes.md]
+#
+# notes.md, if given, opens the release notes; install instructions are added after it.
 #
 # Needs: gh (logged in), npx wrangler@4.148.0 login.
+# Releases are tagged <OS>-v<version>: windows-v0.1.0, macOS-v0.2.7.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-RUN_ID="${1:?usage: $0 <run-id of the Windows release workflow>}"
+RUN_ID="${1:?usage: $0 <run-id of the Windows release workflow> [notes.md]}"
+NOTES_FILE="${2:-}"
+[[ -z "$NOTES_FILE" || -f "$NOTES_FILE" ]] || { echo "No notes file: $NOTES_FILE" >&2; exit 1; }
+[[ -z "$NOTES_FILE" ]] || NOTES_FILE="$(cd "$(dirname "$NOTES_FILE")" && pwd)/$(basename "$NOTES_FILE")"
 REPO="itsberkelium/PR-Checker"
 R2_BUCKET="${R2_BUCKET:-gu-cdn-eeur}"
 PREFIX="pr-checker/windows"
@@ -59,11 +65,21 @@ for rid in win-arm64 win-x64; do
     || { echo "Published $rid feed doesn't list $VERSION" >&2; exit 1; }
 done
 
-step "Creating GitHub release windows-v$VERSION"
-gh release create "windows-v$VERSION" --repo "$REPO" --target main \
+TAG="windows-v$VERSION"
+step "Creating GitHub release $TAG"
+# Tag the exact commit CI built, not whatever main points to now.
+COMMIT=$(gh run view "$RUN_ID" --repo "$REPO" --json headSha --jq .headSha)
+git fetch --quiet
+git tag -a "$TAG" "$COMMIT" -m "PR Checker for Windows $VERSION"
+git push --quiet origin "$TAG"
+gh release create "$TAG" --repo "$REPO" --verify-tag \
   --title "PR Checker for Windows $VERSION" \
-  --notes "Windows installers for PR Checker $VERSION. Pick **arm64** for ARM PCs (e.g. Windows on Apple Silicon or Snapdragon), **x64** otherwise. The installers aren't code-signed yet: Windows SmartScreen asks once, choose **More info → Run anyway**. Installed apps update themselves." \
+  --notes "$( [[ -n "$NOTES_FILE" ]] && { cat "$NOTES_FILE"; printf '\n\n'; }
+    echo "### Install"
+    echo "Download **PRCheckerApp-win-x64-Setup.exe** for most PCs, or **PRCheckerApp-win-arm64-Setup.exe** for ARM PCs (e.g. Snapdragon, or Windows on Apple Silicon). The installers aren't code-signed yet: Windows SmartScreen asks once, choose **More info → Run anyway**. Installed apps update themselves." )" \
   "$DIR/PRCheckerApp-win-arm64-Setup.exe" "$DIR/PRCheckerApp-win-x64-Setup.exe" \
   "$DIR/PRCheckerApp-win-arm64-Portable.zip" "$DIR/PRCheckerApp-win-x64-Portable.zip"
+
+../scripts/release-badge.sh Windows "$TAG"
 
 step "Done: $VERSION published; installed apps are offered it within a week"

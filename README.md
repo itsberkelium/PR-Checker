@@ -1,6 +1,6 @@
 # PR Checker
 
-[![macOS](https://img.shields.io/github/v/release/itsberkelium/PR-Checker?filter=v*&label=macOS)](https://github.com/itsberkelium/PR-Checker/releases/tag/v0.2.7)
+[![macOS](https://img.shields.io/github/v/release/itsberkelium/PR-Checker?filter=macOS-v*&label=macOS)](https://github.com/itsberkelium/PR-Checker/releases/tag/macOS-v0.2.7)
 [![Windows](https://img.shields.io/github/v/release/itsberkelium/PR-Checker?filter=windows-v*&label=Windows)](https://github.com/itsberkelium/PR-Checker/releases/tag/windows-v0.1.0)
 [![Build](https://github.com/itsberkelium/PR-Checker/actions/workflows/build.yml/badge.svg)](https://github.com/itsberkelium/PR-Checker/actions/workflows/build.yml)
 
@@ -114,6 +114,9 @@ API responses aren't cached and no cookies are kept.
 | [`shared/fixtures/`](shared/fixtures) | Sample Bitbucket responses used by both test suites |
 | [`Design/`](Design) | Icon sources for both platforms |
 | [`.github/workflows/`](.github/workflows) | CI: builds and tests both apps on every push |
+| [`scripts/release-badge.sh`](scripts/release-badge.sh) | Points a README release badge at a new release; called by the release scripts |
+
+Releases are tagged and titled per platform: `macOS-v0.2.7` "PR Checker for macOS 0.2.7", `windows-v0.1.0` "PR Checker for Windows 0.1.0". The release scripts create the tag, the GitHub release and the badge link, so the rule holds without manual steps.
 
 ## License
 
