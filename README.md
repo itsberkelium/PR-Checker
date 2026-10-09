@@ -1,7 +1,7 @@
 # PR Checker
 
-[![macOS](https://img.shields.io/github/v/release/itsberkelium/PR-Checker?filter=macOS-v*&label=release)](https://github.com/itsberkelium/PR-Checker/releases/tag/macOS-v0.2.7)
-[![Windows](https://img.shields.io/github/v/release/itsberkelium/PR-Checker?filter=windows-v*&label=release)](https://github.com/itsberkelium/PR-Checker/releases/tag/windows-v0.1.0)
+[![macOS](https://img.shields.io/badge/macOS-v0.2.7-blue?logo=apple&logoColor=white)](https://github.com/itsberkelium/PR-Checker/releases/tag/macOS-v0.2.7)
+[![Windows](https://img.shields.io/badge/Windows-v0.1.0-blue?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0id2hpdGUiIGQ9Ik0xIDFoMTAuNXYxMC41SDF6TTEyLjUgMUgyM3YxMC41SDEyLjV6TTEgMTIuNWgxMC41VjIzSDF6TTEyLjUgMTIuNUgyM1YyM0gxMi41eiIvPjwvc3ZnPg==)](https://github.com/itsberkelium/PR-Checker/releases/tag/windows-v0.1.0)
 [![Build](https://github.com/itsberkelium/PR-Checker/actions/workflows/build.yml/badge.svg)](https://github.com/itsberkelium/PR-Checker/actions/workflows/build.yml)
 
 A menu bar (macOS) and system tray (Windows) app for **Bitbucket Server / Data Center** that shows the pull requests waiting for your review and the status of the ones you opened, and notifies you when something changes.
@@ -114,7 +114,7 @@ API responses aren't cached and no cookies are kept.
 | [`shared/fixtures/`](shared/fixtures) | Sample Bitbucket responses used by both test suites |
 | [`Design/`](Design) | Icon sources for both platforms |
 | [`.github/workflows/`](.github/workflows) | CI: builds and tests both apps on every push |
-| [`scripts/release-badge.sh`](scripts/release-badge.sh) | Points a README release badge at a new release; called by the release scripts |
+| [`scripts/release-badge.sh`](scripts/release-badge.sh) | Sets a README release badge's version and link to a new release; called by the release scripts |
 
 Releases are tagged and titled per platform: `macOS-v0.2.7` "PR Checker for macOS 0.2.7", `windows-v0.1.0` "PR Checker for Windows 0.1.0". The release scripts create the tag, the GitHub release and the badge link, so the rule holds without manual steps.
 

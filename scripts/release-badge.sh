@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Points a README release badge at a release page, then commits and pushes that change.
+# Sets a README release badge's version and link to a release, then commits and pushes that
+# change. The badges are static shields.io badges ("<logo> macOS | v0.2.7") so they always
+# match the release they link to.
 # Called by the release scripts after a release is created.
 #
 #   scripts/release-badge.sh <macOS|Windows> <tag>     e.g. scripts/release-badge.sh macOS macOS-v0.2.8
@@ -13,13 +15,16 @@ case "$LABEL" in macOS|Windows) ;; *) echo "Label must be macOS or Windows" >&2;
 git diff --quiet -- README.md || { echo "README.md has uncommitted changes; not touching it" >&2; exit 1; }
 git pull --quiet --ff-only
 
-# Only the link after the badge with this label; the badge image itself updates on its own.
 LABEL="$LABEL" TAG="$TAG" python3 - <<'PY'
 import os, re, sys
 label, tag = os.environ["LABEL"], os.environ["TAG"]
+version = tag.split("-v", 1)[1]  # macOS-v0.2.7 -> 0.2.7
 text = open("README.md").read()
-pattern = re.compile(r"(\[!\[" + re.escape(label) + r"\]\([^)]*\)\]\()[^)]*(\))")
-new, count = pattern.subn(lambda m: f"{m.group(1)}https://github.com/itsberkelium/PR-Checker/releases/tag/{tag}{m.group(2)}", text)
+# [![macOS](https://img.shields.io/badge/macOS-v0.2.7-blue?...)](https://github.com/.../releases/tag/macOS-v0.2.7)
+pattern = re.compile(
+    r"(\[!\[" + re.escape(label) + r"\]\(https://img\.shields\.io/badge/" + re.escape(label) + r"-)v[^-]+(-[^)]*\)\]\()[^)]*(\))")
+new, count = pattern.subn(
+    lambda m: f"{m.group(1)}v{version}{m.group(2)}https://github.com/itsberkelium/PR-Checker/releases/tag/{tag}{m.group(3)}", text)
 if count != 1:
     sys.exit(f"Expected one {label} badge in README.md, found {count}")
 open("README.md", "w").write(new)
