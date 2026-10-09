@@ -75,7 +75,7 @@ internal sealed partial class CredentialTokenStore : ITokenStore
                 CredentialBlobSize = (uint)(token.Length * 2),
                 Persist = CredPersistLocalMachine,
             };
-            if (!CredWrite(ref credential, 0)) throw Failure("save");
+            if (!CredWrite(ref credential, 0)) throw new TokenStoreException(L10n.CredentialSaveFailed(LastError()));
         }
         finally
         {
@@ -87,9 +87,8 @@ internal sealed partial class CredentialTokenStore : ITokenStore
 
     public void Delete(string account)
     {
-        if (!CredDelete(account, CredTypeGeneric, 0) && Marshal.GetLastPInvokeError() != ErrorNotFound) throw Failure("delete");
+        if (!CredDelete(account, CredTypeGeneric, 0) && Marshal.GetLastPInvokeError() != ErrorNotFound) throw new TokenStoreException(L10n.CredentialDeleteFailed(LastError()));
     }
 
-    private static TokenStoreException Failure(string action) =>
-        new($"Couldn't {action} the access token in Credential Manager: {new Win32Exception(Marshal.GetLastPInvokeError()).Message}");
+    private static string LastError() => new Win32Exception(Marshal.GetLastPInvokeError()).Message;
 }

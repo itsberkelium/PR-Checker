@@ -127,11 +127,11 @@ public sealed partial class App : Application, IDisposable
             var update = await _updates.CheckAsync();
             if (update is not null && await UpdatePrompt.AskAsync(update.TargetFullRelease.Version.ToString()))
                 await _updates.InstallAndRestartAsync(update);
-            else if (userInitiated) UpdatePrompt.Inform(_updates.IsInstalled ? "PR Checker is up to date." : "Updates are only available in installed builds.");
+            else if (userInitiated) UpdatePrompt.Inform(_updates.IsInstalled ? L10n.UpToDate : L10n.UpdatesOnlyInstalled);
         }
         catch (Exception error) when (error is HttpRequestException or IOException or InvalidOperationException)
         {
-            if (userInitiated) UpdatePrompt.Inform($"Couldn't check for updates: {error.Message}");
+            if (userInitiated) UpdatePrompt.Inform(L10n.CouldntCheckUpdates(error.Message));
         }
     }
 

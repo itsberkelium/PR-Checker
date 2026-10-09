@@ -12,13 +12,13 @@ enum APIError: LocalizedError, Equatable {
 
     var errorDescription: String? {
         switch self {
-        case .unauthorized: "The access token was rejected. Check it in Settings."
-        case .rateLimited: "Bitbucket is limiting requests. PR Checker will try again later."
-        case .http(let code): "Bitbucket returned HTTP \(code)."
-        case .badResponse: "Unexpected response from Bitbucket."
-        case .paginationStalled: "Bitbucket returned an inconsistent page sequence."
-        case .tooManyResults(let limit): "More than \(limit) open pull requests; narrow it down with filters."
-        case .responseTooLarge: "Bitbucket sent an unexpectedly large response."
+        case .unauthorized: L10n.errorUnauthorized
+        case .rateLimited: L10n.errorRateLimited
+        case .http(let code): L10n.errorHTTP(code: code)
+        case .badResponse: L10n.errorBadResponse
+        case .paginationStalled: L10n.errorPaginationStalled
+        case .tooManyResults(let limit): L10n.errorTooManyResults(limit: limit)
+        case .responseTooLarge: L10n.errorResponseTooLarge
         }
     }
 }

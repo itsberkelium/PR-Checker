@@ -31,40 +31,38 @@ public sealed partial class PrRow(PrItem item, bool showsAuthor)
         get
         {
             var badges = new List<Badge>();
-            if (Item.IsDraft) badges.Add(new("", "Draft", Secondary));
-            if (Item.HasNewCommits) badges.Add(new("", "New commits", Blue));
+            if (Item.IsDraft) badges.Add(new("", L10n.BadgeDraft, Secondary));
+            if (Item.HasNewCommits) badges.Add(new("", L10n.BadgeNewCommits, Blue));
             if (Item.Reviewers.Count > 0)
                 badges.Add(new("", $"{Item.Approvals}/{Item.Reviewers.Count}", Item.Approvals > 0 ? Green : Secondary));
-            if (Item.NeedsWork) badges.Add(new("", "Needs work", Orange));
-            if (Item.HasConflicts) badges.Add(new("", "Conflicts", Red));
+            if (Item.NeedsWork) badges.Add(new("", L10n.NeedsWork, Orange));
+            if (Item.HasConflicts) badges.Add(new("", L10n.BadgeConflicts, Red));
             switch (Item.Build)
             {
-                case BuildState.Passed: badges.Add(new("", "Build", Green)); break;
-                case BuildState.Failed: badges.Add(new("", "Build", Red)); break;
-                case BuildState.Running: badges.Add(new("", "Build", Secondary)); break;
+                case BuildState.Passed: badges.Add(new("", L10n.BadgeBuild, Green)); break;
+                case BuildState.Failed: badges.Add(new("", L10n.BadgeBuild, Red)); break;
+                case BuildState.Running: badges.Add(new("", L10n.BadgeBuild, Secondary)); break;
             }
-            if (Item.CommentCount > 0) badges.Add(new("", Item.CommentCount.ToString(System.Globalization.CultureInfo.CurrentCulture), Secondary));
-            if (Item.OpenTaskCount > 0) badges.Add(new("", Item.OpenTaskCount.ToString(System.Globalization.CultureInfo.CurrentCulture), Orange));
+            if (Item.CommentCount > 0) badges.Add(new("", Item.CommentCount.ToString(Localizer.Culture), Secondary));
+            if (Item.OpenTaskCount > 0) badges.Add(new("", Item.OpenTaskCount.ToString(Localizer.Culture), Orange));
             return badges;
         }
     }
 
     private static string Label(ReviewStatus status) => status switch
     {
-        ReviewStatus.Approved => "Approved",
-        ReviewStatus.NeedsWork => "Needs work",
-        _ => "Not reviewed",
+        ReviewStatus.Approved => L10n.ReviewerApproved,
+        ReviewStatus.NeedsWork => L10n.NeedsWork,
+        _ => L10n.ReviewerNotReviewed,
     };
 
     public static string Relative(DateTimeOffset date)
     {
         var elapsed = DateTimeOffset.Now - date;
-        return elapsed.TotalSeconds < 60 ? "now"
-            : elapsed.TotalMinutes < 60 ? Plural((int)elapsed.TotalMinutes, "minute")
-            : elapsed.TotalHours < 24 ? Plural((int)elapsed.TotalHours, "hour")
-            : elapsed.TotalDays < 2 ? "yesterday"
-            : Plural((int)elapsed.TotalDays, "day");
-
-        static string Plural(int value, string unit) => $"{value} {unit}{(value == 1 ? "" : "s")} ago";
+        return elapsed.TotalSeconds < 60 ? L10n.RelativeNow
+            : elapsed.TotalMinutes < 60 ? L10n.RelativeMinutes((int)elapsed.TotalMinutes)
+            : elapsed.TotalHours < 24 ? L10n.RelativeHours((int)elapsed.TotalHours)
+            : elapsed.TotalDays < 2 ? L10n.RelativeYesterday
+            : L10n.RelativeDays((int)elapsed.TotalDays);
     }
 }

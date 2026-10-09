@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml;
 using System.Runtime.InteropServices;
 using Microsoft.Windows.AppLifecycle;
 using PRChecker.App.Services;
+using PRChecker.Core;
 using Velopack;
 
 namespace PRChecker.App;
@@ -19,6 +20,8 @@ public static class Program
         try
         {
             Log.Info($"Starting {Platform.Version} ({RuntimeInformation.ProcessArchitecture}, {RuntimeInformation.OSDescription})");
+            // The chosen language from the start, so even startup errors use it.
+            Localizer.Apply(new JsonFileStore(Platform.DataDirectory).Load().Language);
 
             // Must run first: handles Velopack's install, update and uninstall hooks.
             VelopackApp.Build()

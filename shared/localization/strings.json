@@ -1,0 +1,1455 @@
+{
+  "_comment": "Every user-facing string in both apps. Edit here, then run generate.py. Turkish translations are confirmed by the maintainer; don't change them without asking.",
+  "languages": [
+    "en",
+    "tr"
+  ],
+  "strings": [
+    {
+      "id": "toReviewTab",
+      "args": {
+        "n": "int"
+      },
+      "en": "To review ({n})",
+      "tr": "İncelenecek ({n})",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "mineTab",
+      "args": {
+        "n": "int"
+      },
+      "en": "Mine ({n})",
+      "tr": "Benimkiler ({n})",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "listPicker",
+      "en": "List",
+      "tr": "Liste",
+      "platforms": [
+        "macos"
+      ],
+      "note": "Tab picker label, read by screen readers only"
+    },
+    {
+      "id": "nothingToReview",
+      "en": "Nothing to review",
+      "tr": "İncelenecek bir şey yok",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "noOpenPullRequests",
+      "en": "No open pull requests",
+      "tr": "Açık PR yok",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "cantLoadPullRequests",
+      "en": "Can't load pull requests",
+      "tr": "PR'lar yüklenemedi",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "openSettings",
+      "en": "Open Settings",
+      "tr": "Ayarları aç",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "loading",
+      "en": "Loading…",
+      "tr": "Yükleniyor…",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "updatedAgo",
+      "args": {
+        "time": "string"
+      },
+      "en": "Updated {time}",
+      "tr": "{time} güncellendi",
+      "platforms": [
+        "macos",
+        "windows"
+      ],
+      "note": "time is a relative time, e.g. '40 seconds ago'"
+    },
+    {
+      "id": "refresh",
+      "en": "Refresh",
+      "tr": "Yenile",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "refreshShortcut",
+      "en": "Refresh (Ctrl+R)",
+      "tr": "Yenile (Ctrl+R)",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "settings",
+      "en": "Settings",
+      "tr": "Ayarlar",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "quit",
+      "en": "Quit",
+      "tr": "Çık",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "quitApp",
+      "en": "Quit PR Checker",
+      "tr": "PR Checker'dan çık",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "quitConfirmTitle",
+      "en": "Quit PR Checker?",
+      "tr": "PR Checker'dan çıkılsın mı?",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "quitConfirmMessage",
+      "en": "You won't see pull requests or get notifications until you open it again.",
+      "tr": "Uygulamayı yeniden açana kadar PR'ları göremez ve bildirim almazsınız.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "cancel",
+      "en": "Cancel",
+      "tr": "İptal",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "notificationsOffMac",
+      "en": "Notifications are off in System Settings",
+      "tr": "Bildirimler Sistem Ayarları'nda kapalı",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "notificationsOffMacHelp",
+      "en": "Notifications are turned off for PR Checker in System Settings. Click to fix.",
+      "tr": "PR Checker bildirimleri Sistem Ayarları'nda kapalı. Düzeltmek için tıklayın.",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "notificationsOffWindows",
+      "en": "Notifications are off in Windows Settings",
+      "tr": "Bildirimler Windows Ayarları'nda kapalı",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "notificationsUnavailablePC",
+      "en": "Notifications aren't available on this PC",
+      "tr": "Bu bilgisayarda bildirimler kullanılamıyor",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "openNotificationSettings",
+      "en": "Open notification settings",
+      "tr": "Bildirim ayarlarını aç",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "showPullRequests",
+      "en": "Show Pull Requests",
+      "tr": "PR'ları göster",
+      "platforms": [
+        "windows"
+      ],
+      "note": "Tray menu"
+    },
+    {
+      "id": "trayToReview",
+      "args": {
+        "n": "int"
+      },
+      "en": "PR Checker – {n} to review",
+      "tr": "PR Checker – {n} incelenecek",
+      "platforms": [
+        "windows"
+      ],
+      "note": "Tray tooltip"
+    },
+    {
+      "id": "trayAttention",
+      "en": ", one of yours needs attention",
+      "tr": ", PR'larınızdan birini kontrol etmeniz gerekiyor",
+      "platforms": [
+        "windows"
+      ],
+      "note": "Appended to trayToReview"
+    },
+    {
+      "id": "trayNotConnected",
+      "en": "PR Checker – not connected",
+      "tr": "PR Checker – bağlı değil",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "badgeDraft",
+      "en": "Draft",
+      "tr": "Taslak",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "badgeNewCommits",
+      "en": "New commits",
+      "tr": "Yeni commit'ler",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "needsWork",
+      "en": "Needs work",
+      "tr": "Değişiklik gerekli",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "badgeConflicts",
+      "en": "Conflicts",
+      "tr": "Çakışmalar",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "badgeBuild",
+      "en": "Build",
+      "tr": "Derleme",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "reviewerApproved",
+      "en": "Approved",
+      "tr": "Onayladı",
+      "platforms": [
+        "macos",
+        "windows"
+      ],
+      "note": "Reviewer tooltip"
+    },
+    {
+      "id": "reviewerNotReviewed",
+      "en": "Not reviewed",
+      "tr": "İncelemedi",
+      "platforms": [
+        "macos",
+        "windows"
+      ],
+      "note": "Reviewer tooltip"
+    },
+    {
+      "id": "relativeNow",
+      "en": "now",
+      "tr": "şimdi",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "relativeMinutes",
+      "args": {
+        "n": "int"
+      },
+      "en": {
+        "one": "{n} minute ago",
+        "other": "{n} minutes ago"
+      },
+      "tr": "{n} dakika önce",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "relativeHours",
+      "args": {
+        "n": "int"
+      },
+      "en": {
+        "one": "{n} hour ago",
+        "other": "{n} hours ago"
+      },
+      "tr": "{n} saat önce",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "relativeYesterday",
+      "en": "yesterday",
+      "tr": "dün",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "relativeDays",
+      "args": {
+        "n": "int"
+      },
+      "en": {
+        "one": "{n} day ago",
+        "other": "{n} days ago"
+      },
+      "tr": "{n} gün önce",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "settingsWindowTitle",
+      "en": "PR Checker Settings",
+      "tr": "PR Checker Ayarları",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "tabGeneral",
+      "en": "General",
+      "tr": "Genel",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "tabBitbucket",
+      "en": "Bitbucket",
+      "tr": "Bitbucket",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "tabAbout",
+      "en": "About",
+      "tr": "Hakkında",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "notifications",
+      "en": "Notifications",
+      "tr": "Bildirimler",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "blockedMacTitle",
+      "en": "Turned off in System Settings",
+      "tr": "Sistem Ayarları'nda kapalı",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "blockedMacMessage",
+      "en": "macOS is blocking PR Checker's notifications. Turn on Allow Notifications.",
+      "tr": "macOS, PR Checker bildirimlerini engelliyor. \"Bildirimlere izin ver\"i açın.",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "blockedWindowsTitle",
+      "en": "Turned off in Windows Settings",
+      "tr": "Windows Ayarları'nda kapalı",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "blockedWindowsMessage",
+      "en": "Windows is blocking PR Checker's notifications. Turn them on for PR Checker.",
+      "tr": "Windows, PR Checker bildirimlerini engelliyor. PR Checker için bildirimleri açın.",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "unavailableTitle",
+      "en": "Not available on this PC",
+      "tr": "Bu bilgisayarda kullanılamıyor",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "unavailableMessage",
+      "args": {
+        "reason": "string"
+      },
+      "en": "Windows couldn't set up notifications for PR Checker ({reason}). Pull requests still show in the tray.",
+      "tr": "Windows, PR Checker için bildirimleri ayarlayamadı ({reason}). PR'lar sistem tepsisinde görünmeye devam eder.",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "checkDelivery",
+      "en": "Check delivery",
+      "tr": "Bildirim testi",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "sendTestNotification",
+      "en": "Send Test Notification",
+      "tr": "Test bildirimi gönder",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "showDetails",
+      "en": "Show pull request details",
+      "tr": "PR ayrıntılarını göster",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "showDetailsInNotifications",
+      "en": "Show pull request details in notifications",
+      "tr": "Bildirimlerde PR ayrıntılarını göster",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "showDetailsHint",
+      "en": "Off: notifications don't show titles, names or results, e.g. while screen sharing.",
+      "tr": "Kapalıyken bildirimler başlık, isim veya sonuç göstermez; örneğin ekran paylaşırken.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "openAtLogin",
+      "en": "Open at login",
+      "tr": "Oturum açılınca başlat",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "refreshSection",
+      "en": "Refresh",
+      "tr": "Yenileme",
+      "platforms": [
+        "macos"
+      ],
+      "note": "Settings section title"
+    },
+    {
+      "id": "checkEvery",
+      "en": "Check every",
+      "tr": "Kontrol sıklığı",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "minutesShort",
+      "args": {
+        "n": "int"
+      },
+      "en": "{n} min",
+      "tr": "{n} dk",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "language",
+      "en": "Language",
+      "tr": "Dil",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "languageSystem",
+      "en": "System language",
+      "tr": "Sistem dili",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "serverURL",
+      "en": "Server URL",
+      "tr": "Sunucu adresi",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "accessToken",
+      "en": "Access token",
+      "tr": "Token",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "tokenSavedPlaceholder",
+      "en": "Saved – leave empty to keep",
+      "tr": "Kayıtlı – değiştirmemek için boş bırakın",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "tokenRequiredPlaceholder",
+      "en": "Required",
+      "tr": "Gerekli",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "saveAndConnect",
+      "en": "Save & Connect",
+      "tr": "Kaydet ve bağlan",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "connectedAs",
+      "args": {
+        "name": "string"
+      },
+      "en": "Connected as {name}",
+      "tr": "{name} olarak bağlanıldı",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "couldntReachServer",
+      "args": {
+        "message": "string"
+      },
+      "en": "Couldn't reach the server: {message}",
+      "tr": "Sunucuya ulaşılamadı: {message}",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "signOut",
+      "en": "Sign Out",
+      "tr": "Oturumu kapat",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "signOutConfirmTitle",
+      "en": "Sign out of Bitbucket?",
+      "tr": "Bitbucket oturumu kapatılsın mı?",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "signOutConfirmMessageMac",
+      "en": "Removes the access token from your Keychain and the pull request data PR Checker stored for this server.",
+      "tr": "Bu sunucunun token'ını Anahtar Zinciri'nden ve PR Checker'ın sakladığı PR verilerini siler.",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "signOutConfirmMessageWindows",
+      "en": "Removes the access token from Credential Manager and the pull request data PR Checker stored for this server.",
+      "tr": "Bu sunucunun token'ını Kimlik Bilgileri Yöneticisi'nden ve PR Checker'ın sakladığı PR verilerini siler.",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "tokenHintMac",
+      "en": "Create a token under Profile → Manage account → HTTP access tokens with Read permission. It is stored in your Keychain and only sent to this server.",
+      "tr": "Bitbucket'ta Profile → Manage account → HTTP access tokens altında Read izinli bir token oluşturun. Token Anahtar Zinciri'nde saklanır ve yalnızca bu sunucuya gönderilir.",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "tokenHintWindows",
+      "en": "Create a token under Profile → Manage account → HTTP access tokens with Read permission. It is stored in Windows Credential Manager and only sent to this server.",
+      "tr": "Bitbucket'ta Profile → Manage account → HTTP access tokens altında Read izinli bir token oluşturun. Token Windows Kimlik Bilgileri Yöneticisi'nde saklanır ve yalnızca bu sunucuya gönderilir.",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "filters",
+      "en": "Filters",
+      "tr": "Filtreler",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "hideDrafts",
+      "en": "Hide draft pull requests",
+      "tr": "Taslak PR'ları gizle",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "onlyTheseRepos",
+      "en": "Only these projects/repos",
+      "tr": "Yalnızca bu projeler/repolar",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "filterAllPlaceholder",
+      "en": "All",
+      "tr": "Tümü",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "filterHint",
+      "en": "Comma-separated project keys or PROJECT/repo-slug, e.g. PROJ, OTHER/my-repo.",
+      "tr": "Virgülle ayrılmış proje anahtarları veya PROJE/repo-slug, örn. PROJ, OTHER/my-repo.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "version",
+      "en": "Version",
+      "tr": "Sürüm",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "updates",
+      "en": "Updates",
+      "tr": "Güncellemeler",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "checkForUpdates",
+      "en": "Check for Updates",
+      "tr": "Güncellemeleri kontrol et",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "lastChecked",
+      "args": {
+        "time": "string"
+      },
+      "en": "Last checked {time}",
+      "tr": "Son kontrol: {time}",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "checkedWeekly",
+      "en": "Checked automatically once a week",
+      "tr": "Haftada bir otomatik kontrol edilir",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "upToDate",
+      "en": "PR Checker is up to date.",
+      "tr": "PR Checker güncel.",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "updatesOnlyInstalled",
+      "en": "Updates are only available in installed builds.",
+      "tr": "Güncellemeler yalnızca kurulu sürümlerde kullanılabilir.",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "couldntCheckUpdates",
+      "args": {
+        "message": "string"
+      },
+      "en": "Couldn't check for updates: {message}",
+      "tr": "Güncellemeler kontrol edilemedi: {message}",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "updateAvailableTitle",
+      "en": "Update available",
+      "tr": "Güncelleme var",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "updateAvailableMessage",
+      "args": {
+        "latest": "string",
+        "current": "string"
+      },
+      "en": "PR Checker {latest} is available. You have {current}.\n\nInstall it now? PR Checker restarts when it's done.",
+      "tr": "PR Checker {latest} yayımlandı. Sizdeki sürüm: {current}.\n\nŞimdi kurulsun mu? Kurulum bitince PR Checker yeniden başlar.",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "automation",
+      "en": "Automation",
+      "tr": "Otomasyon",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "automationToggle",
+      "en": "Run a command for new review requests",
+      "tr": "Yeni inceleme istekleri için komut çalıştır",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "automationToggleHint",
+      "en": "Once per commit for pull requests in To review, e.g. to start an automated pre-check.",
+      "tr": "İncelenecek listesindeki PR'lar için her commit'te bir kez; örneğin otomatik bir ön kontrol başlatmak için.",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "command",
+      "en": "Command",
+      "tr": "Komut",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "notSet",
+      "en": "Not set",
+      "tr": "Ayarlanmadı",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "setCommand",
+      "en": "Set Command",
+      "tr": "Komutu ayarla",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "edit",
+      "en": "Edit",
+      "tr": "Düzenle",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "runNow",
+      "en": "Run Now",
+      "tr": "Şimdi çalıştır",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "showLog",
+      "en": "Show Log",
+      "tr": "Günlüğü göster",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "lastRun",
+      "en": "Last run",
+      "tr": "Son çalıştırma",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "runAllQuestion",
+      "args": {
+        "n": "int"
+      },
+      "en": "Run the command for {n} pull requests now?",
+      "tr": "Komut şimdi {n} PR için çalıştırılsın mı?",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "runAllHint",
+      "en": "Every pull request in To review, including commits it already ran for.",
+      "tr": "İncelenecek listesindeki tüm PR'lar; daha önce çalıştırıldığı commit'ler dahil.",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "backlogQuestion",
+      "args": {
+        "n": "int"
+      },
+      "en": {
+        "one": "Run the command for the {n} pull request waiting now?",
+        "other": "Run the command for the {n} pull requests waiting now?"
+      },
+      "tr": "Bekleyen {n} PR için komut şimdi çalıştırılsın mı?",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "backlogHint",
+      "en": "They're already in your review list. The command may post comments on them.",
+      "tr": "Bunlar zaten inceleme listenizde. Komut bu PR'lara yorum ekleyebilir.",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "runForCount",
+      "args": {
+        "n": "int"
+      },
+      "en": "Run for {n} Pull Requests",
+      "tr": "{n} PR için çalıştır",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "onlyNewOnes",
+      "en": "Only New Ones From Now",
+      "tr": "Yalnızca bundan sonrakiler",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "runningFor",
+      "args": {
+        "n": "int"
+      },
+      "en": {
+        "one": "Running for {n} pull request…",
+        "other": "Running for {n} pull requests…"
+      },
+      "tr": "{n} PR için çalışıyor…",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "notRunYet",
+      "en": "Not run since PR Checker started",
+      "tr": "PR Checker açıldığından beri çalıştırılmadı",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "outcomeRunning",
+      "en": "running",
+      "tr": "çalışıyor",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "outcomeFinished",
+      "en": "finished",
+      "tr": "tamamlandı",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "outcomeFailed",
+      "args": {
+        "code": "int"
+      },
+      "en": "failed (exit {code})",
+      "tr": "başarısız (çıkış kodu {code})",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "couldntStart",
+      "args": {
+        "error": "string"
+      },
+      "en": "couldn't start: {error}",
+      "tr": "başlatılamadı: {error}",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "automationCommandTitle",
+      "en": "Automation Command",
+      "tr": "Otomasyon komutu",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "automationCommandHint",
+      "en": "Runs once per commit for pull requests in To review. Placeholders are filled into each argument; nothing goes through a shell.",
+      "tr": "İncelenecek listesindeki PR'lar için her commit'te bir kez çalışır. Yer tutucular her argümana ayrı ayrı yerleştirilir; hiçbir şey kabuk (shell) üzerinden çalıştırılmaz.",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "insert",
+      "en": "Insert",
+      "tr": "Ekle",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "argumentsFor",
+      "args": {
+        "id": "string"
+      },
+      "en": "Arguments for {id}",
+      "tr": "{id} için argümanlar",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "argumentsForExample",
+      "en": "Arguments for an example pull request",
+      "tr": "Örnek bir PR için argümanlar",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "enterCommandExample",
+      "en": "Enter a command, e.g. /usr/bin/python3 ~/bin/check.py --pr {link} --commit {commit}",
+      "tr": "Bir komut girin, örn. /usr/bin/python3 ~/bin/check.py --pr {link} --commit {commit}",
+      "platforms": [
+        "macos"
+      ],
+      "note": "{link} and {commit} are literal Automation placeholders, not values"
+    },
+    {
+      "id": "clear",
+      "en": "Clear",
+      "tr": "Temizle",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "save",
+      "en": "Save",
+      "tr": "Kaydet",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "enterCommand",
+      "en": "Enter a command.",
+      "tr": "Bir komut girin.",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "unterminatedQuote",
+      "en": "The command has an unterminated quote.",
+      "tr": "Komutta kapatılmamış bir tırnak var.",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "notifyReviewRequested",
+      "args": {
+        "author": "string"
+      },
+      "en": "Review requested by {author}",
+      "tr": "{author} inceleme istedi",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "notifyNewCommits",
+      "en": "New commits to re-review",
+      "tr": "Yeniden incelenecek yeni commit'ler",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "notifyApproved",
+      "args": {
+        "name": "string"
+      },
+      "en": "✅ Approved by {name}",
+      "tr": "✅ {name} onayladı",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "notifyNeedsWork",
+      "args": {
+        "name": "string"
+      },
+      "en": "✋ {name} marked it needs work",
+      "tr": "✋ {name} değişiklik istedi",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "notifyConflicts",
+      "en": "⚠️ Merge conflicts",
+      "tr": "⚠️ Birleştirme çakışmaları",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "notifyConflictsResolved",
+      "en": "🔧 Conflicts resolved",
+      "tr": "🔧 Çakışmalar çözüldü",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "notifyBuildFailed",
+      "en": "❌ Build failed",
+      "tr": "❌ Derleme başarısız",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "notifyBuildFixed",
+      "en": "✅ Build fixed",
+      "tr": "✅ Derleme düzeldi",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "notifyComments",
+      "args": {
+        "n": "int",
+        "names": "string"
+      },
+      "en": {
+        "one": "💬 {n} new comment from {names}",
+        "other": "💬 {n} new comments from {names}"
+      },
+      "tr": "💬 {n} yeni yorum: {names}",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "notifyMerged",
+      "en": "🎉 Merged",
+      "tr": "🎉 Birleştirildi",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "notifyDeclined",
+      "en": "🚫 Declined",
+      "tr": "🚫 Reddedildi",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "notifyNoLongerOpen",
+      "en": "No longer open",
+      "tr": "Artık açık değil",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "testNotificationTitle",
+      "en": "PR Checker notifications work",
+      "tr": "PR Checker bildirimleri çalışıyor",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "testNotificationBody",
+      "en": "Click a notification to open its pull request.",
+      "tr": "PR'ı açmak için bildirime tıklayın.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "privateNotificationBody",
+      "en": "A pull request has an update. Click to open it.",
+      "tr": "Bir PR'da güncelleme var. Açmak için tıklayın.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "errorUnauthorized",
+      "en": "The access token was rejected. Check it in Settings.",
+      "tr": "Token reddedildi. Ayarlar'dan kontrol edin.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "errorRateLimited",
+      "en": "Bitbucket is limiting requests. PR Checker will try again later.",
+      "tr": "Bitbucket istekleri sınırlıyor. PR Checker daha sonra yeniden deneyecek.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "errorHTTP",
+      "args": {
+        "code": "int"
+      },
+      "en": "Bitbucket returned HTTP {code}.",
+      "tr": "Bitbucket HTTP {code} döndürdü.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "errorBadResponse",
+      "en": "Unexpected response from Bitbucket.",
+      "tr": "Bitbucket'tan beklenmeyen bir yanıt geldi.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "errorPaginationStalled",
+      "en": "Bitbucket returned an inconsistent page sequence.",
+      "tr": "Bitbucket tutarsız bir sayfa sırası döndürdü.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "errorTooManyResults",
+      "args": {
+        "limit": "int"
+      },
+      "en": "More than {limit} open pull requests; narrow it down with filters.",
+      "tr": "{limit} taneden fazla açık PR var; filtrelerle daraltın.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "errorResponseTooLarge",
+      "en": "Bitbucket sent an unexpectedly large response.",
+      "tr": "Bitbucket beklenmedik derecede büyük bir yanıt gönderdi.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "errorTokenRequired",
+      "en": "Enter the access token for this server.",
+      "tr": "Bu sunucunun token'ını girin.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "errorServerInvalid",
+      "en": "Enter a server URL like https://bitbucket.example.com.",
+      "tr": "https://bitbucket.example.com gibi bir sunucu adresi girin.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "errorServerNotHTTPS",
+      "en": "The server URL must start with https://.",
+      "tr": "Sunucu adresi https:// ile başlamalıdır.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "errorServerCredentials",
+      "en": "Remove the user name or password from the server URL.",
+      "tr": "Sunucu adresinden kullanıcı adını veya parolayı kaldırın.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "errorServerQuery",
+      "en": "Remove the ?query or #fragment from the server URL.",
+      "tr": "Sunucu adresinden ?sorgu veya #parça kısmını kaldırın.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "signedOut",
+      "en": "Signed out. Connect again in Settings → Bitbucket.",
+      "tr": "Oturum kapatıldı. Ayarlar → Bitbucket'tan yeniden bağlanın.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "notConfigured",
+      "en": "Add your server URL and access token in Settings.",
+      "tr": "Sunucu adresinizi ve token'ınızı Ayarlar'dan ekleyin.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "couldntReachBitbucket",
+      "args": {
+        "message": "string"
+      },
+      "en": "Couldn't reach Bitbucket: {message}",
+      "tr": "Bitbucket'a ulaşılamadı: {message}",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "refreshFailed",
+      "args": {
+        "message": "string"
+      },
+      "en": "Refresh failed: {message}",
+      "tr": "Yenileme başarısız: {message}",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "keychainSaveFailed",
+      "args": {
+        "detail": "string"
+      },
+      "en": "Couldn't save the access token to the Keychain: {detail}",
+      "tr": "Token Anahtar Zinciri'ne kaydedilemedi: {detail}",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "credentialSaveFailed",
+      "args": {
+        "detail": "string"
+      },
+      "en": "Couldn't save the access token in Credential Manager: {detail}",
+      "tr": "Token Kimlik Bilgileri Yöneticisi'ne kaydedilemedi: {detail}",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "credentialDeleteFailed",
+      "args": {
+        "detail": "string"
+      },
+      "en": "Couldn't delete the access token in Credential Manager: {detail}",
+      "tr": "Token Kimlik Bilgileri Yöneticisi'nden silinemedi: {detail}",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
+      "id": "startupFailed",
+      "args": {
+        "error": "string",
+        "path": "string"
+      },
+      "en": "PR Checker couldn't start.\n\n{error}\n\nDetails are in:\n{path}",
+      "tr": "PR Checker başlatılamadı.\n\n{error}\n\nAyrıntılar şurada:\n{path}",
+      "platforms": [
+        "windows"
+      ]
+    }
+  ]
+}

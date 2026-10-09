@@ -53,6 +53,5 @@ internal static partial class Platform
     /// <summary>A standalone dialog: works from the tray menu, where there's no window to attach to.</summary>
     public static bool ConfirmQuit() =>
         MessageBox(IntPtr.Zero,
-            "You won't see pull requests or get notifications until you open it again.",
-            "Quit PR Checker?", MbYesNo | MbIconQuestion | MbDefButton2) == IdYes;
+            L10n.QuitConfirmMessage, L10n.QuitConfirmTitle, MbYesNo | MbIconQuestion | MbDefButton2) == IdYes;
 }

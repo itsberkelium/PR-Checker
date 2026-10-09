@@ -92,7 +92,7 @@ final class PRStore {
         try settings.signOut()
         reset()
         Notifier.shared.removeDelivered()
-        errorMessage = "Signed out. Connect again in Settings → Bitbucket."
+        errorMessage = L10n.signedOut
     }
 
     /// Stops in-flight work and forgets everything shown for the previous connection.
@@ -118,7 +118,7 @@ final class PRStore {
 
     private func performRefresh(generation: Int) async {
         guard let client = settings.makeClient() else {
-            errorMessage = "Add your server URL and access token in Settings."
+            errorMessage = L10n.notConfigured
             return
         }
         isLoading = true

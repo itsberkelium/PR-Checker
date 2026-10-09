@@ -10,7 +10,7 @@ final class AppSettings {
         case tokenRequired
 
         var errorDescription: String? {
-            "Enter the access token for this server."
+            L10n.errorTokenRequired
         }
     }
 
@@ -21,6 +21,7 @@ final class AppSettings {
         static let repoFilter = "repoFilter"
         static let notificationsEnabled = "notificationsEnabled"
         static let notificationDetails = "notificationDetails"
+        static let language = "language"
         static let automationEnabled = "automationEnabled"
         static let automationCommand = "automationCommand"
     }
@@ -47,6 +48,13 @@ final class AppSettings {
     var notificationsEnabled: Bool { didSet { defaults.set(notificationsEnabled, forKey: Key.notificationsEnabled) } }
     /// Off: notifications say only that something changed, without titles or names.
     var notificationDetails: Bool { didSet { defaults.set(notificationDetails, forKey: Key.notificationDetails) } }
+    /// `.system` follows the macOS preferred language; takes effect immediately.
+    var language: LanguagePreference {
+        didSet {
+            defaults.set(language.rawValue, forKey: Key.language)
+            Localizer.shared.apply(language)
+        }
+    }
     /// Runs `automationCommand` when a PR enters the review list or gets new commits.
     var automationEnabled: Bool { didSet { defaults.set(automationEnabled, forKey: Key.automationEnabled) } }
     var automationCommand: String { didSet { defaults.set(automationCommand, forKey: Key.automationCommand) } }
@@ -64,6 +72,7 @@ final class AppSettings {
         repoFilter = defaults.string(forKey: Key.repoFilter) ?? ""
         notificationsEnabled = defaults.object(forKey: Key.notificationsEnabled) as? Bool ?? true
         notificationDetails = defaults.object(forKey: Key.notificationDetails) as? Bool ?? true
+        language = defaults.string(forKey: Key.language).flatMap(LanguagePreference.init) ?? .system
         automationEnabled = defaults.object(forKey: Key.automationEnabled) as? Bool ?? false
         automationCommand = defaults.string(forKey: Key.automationCommand) ?? ""
         filterPatterns = Self.parsePatterns(repoFilter)

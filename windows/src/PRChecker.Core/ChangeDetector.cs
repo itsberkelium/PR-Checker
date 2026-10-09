@@ -84,7 +84,7 @@ public static class ChangeDetector
         {
             if (!old.Reviewing.TryGetValue(item.Id, out var before))
             {
-                var title = item.HasNewCommits ? "New commits to re-review" : $"Review requested by {item.AuthorName}";
+                var title = item.HasNewCommits ? L10n.NotifyNewCommits : L10n.NotifyReviewRequested(item.AuthorName);
                 changes.Add(new Change(title, item.Title, item.Url));
                 continue;
             }
@@ -95,13 +95,13 @@ public static class ChangeDetector
         {
             if (!old.Mine.TryGetValue(item.Id, out var before) || !current.Mine.TryGetValue(item.Id, out var after)) continue;
             var lines = new List<string>();
-            lines.AddRange(after.ApprovedBy.Except(before.ApprovedBy).Order(StringComparer.Ordinal).Select(name => $"✅ Approved by {name}"));
-            lines.AddRange(after.NeedsWorkBy.Except(before.NeedsWorkBy).Order(StringComparer.Ordinal).Select(name => $"✋ {name} marked it needs work"));
-            if (after.Conflicted != before.Conflicted) lines.Add(after.Conflicted ? "⚠️ Merge conflicts" : "🔧 Conflicts resolved");
+            lines.AddRange(after.ApprovedBy.Except(before.ApprovedBy).Order(StringComparer.Ordinal).Select(L10n.NotifyApproved));
+            lines.AddRange(after.NeedsWorkBy.Except(before.NeedsWorkBy).Order(StringComparer.Ordinal).Select(L10n.NotifyNeedsWork));
+            if (after.Conflicted != before.Conflicted) lines.Add(after.Conflicted ? L10n.NotifyConflicts : L10n.NotifyConflictsResolved);
             if (after.SettledBuild != before.SettledBuild)
             {
-                if (after.SettledBuild == BuildState.Failed) lines.Add("❌ Build failed");
-                if (after.SettledBuild == BuildState.Passed && before.SettledBuild == BuildState.Failed) lines.Add("✅ Build fixed");
+                if (after.SettledBuild == BuildState.Failed) lines.Add(L10n.NotifyBuildFailed);
+                if (after.SettledBuild == BuildState.Passed && before.SettledBuild == BuildState.Failed) lines.Add(L10n.NotifyBuildFixed);
             }
             if (CommentLine(item, before.LastCommentDate) is { } line) lines.Add(line);
             if (lines.Count > 0) changes.Add(new Change(item.Title, string.Join("\n", lines), item.Url));
@@ -111,9 +111,9 @@ public static class ChangeDetector
         {
             var body = closedStates?.GetValueOrDefault(id) switch
             {
-                "MERGED" => "🎉 Merged",
-                "DECLINED" => "🚫 Declined",
-                _ => "No longer open",
+                "MERGED" => L10n.NotifyMerged,
+                "DECLINED" => L10n.NotifyDeclined,
+                _ => L10n.NotifyNoLongerOpen,
             };
             changes.Add(new Change(state.Title, body, new Uri(state.Url)));
         }
@@ -125,6 +125,6 @@ public static class ChangeDetector
         var fresh = (item.CommentsByOthers ?? []).Where(c => c.Created > lastSeen).OrderBy(c => c.Created).ToList();
         if (fresh.Count == 0) return null;
         var authors = fresh.Select(c => c.Author).Distinct().ToList();
-        return $"💬 {fresh.Count} new {(fresh.Count == 1 ? "comment" : "comments")} from {string.Join(", ", authors)}";
+        return L10n.NotifyComments(fresh.Count, string.Join(", ", authors));
     }
 }

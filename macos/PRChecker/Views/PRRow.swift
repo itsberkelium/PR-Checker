@@ -15,7 +15,7 @@ struct PRRow: View {
                         .font(.body.weight(.medium))
                         .lineLimit(2)
                     Spacer(minLength: 6)
-                    Text(item.updated, format: .relative(presentation: .named))
+                    Text(item.updated.relativeText)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize()
@@ -46,10 +46,10 @@ struct PRRow: View {
     private var badges: some View {
         HStack(spacing: 10) {
             if item.isDraft {
-                Badge("Draft", systemImage: "pencil.circle", color: .secondary)
+                Badge(L10n.badgeDraft, systemImage: "pencil.circle", color: .secondary)
             }
             if item.hasNewCommits {
-                Badge("New commits", systemImage: "arrow.up.circle", color: .blue)
+                Badge(L10n.badgeNewCommits, systemImage: "arrow.up.circle", color: .blue)
             }
             if !item.reviewers.isEmpty {
                 Badge("\(item.approvals)/\(item.reviewers.count)", systemImage: "checkmark.circle",
@@ -57,15 +57,15 @@ struct PRRow: View {
                     .help(item.reviewers.map { "\($0.name): \($0.status.label)" }.joined(separator: "\n"))
             }
             if item.needsWork {
-                Badge("Needs work", systemImage: "hand.raised", color: .orange)
+                Badge(L10n.needsWork, systemImage: "hand.raised", color: .orange)
             }
             if item.hasConflicts {
-                Badge("Conflicts", systemImage: "exclamationmark.triangle", color: .red)
+                Badge(L10n.badgeConflicts, systemImage: "exclamationmark.triangle", color: .red)
             }
             switch item.build {
-            case .passed: Badge("Build", systemImage: "checkmark.seal", color: .green)
-            case .failed: Badge("Build", systemImage: "xmark.seal", color: .red)
-            case .running: Badge("Build", systemImage: "clock", color: .secondary)
+            case .passed: Badge(L10n.badgeBuild, systemImage: "checkmark.seal", color: .green)
+            case .failed: Badge(L10n.badgeBuild, systemImage: "xmark.seal", color: .red)
+            case .running: Badge(L10n.badgeBuild, systemImage: "clock", color: .secondary)
             case .none: EmptyView()
             }
             if item.commentCount > 0 {
@@ -100,9 +100,16 @@ private struct Badge: View {
 extension ReviewStatus {
     var label: String {
         switch self {
-        case .approved: "Approved"
-        case .unapproved: "Not reviewed"
-        case .needsWork: "Needs work"
+        case .approved: L10n.reviewerApproved
+        case .unapproved: L10n.reviewerNotReviewed
+        case .needsWork: L10n.needsWork
         }
+    }
+}
+
+extension Date {
+    /// "40 seconds ago" / "40 saniye önce", in the app's chosen language.
+    var relativeText: String {
+        formatted(.relative(presentation: .named).locale(Localizer.shared.locale))
     }
 }

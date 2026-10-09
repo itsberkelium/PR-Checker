@@ -86,13 +86,13 @@ internal sealed class WindowsNotifier : INotifier
         // No titles, names or outcomes when details are off, e.g. for screen sharing or a locked screen.
         var lines = showDetails
             ? [change.Title, .. change.Body.Split('\n')]
-            : new[] { "PR Checker", "A pull request has an update. Click to open it." };
+            : new[] { "PR Checker", L10n.PrivateNotificationBody };
         Show(lines, change.Url.AbsoluteUri, "show a notification");
     }
 
     /// <summary>Has no link, so clicking it just dismisses it.</summary>
     public void SendTest() =>
-        Show(["PR Checker notifications work", "Click a notification to open its pull request."], url: null, "show the test notification");
+        Show([L10n.TestNotificationTitle, L10n.TestNotificationBody], url: null, "show the test notification");
 
     public void RemoveDelivered()
     {

@@ -14,13 +14,13 @@ public sealed class ApiException(ApiErrorKind kind, int? statusCode = null) : Ex
 
     private static string Describe(ApiErrorKind kind, int? status) => kind switch
     {
-        ApiErrorKind.Unauthorized => "The access token was rejected. Check it in Settings.",
-        ApiErrorKind.RateLimited => "Bitbucket is limiting requests. PR Checker will try again later.",
-        ApiErrorKind.Http => $"Bitbucket returned HTTP {status}.",
-        ApiErrorKind.PaginationStalled => "Bitbucket returned an inconsistent page sequence.",
-        ApiErrorKind.TooManyResults => $"More than {BitbucketClient.MaxPages * BitbucketClient.PageSize} open pull requests; narrow it down with filters.",
-        ApiErrorKind.ResponseTooLarge => "Bitbucket sent an unexpectedly large response.",
-        _ => "Unexpected response from Bitbucket.",
+        ApiErrorKind.Unauthorized => L10n.ErrorUnauthorized,
+        ApiErrorKind.RateLimited => L10n.ErrorRateLimited,
+        ApiErrorKind.Http => L10n.ErrorHTTP(status ?? 0),
+        ApiErrorKind.PaginationStalled => L10n.ErrorPaginationStalled,
+        ApiErrorKind.TooManyResults => L10n.ErrorTooManyResults(BitbucketClient.MaxPages * BitbucketClient.PageSize),
+        ApiErrorKind.ResponseTooLarge => L10n.ErrorResponseTooLarge,
+        _ => L10n.ErrorBadResponse,
     };
 }
 

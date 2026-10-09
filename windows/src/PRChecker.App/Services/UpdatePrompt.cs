@@ -15,8 +15,8 @@ internal static partial class UpdatePrompt
 
     public static Task<bool> AskAsync(string version) => Task.FromResult(
         MessageBox(IntPtr.Zero,
-            $"PR Checker {version} is available. You have {Platform.Version}.\n\nInstall it now? PR Checker restarts when it's done.",
-            "Update available", MbYesNo | MbIconInformation) == IdYes);
+            L10n.UpdateAvailableMessage(version, Platform.Version),
+            L10n.UpdateAvailableTitle, MbYesNo | MbIconInformation) == IdYes);
 
     public static void Inform(string message) => MessageBox(IntPtr.Zero, message, "PR Checker", MbOk | MbIconInformation);
 }

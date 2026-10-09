@@ -50,8 +50,8 @@ final class Notifier: NSObject, UNUserNotificationCenterDelegate {
     /// Has no link, so clicking it just dismisses it.
     func sendTest() {
         let content = UNMutableNotificationContent()
-        content.title = "PR Checker notifications work"
-        content.body = "Click a notification to open its pull request."
+        content.title = L10n.testNotificationTitle
+        content.body = L10n.testNotificationBody
         content.sound = .default
         center.add(UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: nil))
     }
@@ -64,7 +64,7 @@ final class Notifier: NSObject, UNUserNotificationCenterDelegate {
         } else {
             // No titles, names or outcomes, e.g. for screen sharing or a locked screen.
             content.title = "PR Checker"
-            content.body = "A pull request has an update. Click to open it."
+            content.body = L10n.privateNotificationBody
         }
         content.sound = .default
         content.userInfo = ["url": change.url.absoluteString]

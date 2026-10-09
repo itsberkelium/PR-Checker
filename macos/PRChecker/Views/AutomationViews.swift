@@ -15,18 +15,18 @@ struct AutomationSection: View {
     var body: some View {
         @Bindable var settings = store.settings
 
-        Section("Automation") {
+        Section(L10n.automation) {
             Toggle(isOn: $settings.automationEnabled) {
-                Text("Run a command for new review requests")
-                Text("Once per commit for pull requests in To review, e.g. to start an automated pre-check.")
+                Text(L10n.automationToggle)
+                Text(L10n.automationToggleHint)
             }
 
             if settings.automationEnabled {
                 LabeledContent {
-                    Button(hasCommand ? "Edit" : "Set Command") { editing = true }
+                    Button(hasCommand ? L10n.edit : L10n.setCommand) { editing = true }
                 } label: {
-                    Text("Command")
-                    Text(hasCommand ? settings.automationCommand : "Not set")
+                    Text(L10n.command)
+                    Text(hasCommand ? settings.automationCommand : L10n.notSet)
                         .font(.caption.monospaced())
                         .lineLimit(1)
                         .truncationMode(.middle)
@@ -34,13 +34,13 @@ struct AutomationSection: View {
 
                 LabeledContent {
                     HStack {
-                        Button("Run Now") { confirmingRunNow = true }
+                        Button(L10n.runNow) { confirmingRunNow = true }
                             .disabled(!hasCommand || store.toReview.isEmpty)
-                        Button("Show Log") { NSWorkspace.shared.open(Automation.logFile) }
+                        Button(L10n.showLog) { NSWorkspace.shared.open(Automation.logFile) }
                             .disabled(!FileManager.default.fileExists(atPath: Automation.logFile.path))
                     }
                 } label: {
-                    Text("Last run")
+                    Text(L10n.lastRun)
                     Text(lastRunText).font(.caption)
                 }
             }
@@ -59,35 +59,35 @@ struct AutomationSection: View {
             }
         }
         .confirmationDialog(backlogQuestion, isPresented: $askingForBacklog, titleVisibility: .visible) {
-            Button("Run for \(store.automationBacklog.count) Pull Requests") { store.runAutomationNow() }
-            Button("Only New Ones From Now") { store.skipAutomationBacklog() }
-            Button("Cancel", role: .cancel) { settings.automationEnabled = false }
+            Button(L10n.runForCount(n: store.automationBacklog.count)) { store.runAutomationNow() }
+            Button(L10n.onlyNewOnes) { store.skipAutomationBacklog() }
+            Button(L10n.cancel, role: .cancel) { settings.automationEnabled = false }
         } message: {
-            Text("They're already in your review list. The command may post comments on them.")
+            Text(L10n.backlogHint)
         }
-        .confirmationDialog("Run the command for \(store.toReview.count) pull requests now?",
+        .confirmationDialog(L10n.runAllQuestion(n: store.toReview.count),
                             isPresented: $confirmingRunNow, titleVisibility: .visible) {
-            Button("Run Now") { store.runAutomationNow() }
-            Button("Cancel", role: .cancel) {}
+            Button(L10n.runNow) { store.runAutomationNow() }
+            Button(L10n.cancel, role: .cancel) {}
         } message: {
-            Text("Every pull request in To review, including commits it already ran for.")
+            Text(L10n.runAllHint)
         }
     }
 
     private var backlogQuestion: String {
         let count = store.automationBacklog.count
-        return "Run the command for the \(count) pull request\(count == 1 ? "" : "s") waiting now?"
+        return L10n.backlogQuestion(n: count)
     }
 
     private var lastRunText: String {
-        if monitor.running > 0 { return "Running for \(monitor.running) pull request\(monitor.running == 1 ? "" : "s")…" }
-        guard let last = monitor.last else { return "Not run since PR Checker started" }
-        let when = last.started.formatted(.relative(presentation: .named))
-        if let error = last.startError { return "\(last.pullRequest) · \(when) · couldn't start: \(error)" }
+        if monitor.running > 0 { return L10n.runningFor(n: monitor.running) }
+        guard let last = monitor.last else { return L10n.notRunYet }
+        let when = last.started.relativeText
+        if let error = last.startError { return "\(last.pullRequest) · \(when) · \(L10n.couldntStart(error: error))" }
         let outcome = switch last.exitCode {
-        case nil: "running"
-        case 0: "finished"
-        case let code?: "failed (exit \(code))"
+        case nil: L10n.outcomeRunning
+        case 0: L10n.outcomeFinished
+        case let code?: L10n.outcomeFailed(code: Int(code))
         }
         return "\(last.pullRequest) · \(when) · \(outcome)"
     }
@@ -123,8 +123,8 @@ struct AutomationCommandEditor: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
-            Text("Automation Command").font(.headline)
-            Text("Runs once per commit for pull requests in To review. Placeholders are filled into each argument; nothing goes through a shell.")
+            Text(L10n.automationCommandTitle).font(.headline)
+            Text(L10n.automationCommandHint)
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .fixedSize(horizontal: false, vertical: true)
@@ -136,9 +136,9 @@ struct AutomationCommandEditor: View {
                 .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(Color(nsColor: .separatorColor)))
 
             HStack(spacing: 6) {
-                Text("Insert").font(.caption).foregroundStyle(.secondary)
+                Text(L10n.insert).font(.caption).foregroundStyle(.secondary)
                 ForEach(Automation.placeholders, id: \.self) { name in
-                    Button("{\(name)}") { insert("{\(name)}") }
+                    Button { insert("{\(name)}") } label: { Text(verbatim: "{\(name)}") }
                         .font(.caption.monospaced())
                         .buttonStyle(.bordered)
                         .controlSize(.small)
@@ -148,12 +148,12 @@ struct AutomationCommandEditor: View {
             previewView
 
             HStack {
-                Button("Clear", role: .destructive) { command = "" }
+                Button(L10n.clear, role: .destructive) { command = "" }
                     .disabled(command.isEmpty)
                 Spacer()
-                Button("Cancel", role: .cancel) { dismiss() }
+                Button(L10n.cancel, role: .cancel) { dismiss() }
                     .keyboardShortcut(.cancelAction)
-                Button("Save") {
+                Button(L10n.save) {
                     onSave(trimmed)
                     dismiss()
                 }
@@ -168,12 +168,12 @@ struct AutomationCommandEditor: View {
     @ViewBuilder
     private var previewView: some View {
         VStack(alignment: .leading, spacing: 4) {
-            Text(previewItem.map { "Arguments for \($0.id)" } ?? "Arguments for an example pull request")
+            Text(previewItem.map { L10n.argumentsFor(id: $0.id) } ?? L10n.argumentsForExample)
                 .font(.caption)
                 .foregroundStyle(.secondary)
             switch preview {
             case nil:
-                Text("Enter a command, e.g. /usr/bin/python3 ~/bin/check.py --pr {link} --commit {commit}")
+                Text(L10n.enterCommandExample)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             case .failure(let error):

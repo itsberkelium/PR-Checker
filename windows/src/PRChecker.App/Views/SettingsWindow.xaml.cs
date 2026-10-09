@@ -24,10 +24,69 @@ public sealed partial class SettingsWindow : Window
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "app.ico"));
         var scale = Content.XamlRoot?.RasterizationScale ?? 1.0;
         AppWindow.Resize(new SizeInt32((int)(640 * scale), (int)(720 * scale)));
-        foreach (var minutes in AppSettings.RefreshOptions) RefreshBox.Items.Add($"{minutes} min");
-        Closed += (_, _) => TokenBox.Password = "";
+        Closed += (_, _) =>
+        {
+            TokenBox.Password = "";
+            Localizer.Changed -= OnLanguageApplied;
+        };
         Activated += (_, _) => RefreshNotificationState();
+        Localizer.Changed += OnLanguageApplied;
+        ApplyStrings();
         Load();
+    }
+
+    /// <summary>All visible text, from L10n; called again whenever the language changes.</summary>
+    private void ApplyStrings()
+    {
+        var loading = _loading;
+        _loading = true;
+        Title = L10n.SettingsWindowTitle;
+        GeneralItem.Content = L10n.TabGeneral;
+        BitbucketItem.Content = L10n.TabBitbucket;
+        AboutItem.Content = L10n.TabAbout;
+
+        NotificationsToggle.Header = L10n.Notifications;
+        OpenNotificationSettingsButton.Content = L10n.OpenNotificationSettings;
+        TestNotificationButton.Content = L10n.SendTestNotification;
+        DetailsToggle.Header = L10n.ShowDetailsInNotifications;
+        DetailsHint.Text = L10n.ShowDetailsHint;
+        OpenAtLoginToggle.Header = L10n.OpenAtLogin;
+        RefreshBox.Header = L10n.CheckEvery;
+        var refresh = RefreshBox.SelectedIndex;
+        RefreshBox.Items.Clear();
+        foreach (var minutes in AppSettings.RefreshOptions) RefreshBox.Items.Add(L10n.MinutesShort(minutes));
+        RefreshBox.SelectedIndex = refresh;
+        LanguageBox.Header = L10n.Language;
+        var language = LanguageBox.SelectedIndex;
+        LanguageBox.Items.Clear();
+        // Language names stay in their own language, so anyone can find theirs.
+        foreach (var name in new[] { L10n.LanguageSystem, "English", "Türkçe" }) LanguageBox.Items.Add(name);
+        LanguageBox.SelectedIndex = language;
+
+        ServerBox.Header = L10n.ServerURL;
+        TokenBox.Header = L10n.AccessToken;
+        TokenHint.Text = L10n.TokenHintWindows;
+        ConnectButton.Content = L10n.SaveAndConnect;
+        SignOutButton.Content = L10n.SignOut;
+        FiltersTitle.Text = L10n.Filters;
+        HideDraftsToggle.Header = L10n.HideDrafts;
+        FilterBox.Header = L10n.OnlyTheseRepos;
+        FilterBox.PlaceholderText = L10n.FilterAllPlaceholder;
+        FilterHint.Text = L10n.FilterHint;
+
+        CheckForUpdatesButton.Content = L10n.CheckForUpdates;
+        UpdateLastCheck();
+        UpdateTokenHint();
+        RefreshNotificationState();
+        _loading = loading;
+    }
+
+    private void OnLanguageApplied() => DispatcherQueue.TryEnqueue(ApplyStrings);
+
+    private void OnLanguageChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loading || LanguageBox.SelectedIndex < 0) return;
+        Settings.Language = (LanguagePreference)LanguageBox.SelectedIndex;
     }
 
     private AppSettings Settings => _app.Store.Settings;
@@ -50,6 +109,7 @@ public sealed partial class SettingsWindow : Window
         DetailsToggle.IsOn = Settings.NotificationDetails;
         OpenAtLoginToggle.IsOn = Platform.OpenAtLogin;
         RefreshBox.SelectedIndex = Array.IndexOf(AppSettings.RefreshOptions, Settings.RefreshMinutes);
+        LanguageBox.SelectedIndex = (int)Settings.Language;
         ServerBox.Text = Settings.SavedServerUrl;
         HideDraftsToggle.IsOn = Settings.HideDrafts;
         FilterBox.Text = Settings.RepoFilter;
@@ -65,9 +125,11 @@ public sealed partial class SettingsWindow : Window
         GeneralPage.Visibility = tag == "General" ? Visibility.Visible : Visibility.Collapsed;
         BitbucketPage.Visibility = tag == "Bitbucket" ? Visibility.Visible : Visibility.Collapsed;
         AboutPage.Visibility = tag == "About" ? Visibility.Visible : Visibility.Collapsed;
-        if (tag == "About")
-            LastCheckText.Text = _app.Updates.LastCheck is { } last ? $"Last checked {PrRow.Relative(last)}" : "Checked automatically once a week";
+        if (tag == "About") UpdateLastCheck();
     }
+
+    private void UpdateLastCheck() =>
+        LastCheckText.Text = _app.Updates.LastCheck is { } last ? L10n.LastChecked(PrRow.Relative(last)) : L10n.CheckedWeekly;
 
     // MARK: General
 
@@ -75,10 +137,10 @@ public sealed partial class SettingsWindow : Window
     {
         var notifier = _app.Notifier;
         var blocked = Settings.NotificationsEnabled && (notifier.IsBlockedBySystem || !notifier.IsAvailable);
-        NotificationsBlocked.Title = notifier.IsAvailable ? "Turned off in Windows Settings" : "Not available on this PC";
+        NotificationsBlocked.Title = notifier.IsAvailable ? L10n.BlockedWindowsTitle : L10n.UnavailableTitle;
         NotificationsBlocked.Message = notifier.IsAvailable
-            ? "Windows is blocking PR Checker's notifications. Turn them on for PR Checker."
-            : $"Windows couldn't set up notifications for PR Checker ({notifier.UnavailableReason}). Pull requests still show in the tray.";
+            ? L10n.BlockedWindowsMessage
+            : L10n.UnavailableMessage(notifier.UnavailableReason ?? "");
         NotificationsBlocked.ActionButton.Visibility = notifier.IsAvailable ? Visibility.Visible : Visibility.Collapsed;
         NotificationsBlocked.IsOpen = blocked;
         TestNotificationButton.Visibility = Settings.NotificationsEnabled && !blocked ? Visibility.Visible : Visibility.Collapsed;
@@ -124,7 +186,7 @@ public sealed partial class SettingsWindow : Window
 
     private void UpdateTokenHint()
     {
-        TokenBox.PlaceholderText = CanReuseSavedToken ? "Saved – leave empty to keep" : "Required";
+        TokenBox.PlaceholderText = CanReuseSavedToken ? L10n.TokenSavedPlaceholder : L10n.TokenRequiredPlaceholder;
         SignOutButton.Visibility = _app.Store.IsConfigured ? Visibility.Visible : Visibility.Collapsed;
     }
 
@@ -138,13 +200,13 @@ public sealed partial class SettingsWindow : Window
             var name = await _app.Store.ConnectAsync(ServerBox.Text, TokenBox.Password);
             TokenBox.Password = "";
             ServerBox.Text = Settings.SavedServerUrl;
-            ShowStatus(InfoBarSeverity.Success, $"Connected as {name}");
+            ShowStatus(InfoBarSeverity.Success, L10n.ConnectedAs(name));
         }
         catch (Exception error) when (error is ServerAddress.InvalidException or ConnectionException or ApiException
                                           or TokenStoreException or HttpRequestException or TaskCanceledException)
         {
             ShowStatus(InfoBarSeverity.Error, error is HttpRequestException or TaskCanceledException
-                ? $"Couldn't reach the server: {error.Message}"
+                ? L10n.CouldntReachServer(error.Message)
                 : error.Message);
         }
         finally
@@ -160,10 +222,10 @@ public sealed partial class SettingsWindow : Window
         var dialog = new ContentDialog
         {
             XamlRoot = Content.XamlRoot,
-            Title = "Sign out of Bitbucket?",
-            Content = "Removes the access token from Credential Manager and the pull request data PR Checker stored for this server.",
-            PrimaryButtonText = "Sign Out",
-            CloseButtonText = "Cancel",
+            Title = L10n.SignOutConfirmTitle,
+            Content = L10n.SignOutConfirmMessageWindows,
+            PrimaryButtonText = L10n.SignOut,
+            CloseButtonText = L10n.Cancel,
             DefaultButton = ContentDialogButton.Close,
         };
         if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;

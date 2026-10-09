@@ -20,7 +20,7 @@ public abstract class ObservableObject : INotifyPropertyChanged
 
 public sealed class ConnectionException(string message) : Exception(message)
 {
-    public static ConnectionException TokenRequired() => new("Enter the access token for this server.");
+    public static ConnectionException TokenRequired() => new(L10n.ErrorTokenRequired);
 }
 
 /// <summary>User settings. The server and token change only through <see cref="ApplyConnection"/> and <see cref="SignOut"/>.</summary>
@@ -43,6 +43,7 @@ public sealed class AppSettings : ObservableObject
         if (!RefreshOptions.Contains(_data.RefreshMinutes)) _data = _data with { RefreshMinutes = 5 };
         Server = _data.ServerUrl is { } url && ServerAddress.TryParse(url, out var server) ? server : null;
         _filterPatterns = ParsePatterns(_data.RepoFilter);
+        Localizer.Apply(_data.Language);
     }
 
     /// <summary>Replaced in tests to talk to a stub server.</summary>
@@ -63,6 +64,16 @@ public sealed class AppSettings : ObservableObject
     /// <summary>Off: notifications say only that something changed, without titles or names.</summary>
     public bool NotificationDetails { get => _data.NotificationDetails; set => Update(_data with { NotificationDetails = value }); }
     public bool OpenAtLogin { get => _data.OpenAtLogin; set => Update(_data with { OpenAtLogin = value }); }
+    /// <summary>System follows the Windows display language; takes effect immediately.</summary>
+    public LanguagePreference Language
+    {
+        get => _data.Language;
+        set
+        {
+            Update(_data with { Language = value });
+            Localizer.Apply(value);
+        }
+    }
 
     private void Update(SettingsData data, [CallerMemberName] string? name = null)
     {

@@ -30,6 +30,7 @@ public sealed record SettingsData
     public bool NotificationsEnabled { get; init; } = true;
     public bool NotificationDetails { get; init; } = true;
     public bool OpenAtLogin { get; init; }
+    public LanguagePreference Language { get; init; } = LanguagePreference.System;
 }
 
 public interface ISettingsStore

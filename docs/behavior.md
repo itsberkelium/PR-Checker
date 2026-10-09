@@ -2,6 +2,14 @@
 
 The rules both apps implement. The macOS app (`macos/`) is the reference implementation; the Windows app (`windows/`) must behave the same. Sample API responses for tests live in [`shared/fixtures/`](../shared/fixtures).
 
+## Language
+
+- English and Turkish. All text comes from [`shared/localization/strings.json`](../shared/localization/strings.json) through the generated `L10n` accessors; no UI text is written directly in code.
+- Setting **Language**: *System language* (default), *English* or *Türkçe*. System picks Turkish when the OS's preferred/display language is Turkish, English otherwise.
+- Changing it applies immediately, including relative times ("3 hours ago" / "3 saat önce"). Notifications and error messages use the language at the time they're created.
+- Logs stay in English.
+- Turkish strings are confirmed by the maintainer; don't change them without asking.
+
 ## Bitbucket API
 
 All requests go to the configured server with `Authorization: Bearer <token>` and `Accept: application/json`.

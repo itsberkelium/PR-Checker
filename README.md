@@ -10,6 +10,7 @@ A menu bar (macOS) and system tray (Windows) app for **Bitbucket Server / Data C
 - **Mine**: your open PRs with approvals, needs-work, merge conflicts, build status, comments and open tasks.
 - The menu bar or tray icon shows how many PRs wait for your review, plus a `•` when one of your own PRs needs attention.
 - Click any PR or notification to open it in the browser.
+- In English or Turkish, following your system language or chosen in Settings.
 
 <p align="center">
   <picture>
@@ -112,6 +113,7 @@ API responses aren't cached and no cookies are kept.
 | [`windows/`](windows/README.md) | Windows app: build, test, release |
 | [`docs/behavior.md`](docs/behavior.md) | Rules both apps implement: review list, notifications, security limits |
 | [`shared/fixtures/`](shared/fixtures) | Sample Bitbucket responses used by both test suites |
+| [`shared/localization/`](shared/localization) | Every user-facing string in English and Turkish; `generate.py` writes each app's typed `L10n` accessors |
 | [`Design/`](Design) | Icon sources for both platforms |
 | [`.github/workflows/`](.github/workflows) | CI: builds and tests both apps on every push |
 | [`scripts/release-badge.sh`](scripts/release-badge.sh) | Sets a README release badge's version and link to a new release; called by the release scripts |

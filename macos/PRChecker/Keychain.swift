@@ -13,7 +13,7 @@ struct KeychainError: LocalizedError {
 
     var errorDescription: String? {
         let detail = SecCopyErrorMessageString(status, nil) as String? ?? "error \(status)"
-        return "Couldn't save the access token to the Keychain: \(detail)"
+        return L10n.keychainSaveFailed(detail: detail)
     }
 }
 

@@ -126,7 +126,7 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
         Settings.SignOut();
         Reset();
         notifier.RemoveDelivered();
-        ErrorMessage = "Signed out. Connect again in Settings → Bitbucket.";
+        ErrorMessage = L10n.SignedOut;
     }
 
     /// <summary>Stops in-flight work and forgets everything shown for the previous connection.</summary>
@@ -155,7 +155,7 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
     {
         if (Settings.MakeClient() is not { } client)
         {
-            ErrorMessage = "Add your server URL and access token in Settings.";
+            ErrorMessage = L10n.NotConfigured;
             return;
         }
         IsLoading = true;
@@ -186,12 +186,12 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
         catch (OperationCanceledException) { }
         catch (Exception error) when (error is ApiException or HttpRequestException)
         {
-            if (IsCurrent(generation, cancellation)) ErrorMessage = error is ApiException ? error.Message : $"Couldn't reach Bitbucket: {error.Message}";
+            if (IsCurrent(generation, cancellation)) ErrorMessage = error is ApiException ? error.Message : L10n.CouldntReachBitbucket(error.Message);
         }
 #pragma warning disable CA1031 // The polling loop must survive anything; the error is shown instead.
         catch (Exception error)
         {
-            if (IsCurrent(generation, cancellation)) ErrorMessage = $"Refresh failed: {error.Message}";
+            if (IsCurrent(generation, cancellation)) ErrorMessage = L10n.RefreshFailed(error.Message);
         }
 #pragma warning restore CA1031
         finally

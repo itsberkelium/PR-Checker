@@ -14,13 +14,13 @@ struct SettingsView: View {
     var body: some View {
         TabView(selection: $tab) {
             GeneralSettings()
-                .tabItem { Label("General", systemImage: "gearshape") }
+                .tabItem { Label(L10n.tabGeneral, systemImage: "gearshape") }
                 .tag(Tab.general)
             BitbucketSettings()
-                .tabItem { Label("Bitbucket", systemImage: "server.rack") }
+                .tabItem { Label(L10n.tabBitbucket, systemImage: "server.rack") }
                 .tag(Tab.bitbucket)
             AboutSettings()
-                .tabItem { Label("About", systemImage: "info.circle") }
+                .tabItem { Label(L10n.tabAbout, systemImage: "info.circle") }
                 .tag(Tab.about)
         }
         .frame(width: 480)
@@ -39,37 +39,43 @@ private struct GeneralSettings: View {
         @Bindable var settings = store.settings
 
         Form {
-            Section("General") {
-                Toggle("Notifications", isOn: $settings.notificationsEnabled)
+            Section(L10n.tabGeneral) {
+                Toggle(L10n.notifications, isOn: $settings.notificationsEnabled)
                 if settings.notificationsEnabled {
                     if notifier.isBlockedBySystem {
                         LabeledContent {
-                            Button("Open Notification Settings") { notifier.openSystemSettings() }
+                            Button(L10n.openNotificationSettings) { notifier.openSystemSettings() }
                         } label: {
                             Label {
-                                Text("Turned off in System Settings")
-                                Text("macOS is blocking PR Checker's notifications. Turn on Allow Notifications.")
+                                Text(L10n.blockedMacTitle)
+                                Text(L10n.blockedMacMessage)
                             } icon: {
                                 Image(systemName: "bell.slash.fill").foregroundStyle(.orange)
                             }
                         }
                     } else {
-                        LabeledContent("Check delivery") {
-                            Button("Send Test Notification") { notifier.sendTest() }
+                        LabeledContent(L10n.checkDelivery) {
+                            Button(L10n.sendTestNotification) { notifier.sendTest() }
                         }
                     }
                     Toggle(isOn: $settings.notificationDetails) {
-                        Text("Show pull request details")
-                        Text("Off: notifications don't show titles, names or results, e.g. while screen sharing.")
+                        Text(L10n.showDetails)
+                        Text(L10n.showDetailsHint)
                     }
                 }
-                Toggle("Open at login", isOn: $launchAtLogin)
+                Toggle(L10n.openAtLogin, isOn: $launchAtLogin)
+                Picker(L10n.language, selection: $settings.language) {
+                    Text(L10n.languageSystem).tag(LanguagePreference.system)
+                    // Language names stay in their own language, so anyone can find theirs.
+                    Text(verbatim: "English").tag(LanguagePreference.english)
+                    Text(verbatim: "Türkçe").tag(LanguagePreference.turkish)
+                }
             }
 
-            Section("Refresh") {
-                Picker("Check every", selection: $settings.refreshMinutes) {
+            Section(L10n.refreshSection) {
+                Picker(L10n.checkEvery, selection: $settings.refreshMinutes) {
                     ForEach(AppSettings.refreshOptions, id: \.self) { minutes in
-                        Text("\(minutes) min").tag(minutes)
+                        Text(L10n.minutesShort(n: minutes)).tag(minutes)
                     }
                 }
             }
@@ -123,15 +129,15 @@ private struct BitbucketSettings: View {
 
         Form {
             Section {
-                TextField("Server URL", text: $serverDraft, prompt: Text("https://bitbucket.example.com"))
-                SecureField("Access token", text: $tokenDraft,
-                            prompt: Text(canReuseSavedToken ? "Saved – leave empty to keep" : "Required"))
+                TextField(L10n.serverURL, text: $serverDraft, prompt: Text(verbatim: "https://bitbucket.example.com"))
+                SecureField(L10n.accessToken, text: $tokenDraft,
+                            prompt: Text(canReuseSavedToken ? L10n.tokenSavedPlaceholder : L10n.tokenRequiredPlaceholder))
                 HStack {
                     switch status {
                     case .connecting:
                         ProgressView().controlSize(.small)
                     case .connected(let name):
-                        Text("Connected as \(name)").font(.caption).foregroundStyle(.green)
+                        Text(L10n.connectedAs(name: name)).font(.caption).foregroundStyle(.green)
                     case .failed(let message):
                         Text(message).font(.caption).foregroundStyle(.red)
                     case nil:
@@ -139,28 +145,28 @@ private struct BitbucketSettings: View {
                     }
                     Spacer()
                     if store.isConfigured {
-                        Button("Sign Out", role: .destructive) { confirmingSignOut = true }
+                        Button(L10n.signOut, role: .destructive) { confirmingSignOut = true }
                     }
-                    Button("Save & Connect", action: saveAndConnect)
+                    Button(L10n.saveAndConnect, action: saveAndConnect)
                         .keyboardShortcut(.defaultAction)
                         .disabled(status == .connecting || serverDraft.isEmpty
                                   || (tokenDraft.isEmpty && !canReuseSavedToken))
                 }
             } header: {
-                Text("Bitbucket Server")
+                Text(verbatim: "Bitbucket Server")
             } footer: {
-                Text("Create a token under Profile → Manage account → HTTP access tokens with Read permission. It is stored in your Keychain and only sent to this server.")
+                Text(L10n.tokenHintMac)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
 
             Section {
-                Toggle("Hide draft pull requests", isOn: $settings.hideDrafts)
-                TextField("Only these projects/repos", text: $settings.repoFilter, prompt: Text("All"))
+                Toggle(L10n.hideDrafts, isOn: $settings.hideDrafts)
+                TextField(L10n.onlyTheseRepos, text: $settings.repoFilter, prompt: Text(L10n.filterAllPlaceholder))
             } header: {
-                Text("Filters")
+                Text(L10n.filters)
             } footer: {
-                Text("Comma-separated project keys or PROJECT/repo-slug, e.g. PROJ, OTHER/my-repo.")
+                Text(L10n.filterHint)
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -168,10 +174,10 @@ private struct BitbucketSettings: View {
         .formStyle(.grouped)
         .onAppear { serverDraft = store.settings.savedServerURL }
         .onDisappear { tokenDraft = "" }
-        .confirmationDialog("Sign out of Bitbucket?", isPresented: $confirmingSignOut) {
-            Button("Sign Out", role: .destructive, action: signOut)
+        .confirmationDialog(L10n.signOutConfirmTitle, isPresented: $confirmingSignOut) {
+            Button(L10n.signOut, role: .destructive, action: signOut)
         } message: {
-            Text("Removes the access token from your Keychain and the pull request data PR Checker stored for this server.")
+            Text(L10n.signOutConfirmMessageMac)
         }
     }
 
@@ -206,15 +212,15 @@ private struct AboutSettings: View {
     var body: some View {
         Form {
             Section {
-                LabeledContent("Version", value: Self.appVersion)
+                LabeledContent(L10n.version, value: Self.appVersion)
                 LabeledContent {
-                    Button("Check for Updates") { Updater.shared.checkForUpdates() }
+                    Button(L10n.checkForUpdates) { Updater.shared.checkForUpdates() }
                 } label: {
-                    Text("Updates")
+                    Text(L10n.updates)
                     if let last = Updater.shared.lastCheckDate {
-                        Text("Last checked \(last, format: .relative(presentation: .named))")
+                        Text(L10n.lastChecked(time: last.relativeText))
                     } else {
-                        Text("Checked automatically once a week")
+                        Text(L10n.checkedWeekly)
                     }
                 }
             }

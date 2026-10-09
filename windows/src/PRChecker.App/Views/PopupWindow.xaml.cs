@@ -37,6 +37,7 @@ public sealed partial class PopupWindow : Window
         Activated += (_, args) => { if (args.WindowActivationState == WindowActivationState.Deactivated) HideWindow(); };
 
         _app.Store.PropertyChanged += OnStoreChanged;
+        Localizer.Changed += () => DispatcherQueue.TryEnqueue(Render);
         _clock.Tick += (_, _) => Render();
         Render();
     }
@@ -78,8 +79,13 @@ public sealed partial class PopupWindow : Window
         var store = _app.Store;
         var review = Tabs.SelectedItem != MineTab;
         var items = review ? store.ToReview : store.Mine;
-        ReviewTab.Text = $"To review ({store.ToReview.Count})";
-        MineTab.Text = $"Mine ({store.Mine.Count})";
+        ReviewTab.Text = L10n.ToReviewTab(store.ToReview.Count);
+        MineTab.Text = L10n.MineTab(store.Mine.Count);
+        EmptyAction.Content = L10n.OpenSettings;
+        OpenNotificationSettingsLink.Content = L10n.OpenNotificationSettings;
+        ToolTipService.SetToolTip(RefreshButton, L10n.RefreshShortcut);
+        ToolTipService.SetToolTip(SettingsButton, L10n.Settings);
+        ToolTipService.SetToolTip(QuitButton, L10n.QuitApp);
 
         List.ItemsSource = items.Select(item => new PrRow(item, showsAuthor: review)).ToList();
         var empty = items.Count == 0;
@@ -97,21 +103,21 @@ public sealed partial class PopupWindow : Window
             else if (store.LastUpdated is null)
             {
                 EmptyIcon.Glyph = "";
-                EmptyText.Text = "Loading…";
+                EmptyText.Text = L10n.Loading;
             }
             else
             {
                 EmptyIcon.Glyph = review ? "" : "";
-                EmptyText.Text = review ? "Nothing to review" : "No open pull requests";
+                EmptyText.Text = review ? L10n.NothingToReview : L10n.NoOpenPullRequests;
             }
         }
 
         ErrorIcon.Visibility = store.ErrorMessage is not null && !empty ? Visibility.Visible : Visibility.Collapsed;
         ToolTipService.SetToolTip(ErrorIcon, store.ErrorMessage);
-        UpdatedText.Text = store.LastUpdated is { } updated ? $"Updated {PrRow.Relative(updated)}" : "";
+        UpdatedText.Text = store.LastUpdated is { } updated ? L10n.UpdatedAgo(PrRow.Relative(updated)) : "";
         RefreshButton.IsEnabled = !store.IsLoading;
         var notifier = _app.Notifier;
-        NotificationsBlocked.Title = notifier.IsAvailable ? "Notifications are off in Windows Settings" : "Notifications aren't available on this PC";
+        NotificationsBlocked.Title = notifier.IsAvailable ? L10n.NotificationsOffWindows : L10n.NotificationsUnavailablePC;
         NotificationsBlocked.ActionButton.Visibility = notifier.IsAvailable ? Visibility.Visible : Visibility.Collapsed;
         NotificationsBlocked.IsOpen = store.Settings.NotificationsEnabled && (notifier.IsBlockedBySystem || !notifier.IsAvailable);
     }

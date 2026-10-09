@@ -5,19 +5,27 @@ import SwiftUI
 struct PRCheckerApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) private var appDelegate
     @State private var store = PRStore.shared
+    @State private var localizer = Localizer.shared
+
+    init() {
+        // Tests keep English; the app starts in the chosen (or system) language.
+        if !AppDelegate.isRunningTests { Localizer.shared.apply(AppSettings.shared.language) }
+    }
 
     var body: some Scene {
         MenuBarExtra {
             MenuContentView()
                 .environment(store)
+                .environment(\.locale, localizer.locale)
         } label: {
             MenuBarLabel(store: store)
         }
         .menuBarExtraStyle(.window)
 
-        Window("PR Checker Settings", id: SettingsView.windowID) {
+        Window(L10n.settingsWindowTitle, id: SettingsView.windowID) {
             SettingsView()
                 .environment(store)
+                .environment(\.locale, localizer.locale)
         }
         .windowResizability(.contentSize)
         .defaultLaunchBehavior(AppDelegate.isHeadless || store.isConfigured ? .suppressed : .presented)

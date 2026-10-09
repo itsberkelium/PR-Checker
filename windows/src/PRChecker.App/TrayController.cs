@@ -19,31 +19,33 @@ internal sealed partial class TrayController(App app) : IDisposable
 {
     private readonly TaskbarIcon _icon = new();
     private readonly ImageSource _appIcon = new BitmapImage(new Uri(Path.Combine(AppContext.BaseDirectory, "Assets", "app.ico")));
+    private readonly MenuFlyoutItem _showItem = new();
+    private readonly MenuFlyoutItem _refreshItem = new();
+    private readonly MenuFlyoutItem _settingsItem = new();
+    private readonly MenuFlyoutItem _quitItem = new();
 
     public void Create()
     {
         _icon.LeftClickCommand = new Command(app.TogglePopup);
         _icon.NoLeftClickDelay = true;
         _icon.ContextMenuMode = ContextMenuMode.PopupMenu;
+        _showItem.Command = new Command(app.ShowPopup);
+        _refreshItem.Command = new Command(() => _ = app.Store.RefreshAsync());
+        _settingsItem.Command = new Command(() => app.ShowSettings());
+        _quitItem.Command = new Command(app.Quit);
         _icon.ContextFlyout = new MenuFlyout
         {
-            Items =
-            {
-                Item("Show Pull Requests", app.ShowPopup),
-                Item("Refresh", () => _ = app.Store.RefreshAsync()),
-                Item("Settings", () => app.ShowSettings()),
-                new MenuFlyoutSeparator(),
-                Item("Quit PR Checker", app.Quit),
-            },
+            Items = { _showItem, _refreshItem, _settingsItem, new MenuFlyoutSeparator(), _quitItem },
         };
         app.Store.PropertyChanged += OnStoreChanged;
+        Localizer.Changed += OnLanguageChanged;
         Update();
         _icon.ForceCreate(enablesEfficiencyMode: false);
     }
 
-    private static MenuFlyoutItem Item(string text, Action action) => new() { Text = text, Command = new Command(action) };
-
     private void OnStoreChanged(object? sender, PropertyChangedEventArgs e) => Update();
+
+    private void OnLanguageChanged() => _icon.DispatcherQueue.TryEnqueue(Update);
 
     private void Update()
     {
@@ -51,9 +53,13 @@ internal sealed partial class TrayController(App app) : IDisposable
         var count = store.ToReview.Count;
         var attention = store.Mine.Any(i => i.NeedsAttention);
 
+        _showItem.Text = L10n.ShowPullRequests;
+        _refreshItem.Text = L10n.Refresh;
+        _settingsItem.Text = L10n.Settings;
+        _quitItem.Text = L10n.QuitApp;
         _icon.ToolTipText = store.IsConfigured
-            ? $"PR Checker – {count} to review{(attention ? ", one of yours needs attention" : "")}"
-            : "PR Checker – not connected";
+            ? L10n.TrayToReview(count) + (attention ? L10n.TrayAttention : "")
+            : L10n.TrayNotConnected;
 
         _icon.IconSource = count == 0 && !attention
             ? _appIcon
@@ -70,6 +76,7 @@ internal sealed partial class TrayController(App app) : IDisposable
     public void Dispose()
     {
         app.Store.PropertyChanged -= OnStoreChanged;
+        Localizer.Changed -= OnLanguageChanged;
         _icon.Dispose();
     }
 

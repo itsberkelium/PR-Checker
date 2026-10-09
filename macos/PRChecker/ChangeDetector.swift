@@ -82,7 +82,7 @@ enum ChangeDetector {
 
         for item in toReview {
             guard let before = old.reviewing[item.id] else {
-                let title = item.hasNewCommits ? "New commits to re-review" : "Review requested by \(item.authorName)"
+                let title = item.hasNewCommits ? L10n.notifyNewCommits : L10n.notifyReviewRequested(author: item.authorName)
                 changes.append(Change(title: title, body: item.title, url: item.url))
                 continue
             }
@@ -95,17 +95,17 @@ enum ChangeDetector {
             guard let before = old.mine[item.id], let after = new.mine[item.id] else { continue }
             var lines: [String] = []
             for name in after.approvedBy.subtracting(before.approvedBy).sorted() {
-                lines.append("✅ Approved by \(name)")
+                lines.append(L10n.notifyApproved(name: name))
             }
             for name in after.needsWorkBy.subtracting(before.needsWorkBy).sorted() {
-                lines.append("✋ \(name) marked it needs work")
+                lines.append(L10n.notifyNeedsWork(name: name))
             }
             if after.conflicted != before.conflicted {
-                lines.append(after.conflicted ? "⚠️ Merge conflicts" : "🔧 Conflicts resolved")
+                lines.append(after.conflicted ? L10n.notifyConflicts : L10n.notifyConflictsResolved)
             }
             if after.settledBuild != before.settledBuild {
-                if after.settledBuild == .failed { lines.append("❌ Build failed") }
-                if after.settledBuild == .passed && before.settledBuild == .failed { lines.append("✅ Build fixed") }
+                if after.settledBuild == .failed { lines.append(L10n.notifyBuildFailed) }
+                if after.settledBuild == .passed && before.settledBuild == .failed { lines.append(L10n.notifyBuildFixed) }
             }
             if let line = commentLine(item, after: before.lastCommentDate) {
                 lines.append(line)
@@ -117,9 +117,9 @@ enum ChangeDetector {
 
         for (id, state) in old.departedMine(in: new).sorted(by: { $0.key < $1.key }) {
             let body = switch closedStates[id] {
-            case "MERGED": "🎉 Merged"
-            case "DECLINED": "🚫 Declined"
-            default: "No longer open"
+            case "MERGED": L10n.notifyMerged
+            case "DECLINED": L10n.notifyDeclined
+            default: L10n.notifyNoLongerOpen
             }
             changes.append(Change(title: state.title, body: body, url: state.url))
         }
@@ -133,7 +133,6 @@ enum ChangeDetector {
         for comment in fresh.sorted(by: { $0.created < $1.created }) where !authors.contains(comment.author) {
             authors.append(comment.author)
         }
-        let noun = fresh.count == 1 ? "comment" : "comments"
-        return "💬 \(fresh.count) new \(noun) from \(authors.joined(separator: ", "))"
+        return L10n.notifyComments(n: fresh.count, names: authors.joined(separator: ", "))
     }
 }

@@ -39,7 +39,7 @@ internal static partial class Log
     {
         Error(context, error);
         MessageBox(IntPtr.Zero,
-            $"PR Checker couldn't start.\n\n{error.GetType().Name}: {error.Message}\n\nDetails are in:\n{FilePath}",
+            L10n.StartupFailed($"{error.GetType().Name}: {error.Message}", FilePath),
             "PR Checker", 0x10 /* MB_ICONERROR */);
     }
 }

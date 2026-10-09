@@ -9,10 +9,10 @@ nonisolated struct ServerAddress: Equatable, Hashable, Sendable {
 
         var errorDescription: String? {
             switch self {
-            case .invalid: "Enter a server URL like https://bitbucket.example.com."
-            case .notHTTPS: "The server URL must start with https://."
-            case .hasCredentials: "Remove the user name or password from the server URL."
-            case .hasQueryOrFragment: "Remove the ?query or #fragment from the server URL."
+            case .invalid: L10n.errorServerInvalid
+            case .notHTTPS: L10n.errorServerNotHTTPS
+            case .hasCredentials: L10n.errorServerCredentials
+            case .hasQueryOrFragment: L10n.errorServerQuery
             }
         }
     }

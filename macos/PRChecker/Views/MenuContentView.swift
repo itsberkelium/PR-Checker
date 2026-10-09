@@ -17,9 +17,9 @@ struct MenuContentView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            Picker("List", selection: $tab) {
-                Text("To review (\(store.toReview.count))").tag(Tab.review)
-                Text("Mine (\(store.mine.count))").tag(Tab.mine)
+            Picker(L10n.listPicker, selection: $tab) {
+                Text(L10n.toReviewTab(n: store.toReview.count)).tag(Tab.review)
+                Text(L10n.mineTab(n: store.mine.count)).tag(Tab.mine)
             }
             .pickerStyle(.segmented)
             .labelsHidden()
@@ -44,18 +44,18 @@ struct MenuContentView: View {
         if items.isEmpty {
             if let error = store.errorMessage {
                 ContentUnavailableView {
-                    Label("Can't load pull requests", systemImage: "exclamationmark.triangle")
+                    Label(L10n.cantLoadPullRequests, systemImage: "exclamationmark.triangle")
                 } description: {
                     Text(error)
                 } actions: {
-                    Button("Open Settings", action: openSettings)
+                    Button(L10n.openSettings, action: openSettings)
                 }
             } else if store.lastUpdated == nil {
                 ProgressView()
             } else if tab == .review {
-                ContentUnavailableView("Nothing to review", systemImage: "checkmark.circle")
+                ContentUnavailableView(L10n.nothingToReview, systemImage: "checkmark.circle")
             } else {
-                ContentUnavailableView("No open pull requests", systemImage: "tray")
+                ContentUnavailableView(L10n.noOpenPullRequests, systemImage: "tray")
             }
         } else {
             ScrollView {
@@ -77,14 +77,14 @@ struct MenuContentView: View {
                     .help(error)
             }
             if store.settings.notificationsEnabled && Notifier.shared.isBlockedBySystem {
-                Button("Notifications are off in System Settings", systemImage: "bell.slash.fill") {
+                Button(L10n.notificationsOffMac, systemImage: "bell.slash.fill") {
                     Notifier.shared.openSystemSettings()
                 }
                 .foregroundStyle(.orange)
-                .help("Notifications are turned off for PR Checker in System Settings. Click to fix.")
+                .help(L10n.notificationsOffMacHelp)
             }
             if let last = store.lastUpdated {
-                Text("Updated \(last, format: .relative(presentation: .named))")
+                Text(L10n.updatedAgo(time: last.relativeText))
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -92,17 +92,17 @@ struct MenuContentView: View {
             if store.isLoading {
                 ProgressView().controlSize(.small)
             } else {
-                Button("Refresh", systemImage: "arrow.clockwise") {
+                Button(L10n.refresh, systemImage: "arrow.clockwise") {
                     Task { await store.refresh() }
                 }
                 .keyboardShortcut("r")
             }
-            Button("Settings", systemImage: "gearshape", action: openSettings)
+            Button(L10n.settings, systemImage: "gearshape", action: openSettings)
                 .keyboardShortcut(",")
-                .help("Settings")
-            Button("Quit", systemImage: "power", action: confirmQuit)
+                .help(L10n.settings)
+            Button(L10n.quit, systemImage: "power", action: confirmQuit)
                 .keyboardShortcut("q")
-                .help("Quit PR Checker")
+                .help(L10n.quitApp)
         }
         .labelStyle(.iconOnly)
         .buttonStyle(.borderless)
@@ -118,10 +118,10 @@ struct MenuContentView: View {
     /// A standalone alert rather than a sheet: the menu bar panel closes when it loses focus.
     private func confirmQuit() {
         let alert = NSAlert()
-        alert.messageText = "Quit PR Checker?"
-        alert.informativeText = "You won't see pull requests or get notifications until you open it again."
-        alert.addButton(withTitle: "Quit")
-        alert.addButton(withTitle: "Cancel")
+        alert.messageText = L10n.quitConfirmTitle
+        alert.informativeText = L10n.quitConfirmMessage
+        alert.addButton(withTitle: L10n.quit)
+        alert.addButton(withTitle: L10n.cancel)
         NSApp.activate()
         if alert.runModal() == .alertFirstButtonReturn {
             NSApp.terminate(nil)

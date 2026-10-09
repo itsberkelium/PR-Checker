@@ -43,8 +43,8 @@ enum Automation {
 
         var errorDescription: String? {
             switch self {
-            case .empty: "Enter a command."
-            case .unterminatedQuote: "The command has an unterminated quote."
+            case .empty: L10n.enterCommand
+            case .unterminatedQuote: L10n.unterminatedQuote
             }
         }
     }

@@ -38,6 +38,10 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSUIElement: true
+        # The app's own strings come from L10n (shared/localization); these tell macOS and
+        # Sparkle's update dialogs that Turkish is supported too.
+        CFBundleDevelopmentRegion: en
+        CFBundleLocalizations: [en, tr]
         LSApplicationCategoryType: public.app-category.developer-tools
         SUFeedURL: $(SPARKLE_FEED_URL)
         SUPublicEDKey: $(SPARKLE_PUBLIC_KEY)

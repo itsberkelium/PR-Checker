@@ -85,10 +85,10 @@ public sealed record ServerAddress
 
     private static string Describe(Problem problem) => problem switch
     {
-        Problem.NotHttps => "The server URL must start with https://.",
-        Problem.HasCredentials => "Remove the user name or password from the server URL.",
-        Problem.HasQueryOrFragment => "Remove the ?query or #fragment from the server URL.",
-        _ => "Enter a server URL like https://bitbucket.example.com.",
+        Problem.NotHttps => L10n.ErrorServerNotHTTPS,
+        Problem.HasCredentials => L10n.ErrorServerCredentials,
+        Problem.HasQueryOrFragment => L10n.ErrorServerQuery,
+        _ => L10n.ErrorServerInvalid,
     };
 
     public override string ToString() => Id;
