@@ -104,7 +104,7 @@ The full details are in the [Privacy Policy](PRIVACY.md): what's stored where, e
 | [`.github/workflows/`](.github/workflows) | CI: builds and tests both apps on every push |
 | [`scripts/release-badge.sh`](scripts/release-badge.sh) | Sets a README release badge's version and link to a new release; called by the release scripts |
 
-Releases are tagged and titled per platform: `macOS-v0.2.7` "PR Checker for macOS 0.2.7", `windows-v0.1.0` "PR Checker for Windows 0.1.0". The release scripts create the tag, the GitHub release and the badge link, so the rule holds without manual steps.
+Releases are tagged and titled per platform: `macOS-v0.2.7` "PR Checker for macOS 0.2.7", `windows-v0.1.0` "PR Checker for Windows 0.1.0". The release scripts create the tag and the GitHub release, and open a pull request that points the badge at it, so the rule holds without manual steps. `main` only accepts changes through pull requests.
 
 ## License
 
