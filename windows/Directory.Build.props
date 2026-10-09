@@ -8,6 +8,6 @@
     <Authors>Berke Sütçü</Authors>
     <Product>PR Checker</Product>
     <!-- Bump for every Windows release; Velopack compares it to decide what's newer. -->
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
   </PropertyGroup>
 </Project>
