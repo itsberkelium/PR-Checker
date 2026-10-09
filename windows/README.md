@@ -47,8 +47,8 @@ Use `win-x64` for Intel/AMD PCs. CI publishes both for every push; download them
 
 Releases are built in CI and published from a maintainer's Mac or PC, so no Cloudflare credentials are stored in GitHub.
 
-1. Bump `<Version>` in `Directory.Build.props`. Velopack compares it to decide what's newer.
-2. Commit and push, then start **Actions → Windows release → Run workflow**.
+1. Bump `<Version>` in `Directory.Build.props`. Velopack compares it to decide what's newer. Merge it into `main` through a pull request.
+2. Start **Actions → Windows release → Run workflow**.
    - It tests the core, publishes both architectures, and packs them with Velopack. Each architecture gets a `Setup.exe`, a portable zip and its update feed (`releases.<rid>.json`).
    - It also builds a delta update against the version currently on the CDN.
 3. Publish that run, with optional release notes:
@@ -60,7 +60,7 @@ Releases are built in CI and published from a maintainer's Mac or PC, so no Clou
    This:
    - uploads the packages, then the feeds, to `gu-cdn.berke.dev/pr-checker/windows/`, and checks that the live feeds list the new version
    - tags the commit CI built `windows-v<version>` and creates the GitHub release "PR Checker for Windows <version>" with the installers. The notes file's content opens the notes, and install instructions are added after it.
-   - points the README's Windows badge at the new release
+   - opens a pull request pointing the README's Windows badge at the new release
 
 Installed apps check the feed once a week, or right away via **Settings → About → Check for updates**. They ask before installing.
 

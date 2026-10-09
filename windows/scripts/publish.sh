@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Publishes a Windows release built by the "Windows release" workflow:
-# uploads the Velopack feed to the CDN and creates the GitHub release.
+# uploads the Velopack feed to the CDN, creates the GitHub release and opens a PR
+# pointing the README badge at it.
 #
 #   windows/scripts/publish.sh <run-id> [notes.md]
 #

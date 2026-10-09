@@ -7,7 +7,8 @@
 #                                 build, upload the update to R2 so installed
 #                                 apps offer it, create the GitHub release
 #                                 macOS-v<version> (notes from notes.md, or
-#                                 generated) and point the README badge at it
+#                                 generated) and open a PR pointing the README
+#                                 badge at it
 #   scripts/package.sh --local    sign with Developer ID and install into
 #                                 /Applications for testing; no notarization,
 #                                 nothing published. Don't distribute this build.
