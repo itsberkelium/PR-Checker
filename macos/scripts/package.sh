@@ -43,6 +43,9 @@ if [[ $PUBLISH == 1 ]]; then
   [[ "$(git rev-parse HEAD)" == "$(git rev-parse @{u})" ]] \
     || { echo "HEAD isn't the pushed upstream; push or pull first" >&2; exit 1; }
   [[ -z "$NOTES_FILE" || -f "$NOTES_FILE" ]] || { echo "No notes file: $NOTES_FILE" >&2; exit 1; }
+  # wrangler 4 needs Node.js 20+; an older node first on PATH fails mid-release.
+  NODE_MAJOR=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
+  (( NODE_MAJOR >= 20 )) || { echo "Publishing needs Node.js 20 or later on PATH (found $(node --version 2>/dev/null || echo none))" >&2; exit 1; }
 fi
 
 TEAM_ID="L4U4H3GS68"
