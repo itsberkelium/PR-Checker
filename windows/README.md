@@ -50,7 +50,7 @@ Releases are built in CI and published from a maintainer's Mac or PC, so no Clou
 1. Bump `<Version>` in `Directory.Build.props`. Velopack compares it to decide what's newer. Merge it into `main` through a pull request.
 2. Start **Actions → Windows release → Run workflow**.
    - It tests the core, publishes both architectures, and packs them with Velopack. Each architecture gets a `Setup.exe`, a portable zip and its update feed (`releases.<rid>.json`).
-   - It also builds a delta update against the version currently on the CDN.
+   - Updates are full packages, not deltas: rebuilding a delta on the user's PC took minutes, longer than downloading the full package.
 3. Publish that run, with optional release notes:
 
    ```bash

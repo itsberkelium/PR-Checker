@@ -143,7 +143,7 @@ public sealed partial class App : Application, IDisposable
             }
             // Declining just closes the question; it isn't "up to date".
             if (await UpdatePrompt.AskAsync(update.TargetFullRelease.Version.ToString()))
-                await _updates.InstallAndRestartAsync(update);
+                await InstallWithProgressAsync(update);
         }
         catch (Exception error) when (error is HttpRequestException or IOException or InvalidOperationException)
         {
@@ -152,6 +152,22 @@ public sealed partial class App : Application, IDisposable
         finally
         {
             _checkingForUpdates = false;
+        }
+    }
+
+    /// <summary>Shows the progress window from the user's "Yes" until the app quits to apply the update.</summary>
+    private async Task InstallWithProgressAsync(Velopack.UpdateInfo update)
+    {
+        var window = new UpdateProgressWindow();
+        window.ShowCentered();
+        try
+        {
+            await _updates.InstallAndRestartAsync(update, percent => _dispatcher.TryEnqueue(() => window.Report(percent)));
+        }
+        catch
+        {
+            window.Dismiss();
+            throw;
         }
     }
 

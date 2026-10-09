@@ -20,7 +20,6 @@ jobs:
         working-directory: windows
         shell: pwsh
     env:
-      FEED: https://gu-cdn.berke.dev/pr-checker/windows/
       VPK_VERSION: 1.2.161 # keep in sync with the Velopack package
     steps:
       - uses: actions/checkout@v5
@@ -42,13 +41,11 @@ jobs:
           foreach ($rid in "win-arm64", "win-x64") {
             dotnet publish src/PRChecker.App -c Release -r $rid -o "publish/$rid"
             if (-not (Test-Path "publish/$rid/PRChecker.pri")) { throw "No app PRI in publish/$rid" }
-            # The previously published release, so vpk can build a small delta update.
-            vpk download http --url $env:FEED --channel $rid --outputDir "releases/$rid"
-            if ($LASTEXITCODE -ne 0) { Write-Host "No previous $rid release; full package only"; $global:LASTEXITCODE = 0 }
+            # Full packages only: rebuilding a delta on the user's PC was far slower than downloading.
             vpk pack --packId PRCheckerApp --packVersion $version --packDir "publish/$rid" `
               --mainExe PRChecker.exe --packTitle "PR Checker" --packAuthors "Berke Sütçü" `
               --icon src/PRChecker.App/Assets/app.ico --channel $rid --runtime $rid `
-              --shortcuts StartMenuRoot --outputDir "releases/$rid"
+              --shortcuts StartMenuRoot --delta None --outputDir "releases/$rid"
             if ($LASTEXITCODE -ne 0) { throw "vpk pack failed for $rid" }
           }
           Get-ChildItem releases -Recurse -File | Format-Table Name, @{ n = "MB"; e = { [math]::Round($_.Length / 1MB, 1) } }
