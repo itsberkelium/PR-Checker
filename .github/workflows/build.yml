@@ -79,6 +79,7 @@ jobs:
           foreach ($dir in "artifacts/PRChecker-win-arm64", "artifacts/PRChecker-win-x64") {
             $pri = Get-ChildItem $dir -Filter *.pri | Where-Object { $_.Name -in "PRChecker.pri", "resources.pri" }
             if (-not $pri) { Get-ChildItem $dir -Filter *.pri | Format-Table Name; throw "No app PRI in $dir" }
+            if (-not (Test-Path "$dir/THIRD-PARTY-NOTICES.txt")) { throw "No license notices in $dir" }
             Write-Host "$dir has $($pri.Name)"
           }
 

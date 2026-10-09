@@ -50,3 +50,22 @@ struct LocalizationTests {
         #expect(text.contains("saat"))
     }
 }
+
+@MainActor
+struct SupportTests {
+    @Test func reportURLCarriesOnlyVersionSystemAndLanguage() throws {
+        let url = Support.reportProblemURL(version: "0.2.8", system: "macOS 26.0", language: "Turkish (system)")
+        let items = try #require(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems)
+        #expect(url.host() == "github.com")
+        #expect(url.path() == "/itsberkelium/PR-Checker/issues/new")
+        #expect(Dictionary(uniqueKeysWithValues: items.map { ($0.name, $0.value ?? "") }) == [
+            "template": "bug_report.yml", "platform": "macOS", "version": "0.2.8",
+            "os": "macOS 26.0", "language": "Turkish (system)",
+        ])
+    }
+
+    @Test func languageIsDescribedInEnglish() {
+        #expect(Support.languageDescription(language: .turkish, preference: .system) == "Turkish (system)")
+        #expect(Support.languageDescription(language: .english, preference: .english) == "English")
+    }
+}

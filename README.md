@@ -78,32 +78,18 @@ Your own comments never notify you. Filters decide what gets announced, and chan
 ## Privacy
 
 PR Checker has no backend, accounts, analytics or telemetry. Your data stays on your computer and on your own Bitbucket server.
+- Your token is kept in the macOS Keychain or Windows Credential Manager, and only ever sent to the server it was saved for.
+- The app connects only to your Bitbucket server and, about once a week, to the update feed.
+- **Report a Problem** pre-fills a GitHub issue with the app version, OS and language. Nothing is sent until you submit it yourself.
 
-**What's stored, all locally on your computer:**
+The full details are in the [Privacy Policy](PRIVACY.md): what's stored where, every connection, and how to remove everything.
 
-| Data | Where |
-|---|---|
-| Bitbucket access token, one per server | macOS Keychain / Windows Credential Manager |
-| Server URL, refresh interval, filters, toggles | The app's settings file |
-| Last-seen PR state per server and user: IDs, titles, links, reviewer names, comment times. Used only to decide what to notify. | The same settings file |
+## Legal
 
-API responses aren't cached and no cookies are kept. 
-
-**Network connections the app makes:**
-
-- **Your Bitbucket server**, directly from your computer.
-  - Your token is sent only to the server it was saved for. Switching servers requires that server's token.
-  - Redirects to other hosts aren't followed.
-  - Responses are limited in size and page count, and at most 4 requests run at a time.
-- **The update feed**, at most once a week or when you choose *Check for Updates*. It's a plain download of a public file and sends no PR data or token. As with any web request, the host sees your IP address and the app version.
-
-**Links:** clicking a PR or a notification opens it in your browser. Links are built from your configured server, and anything pointing elsewhere is never opened.
-
-**Notifications:** they show PR titles, names and results unless you turn off **Show pull request details**. Turning notifications off, or signing out, clears the ones already delivered.
-
-**To remove your data:**
-- **Settings → Bitbucket → Sign Out** deletes the token and the stored PR state for that server.
-- **To remove everything**, see [macOS](macos/README.md#data-storage-on-macos) or [Windows](windows/README.md#data-storage-on-windows).
+- **[Terms of Use](TERMS.md).** On Windows, these include Microsoft's license terms for the bundled Windows App SDK components.
+- **[Privacy Policy](PRIVACY.md)**
+- **Third-party licenses:** included in each app under **Settings → About → Third-Party Licenses**. To regenerate them after changing a dependency, run `scripts/third-party-notices.py`.
+- PR Checker isn't affiliated with or endorsed by Atlassian. Bitbucket is a trademark of Atlassian.
 
 ## Development
 

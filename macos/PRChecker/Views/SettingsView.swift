@@ -224,6 +224,28 @@ private struct AboutSettings: View {
                     }
                 }
             }
+
+            Section {
+                Button(L10n.reportProblem) { NSWorkspace.shared.open(Support.reportProblemURL()) }
+            } header: {
+                Text(L10n.help)
+            } footer: {
+                Text(L10n.reportProblemHint)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Link(L10n.privacyPolicy, destination: Support.privacyPolicy)
+                Link(L10n.termsOfUse, destination: Support.termsOfUse)
+                Button(L10n.thirdPartyLicenses) { Support.openThirdPartyLicenses() }
+            } header: {
+                Text(L10n.legal)
+            } footer: {
+                Text(L10n.trademarkNote)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
         }
         .formStyle(.grouped)
     }

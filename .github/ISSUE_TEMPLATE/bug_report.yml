@@ -1,0 +1,49 @@
+name: Report a problem
+description: Something doesn't work as expected in PR Checker.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This issue is public.** Don't include server URLs, pull request titles, people's names, tokens or anything else from your company's Bitbucket.
+  - type: input
+    id: platform
+    attributes:
+      label: Platform
+      placeholder: macOS or Windows
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: PR Checker version
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+  - type: input
+    id: language
+    attributes:
+      label: App language
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: What did you see, and what did you expect instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open Settings
+        2. …
+  - type: textarea
+    id: log
+    attributes:
+      label: Log (optional)
+      description: On Windows, Settings → About → Show Log. Read it first and remove anything you don't want to share.
+      render: text

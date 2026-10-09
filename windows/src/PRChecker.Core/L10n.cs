@@ -449,6 +449,48 @@ public static class L10n
             ? $"PR Checker {latest} yayımlandı. Sizdeki sürüm: {current}.\n\nŞimdi kurulsun mu? Kurulum bitince PR Checker yeniden başlar."
             : $"PR Checker {latest} is available. You have {current}.\n\nInstall it now? PR Checker restarts when it's done.";
 
+    /// <summary>Report a Problem</summary>
+    public static string ReportProblem =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Sorun bildir"
+            : "Report a Problem";
+
+    /// <summary>Opens a public GitHub issue with the app version, system and language filled in. Nothing else is sent.</summary>
+    public static string ReportProblemHint =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Uygulama sürümü, sistem ve dil bilgisiyle herkese açık bir GitHub issue'su açar. Başka hiçbir şey gönderilmez."
+            : "Opens a public GitHub issue with the app version, system and language filled in. Nothing else is sent.";
+
+    /// <summary>Privacy Policy</summary>
+    public static string PrivacyPolicy =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Gizlilik politikası"
+            : "Privacy Policy";
+
+    /// <summary>Terms of Use</summary>
+    public static string TermsOfUse =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Kullanım koşulları"
+            : "Terms of Use";
+
+    /// <summary>Third-Party Licenses</summary>
+    public static string ThirdPartyLicenses =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Üçüncü taraf lisansları"
+            : "Third-Party Licenses";
+
+    /// <summary>Not affiliated with or endorsed by Atlassian. Bitbucket is a trademark of Atlassian.</summary>
+    public static string TrademarkNote =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Atlassian ile bağlantılı değildir ve Atlassian tarafından onaylanmamıştır. Bitbucket, Atlassian'ın ticari markasıdır."
+            : "Not affiliated with or endorsed by Atlassian. Bitbucket is a trademark of Atlassian.";
+
+    /// <summary>Show Log</summary>
+    public static string ShowLog =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Günlüğü göster"
+            : "Show Log";
+
     /// <summary>Review requested by {author}</summary>
     public static string NotifyReviewRequested(string author) =>
         Localizer.Language == AppLanguage.Turkish

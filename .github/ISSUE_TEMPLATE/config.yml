@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Privacy Policy
+    url: https://github.com/itsberkelium/PR-Checker/blob/main/PRIVACY.md
+    about: What PR Checker stores and where it connects.

@@ -818,6 +818,78 @@
       ]
     },
     {
+      "id": "help",
+      "en": "Help",
+      "tr": "Yardım",
+      "platforms": [
+        "macos"
+      ],
+      "note": "About section title"
+    },
+    {
+      "id": "reportProblem",
+      "en": "Report a Problem",
+      "tr": "Sorun bildir",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "reportProblemHint",
+      "en": "Opens a public GitHub issue with the app version, system and language filled in. Nothing else is sent.",
+      "tr": "Uygulama sürümü, sistem ve dil bilgisiyle herkese açık bir GitHub issue'su açar. Başka hiçbir şey gönderilmez.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "legal",
+      "en": "Legal",
+      "tr": "Yasal",
+      "platforms": [
+        "macos"
+      ],
+      "note": "About section title"
+    },
+    {
+      "id": "privacyPolicy",
+      "en": "Privacy Policy",
+      "tr": "Gizlilik politikası",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "termsOfUse",
+      "en": "Terms of Use",
+      "tr": "Kullanım koşulları",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "thirdPartyLicenses",
+      "en": "Third-Party Licenses",
+      "tr": "Üçüncü taraf lisansları",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "trademarkNote",
+      "en": "Not affiliated with or endorsed by Atlassian. Bitbucket is a trademark of Atlassian.",
+      "tr": "Atlassian ile bağlantılı değildir ve Atlassian tarafından onaylanmamıştır. Bitbucket, Atlassian'ın ticari markasıdır.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
       "id": "automation",
       "en": "Automation",
       "tr": "Otomasyon",
@@ -886,7 +958,8 @@
       "en": "Show Log",
       "tr": "Günlüğü göster",
       "platforms": [
-        "macos"
+        "macos",
+        "windows"
       ]
     },
     {

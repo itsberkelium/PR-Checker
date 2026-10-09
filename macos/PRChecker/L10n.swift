@@ -500,6 +500,70 @@ nonisolated enum L10n {
         }
     }
 
+    /// Help
+    static var help: String {
+        switch Localizer.current {
+        case .english: "Help"
+        case .turkish: "Yardım"
+        }
+    }
+
+    /// Report a Problem
+    static var reportProblem: String {
+        switch Localizer.current {
+        case .english: "Report a Problem"
+        case .turkish: "Sorun bildir"
+        }
+    }
+
+    /// Opens a public GitHub issue with the app version, system and language filled in. Nothing else is sent.
+    static var reportProblemHint: String {
+        switch Localizer.current {
+        case .english: "Opens a public GitHub issue with the app version, system and language filled in. Nothing else is sent."
+        case .turkish: "Uygulama sürümü, sistem ve dil bilgisiyle herkese açık bir GitHub issue'su açar. Başka hiçbir şey gönderilmez."
+        }
+    }
+
+    /// Legal
+    static var legal: String {
+        switch Localizer.current {
+        case .english: "Legal"
+        case .turkish: "Yasal"
+        }
+    }
+
+    /// Privacy Policy
+    static var privacyPolicy: String {
+        switch Localizer.current {
+        case .english: "Privacy Policy"
+        case .turkish: "Gizlilik politikası"
+        }
+    }
+
+    /// Terms of Use
+    static var termsOfUse: String {
+        switch Localizer.current {
+        case .english: "Terms of Use"
+        case .turkish: "Kullanım koşulları"
+        }
+    }
+
+    /// Third-Party Licenses
+    static var thirdPartyLicenses: String {
+        switch Localizer.current {
+        case .english: "Third-Party Licenses"
+        case .turkish: "Üçüncü taraf lisansları"
+        }
+    }
+
+    /// Not affiliated with or endorsed by Atlassian. Bitbucket is a trademark of Atlassian.
+    static var trademarkNote: String {
+        switch Localizer.current {
+        case .english: "Not affiliated with or endorsed by Atlassian. Bitbucket is a trademark of Atlassian."
+        case .turkish: "Atlassian ile bağlantılı değildir ve Atlassian tarafından onaylanmamıştır. Bitbucket, Atlassian'ın ticari markasıdır."
+        }
+    }
+
     /// Automation
     static var automation: String {
         switch Localizer.current {

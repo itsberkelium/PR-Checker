@@ -75,6 +75,13 @@ public sealed partial class SettingsWindow : Window
         FilterHint.Text = L10n.FilterHint;
 
         CheckForUpdatesButton.Content = L10n.CheckForUpdates;
+        ReportProblemButton.Content = L10n.ReportProblem;
+        ShowLogButton.Content = L10n.ShowLog;
+        ReportProblemHint.Text = L10n.ReportProblemHint;
+        PrivacyLink.Content = L10n.PrivacyPolicy;
+        TermsLink.Content = L10n.TermsOfUse;
+        LicensesLink.Content = L10n.ThirdPartyLicenses;
+        TrademarkNote.Text = L10n.TrademarkNote;
         UpdateLastCheck();
         UpdateTokenHint();
         RefreshNotificationState();
@@ -266,4 +273,14 @@ public sealed partial class SettingsWindow : Window
     // MARK: About
 
     private async void OnCheckForUpdates(object sender, RoutedEventArgs e) => await _app.CheckForUpdatesAsync(userInitiated: true);
+
+    private void OnReportProblem(object sender, RoutedEventArgs e) => Support.Open(Support.ReportProblemUrl(Settings.Language));
+
+    private void OnShowLog(object sender, RoutedEventArgs e) => Support.OpenLog();
+
+    private void OnPrivacyPolicy(object sender, RoutedEventArgs e) => Support.Open(Support.PrivacyPolicy);
+
+    private void OnTermsOfUse(object sender, RoutedEventArgs e) => Support.Open(Support.TermsOfUse);
+
+    private void OnThirdPartyLicenses(object sender, RoutedEventArgs e) => Support.OpenThirdPartyLicenses();
 }
