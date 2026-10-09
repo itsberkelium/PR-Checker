@@ -20,6 +20,7 @@ public sealed partial class App : Application, IDisposable
     private PopupWindow? _popup;
     private SettingsWindow? _settingsWindow;
     private DispatcherQueueTimer? _updateTimer;
+    private bool _checkingForUpdates;
 
     public App()
     {
@@ -130,17 +131,27 @@ public sealed partial class App : Application, IDisposable
     /// <summary>Scheduled checks run once a week; a manual check always runs and reports the result.</summary>
     internal async Task CheckForUpdatesAsync(bool userInitiated)
     {
-        if (!userInitiated && !_updates.IsDue) return;
+        if (_checkingForUpdates || (!userInitiated && !_updates.IsDue)) return;
+        _checkingForUpdates = true;
         try
         {
             var update = await _updates.CheckAsync();
-            if (update is not null && await UpdatePrompt.AskAsync(update.TargetFullRelease.Version.ToString()))
+            if (update is null)
+            {
+                if (userInitiated) UpdatePrompt.Inform(_updates.IsInstalled ? L10n.UpToDate : L10n.UpdatesOnlyInstalled);
+                return;
+            }
+            // Declining just closes the question; it isn't "up to date".
+            if (await UpdatePrompt.AskAsync(update.TargetFullRelease.Version.ToString()))
                 await _updates.InstallAndRestartAsync(update);
-            else if (userInitiated) UpdatePrompt.Inform(_updates.IsInstalled ? L10n.UpToDate : L10n.UpdatesOnlyInstalled);
         }
         catch (Exception error) when (error is HttpRequestException or IOException or InvalidOperationException)
         {
             if (userInitiated) UpdatePrompt.Inform(L10n.CouldntCheckUpdates(error.Message));
+        }
+        finally
+        {
+            _checkingForUpdates = false;
         }
     }
 
