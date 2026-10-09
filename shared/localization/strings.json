@@ -819,6 +819,35 @@
       ]
     },
     {
+      "id": "updatingTitle",
+      "en": "Updating PR Checker",
+      "tr": "PR Checker güncelleniyor",
+      "platforms": [
+        "windows"
+      ],
+      "note": "Update progress window title"
+    },
+    {
+      "id": "downloadingUpdate",
+      "args": {
+        "n": "int"
+      },
+      "en": "Downloading update… {n}%",
+      "tr": "Güncelleme indiriliyor… %{n}",
+      "platforms": [
+        "windows"
+      ],
+      "note": "Progress state; n is 0–100"
+    },
+    {
+      "id": "restartAfterUpdate",
+      "en": "PR Checker will restart when the update is installed.",
+      "tr": "Güncelleme kurulunca PR Checker yeniden başlayacak.",
+      "platforms": [
+        "windows"
+      ]
+    },
+    {
       "id": "help",
       "en": "Help",
       "tr": "Yardım",

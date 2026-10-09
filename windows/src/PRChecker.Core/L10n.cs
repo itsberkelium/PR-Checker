@@ -455,6 +455,24 @@ public static class L10n
             ? $"PR Checker {latest} yayımlandı. Sizdeki sürüm: {current}.\n\nŞimdi kurulsun mu? Kurulum bitince PR Checker yeniden başlar."
             : $"PR Checker {latest} is available. You have {current}.\n\nInstall it now? PR Checker restarts when it's done.";
 
+    /// <summary>Updating PR Checker</summary>
+    public static string UpdatingTitle =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "PR Checker güncelleniyor"
+            : "Updating PR Checker";
+
+    /// <summary>Downloading update… {n}%</summary>
+    public static string DownloadingUpdate(int n) =>
+        Localizer.Language == AppLanguage.Turkish
+            ? $"Güncelleme indiriliyor… %{n}"
+            : $"Downloading update… {n}%";
+
+    /// <summary>PR Checker will restart when the update is installed.</summary>
+    public static string RestartAfterUpdate =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Güncelleme kurulunca PR Checker yeniden başlayacak."
+            : "PR Checker will restart when the update is installed.";
+
     /// <summary>Report a Problem</summary>
     public static string ReportProblem =>
         Localizer.Language == AppLanguage.Turkish

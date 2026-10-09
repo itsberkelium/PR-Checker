@@ -67,6 +67,7 @@
                     <TextBlock x:Name="VersionText" Style="{StaticResource BodyStrongTextBlockStyle}" />
                     <StackPanel Orientation="Horizontal" Spacing="12">
                         <Button x:Name="CheckForUpdatesButton" Click="OnCheckForUpdates" />
+                        <ProgressRing x:Name="UpdateProgress" Width="20" Height="20" IsActive="False" VerticalAlignment="Center" />
                         <TextBlock x:Name="LastCheckText" VerticalAlignment="Center" Style="{StaticResource CaptionTextBlockStyle}"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     </StackPanel>

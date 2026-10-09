@@ -44,6 +44,7 @@ internal static partial class Platform
 
     private const uint MbYesNo = 0x4;
     private const uint MbIconQuestion = 0x20;
+    private const uint MbFront = 0x00010000 /* MB_SETFOREGROUND */ | 0x00040000 /* MB_TOPMOST */;
     private const uint MbDefButton2 = 0x100;
     private const int IdYes = 6;
 
@@ -53,5 +54,5 @@ internal static partial class Platform
     /// <summary>A standalone dialog: works from the tray menu, where there's no window to attach to.</summary>
     public static bool ConfirmQuit() =>
         MessageBox(IntPtr.Zero,
-            L10n.QuitConfirmMessage, L10n.QuitConfirmTitle, MbYesNo | MbIconQuestion | MbDefButton2) == IdYes;
+            L10n.QuitConfirmMessage, L10n.QuitConfirmTitle, MbYesNo | MbIconQuestion | MbDefButton2 | MbFront) == IdYes;
 }

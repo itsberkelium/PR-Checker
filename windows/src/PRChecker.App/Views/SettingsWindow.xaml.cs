@@ -272,7 +272,19 @@ public sealed partial class SettingsWindow : Window
 
     // MARK: About
 
-    private async void OnCheckForUpdates(object sender, RoutedEventArgs e) => await _app.CheckForUpdatesAsync(userInitiated: true);
+    /// <summary>The button is disabled and a spinner shows while checking and downloading.</summary>
+    private async void OnCheckForUpdates(object sender, RoutedEventArgs e)
+    {
+        CheckForUpdatesButton.IsEnabled = false;
+        UpdateProgress.IsActive = true;
+        try { await _app.CheckForUpdatesAsync(userInitiated: true); }
+        finally
+        {
+            CheckForUpdatesButton.IsEnabled = true;
+            UpdateProgress.IsActive = false;
+            UpdateLastCheck();
+        }
+    }
 
     private void OnReportProblem(object sender, RoutedEventArgs e) => Support.Open(Support.ReportProblemUrl(Settings.Language));
 

@@ -41,6 +41,6 @@ internal static partial class Log
         Error(context, error);
         MessageBox(IntPtr.Zero,
             L10n.StartupFailed($"{error.GetType().Name}: {error.Message}", FilePath),
-            "PR Checker", 0x10 /* MB_ICONERROR */);
+            "PR Checker", 0x10 /* MB_ICONERROR */ | 0x00010000 /* MB_SETFOREGROUND */ | 0x00040000 /* MB_TOPMOST */);
     }
 }
