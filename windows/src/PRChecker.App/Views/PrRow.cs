@@ -9,6 +9,24 @@ namespace PRChecker.App.Views;
 // Partial so the WinRT source generator can project them into XAML lists under Native AOT.
 public sealed partial record Badge(string Glyph, string Text, Brush Foreground);
 
+/// <summary>A line of text in the PR list: the "Recently merged" header, or a note in place of rows.</summary>
+public sealed partial record ListLabel(string Text, bool IsSectionHeader)
+{
+    public HorizontalAlignment Alignment => IsSectionHeader ? HorizontalAlignment.Left : HorizontalAlignment.Center;
+    public Windows.UI.Text.FontWeight Weight => IsSectionHeader ? Microsoft.UI.Text.FontWeights.SemiBold : Microsoft.UI.Text.FontWeights.Normal;
+    public Thickness Spacing => IsSectionHeader ? new Thickness(0, 10, 0, 0) : new Thickness(0, 8, 0, 8);
+}
+
+/// <summary>PR rows and labels in one list.</summary>
+public sealed partial class PrListTemplateSelector : Microsoft.UI.Xaml.Controls.DataTemplateSelector
+{
+    public DataTemplate? Row { get; set; }
+    public DataTemplate? Label { get; set; }
+
+    protected override DataTemplate? SelectTemplateCore(object item) => item is PrRow ? Row : Label;
+    protected override DataTemplate? SelectTemplateCore(object item, DependencyObject container) => SelectTemplateCore(item);
+}
+
 /// <summary>Display strings and badges for one PR, same as the macOS row.</summary>
 public sealed partial class PrRow(PrItem item, bool showsAuthor)
 {
@@ -21,7 +39,7 @@ public sealed partial class PrRow(PrItem item, bool showsAuthor)
 
     internal PrItem Item { get; } = item;
     public string Title => Item.Title;
-    public string Updated => Relative(Item.Updated);
+    public string Updated => Item.Merged is { } merged ? L10n.MergedAgo(Relative(merged)) : Relative(Item.Updated);
     public string Subtitle =>
         $"{Item.RepoName} #{Item.Number} · {(showsAuthor ? Item.AuthorName + " · " : "")}{Item.SourceBranch} → {Item.TargetBranch}";
     public string Tooltip => string.Join("\n", Item.Reviewers.Select(r => $"{r.Name}: {Label(r.Status)}"));
@@ -31,6 +49,7 @@ public sealed partial class PrRow(PrItem item, bool showsAuthor)
         get
         {
             var badges = new List<Badge>();
+            if (Item.Merged is not null) return badges;
             if (Item.IsDraft) badges.Add(new("", L10n.BadgeDraft, Secondary));
             if (Item.HasNewCommits) badges.Add(new("", L10n.BadgeNewCommits, Blue));
             if (Item.Reviewers.Count > 0)

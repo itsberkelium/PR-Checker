@@ -5,6 +5,7 @@ Sample Bitbucket responses with the results both apps must produce. The macOS an
 | File | Checks |
 |---|---|
 | `review-list.json` | Which PRs appear under *To review*, ids, links, badges |
+| `merged-list.json` | Order and links of *Recently merged* |
 | `activities.json` | Which activities count as comments by others |
 | `build-stats.json` | Build result mapping |
 | `servers.json` | Server URL validation and link ownership |

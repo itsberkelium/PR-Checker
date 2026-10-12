@@ -163,6 +163,11 @@ private struct BitbucketSettings: View {
             Section {
                 Toggle(L10n.hideDrafts, isOn: $settings.hideDrafts)
                 TextField(L10n.onlyTheseRepos, text: $settings.repoFilter, prompt: Text(L10n.filterAllPlaceholder))
+                Picker(L10n.recentlyMerged, selection: $settings.recentlyMergedCount) {
+                    ForEach(AppSettings.recentlyMergedOptions, id: \.self) { count in
+                        Text(count == 0 ? L10n.recentlyMergedOff : L10n.recentlyMergedLast(n: count)).tag(count)
+                    }
+                }
             } header: {
                 Text(L10n.filters)
             } footer: {
@@ -173,6 +178,10 @@ private struct BitbucketSettings: View {
         }
         .formStyle(.grouped)
         .onAppear { serverDraft = store.settings.savedServerURL }
+        .onChange(of: settings.recentlyMergedCount) { old, new in
+            // Merged PRs aren't fetched while it's off; other counts reuse the last fetch.
+            if old == 0 && new > 0 { Task { await store.refresh() } }
+        }
         .onDisappear { tokenDraft = "" }
         .confirmationDialog(L10n.signOutConfirmTitle, isPresented: $confirmingSignOut) {
             Button(L10n.signOut, role: .destructive, action: signOut)

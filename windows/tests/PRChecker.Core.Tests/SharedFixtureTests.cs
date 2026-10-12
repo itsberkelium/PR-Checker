@@ -32,6 +32,20 @@ public sealed class SharedFixtureTests
     }
 
     [Fact]
+    public void Recently_merged()
+    {
+        var data = Load("merged-list");
+        var server = ServerAddress.Parse((string)data["server"]!);
+        var page = Decode<Page<PullRequest>>(data["dashboard"]!);
+        var expected = data["expected"]!.AsArray();
+
+        var items = PrItem.RecentlyMerged(page.Values, server);
+        Assert.Equal(expected.Select(e => (string)e!["id"]!), items.Select(i => i.Id));
+        Assert.Equal(expected.Select(e => (string)e!["link"]!), items.Select(i => i.Url.AbsoluteUri));
+        Assert.Equal(expected.Select(e => (long)e!["merged"]!), items.Select(i => i.Merged!.Value.ToUnixTimeMilliseconds()));
+    }
+
+    [Fact]
     public void Comments_by_others()
     {
         var data = Load("activities");

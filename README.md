@@ -7,7 +7,7 @@
 A menu bar (macOS) and system tray (Windows) app for **Bitbucket Server / Data Center** that shows the pull requests waiting for your review and the status of the ones you opened, and notifies you when something changes.
 
 - **To review**: open PRs where you're a reviewer and haven't approved. PRs you marked *needs work* come back once the author pushes new commits.
-- **Mine**: your open PRs with approvals, needs-work, merge conflicts, build status, comments and open tasks.
+- **Mine**: your open PRs with approvals, needs-work, merge conflicts, build status, comments and open tasks, followed by your last 3, 5 or 10 merged PRs.
 - The menu bar or tray icon shows how many PRs wait for your review, plus a `•` when one of your own PRs needs attention.
 - Click any PR or notification to open it in the browser.
 - In English or Turkish, following your system language or chosen in Settings.
@@ -19,7 +19,7 @@ A menu bar (macOS) and system tray (Windows) app for **Bitbucket Server / Data C
   </picture>
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/macos/menu-mine-dark.png">
-    <img src="docs/screenshots/macos/menu-mine-light.png" width="400" alt="The Mine tab showing approvals, needs work, merge conflicts and build results">
+    <img src="docs/screenshots/macos/menu-mine-light.png" width="400" alt="The Mine tab showing approvals, needs work, merge conflicts, build results and recently merged pull requests">
   </picture>
 </p>
 <p align="center"><sub>macOS, with made-up data.</sub></p>
@@ -73,6 +73,7 @@ Your own comments never notify you. Filters decide what gets announced, and chan
   - Server URL and access token. They're saved only when **Save & Connect** succeeds.
   - **Sign Out**
   - Filters: hide drafts, and limit to project keys or `PROJECT/repo-slug` entries, comma-separated
+  - **Recently merged**: how many of your merged PRs to show under Mine (off, 3, 5 or 10)
 - **About:** version and **Check for Updates**
 
 ## Privacy

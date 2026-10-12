@@ -224,6 +224,36 @@ struct ConnectionTests {
         #expect(!settings.defaults.dictionaryRepresentation().keys.contains { $0.contains("a.example.com") })
     }
 
+    @Test func recentlyMergedFollowsCountAndFilters() async throws {
+        let url = try #require(Bundle(for: MemoryTokenStore.self)
+            .url(forResource: "merged-list", withExtension: "json", subdirectory: "fixtures"))
+        let fixture = try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
+        let merged = String(decoding: try JSONSerialization.data(withJSONObject: try #require(fixture["dashboard"])), as: UTF8.self)
+        StubServer.reset { request in
+            request.url?.query()?.contains("state=MERGED") == true
+                ? .json(merged, user: "sam.reviewer")
+                : .json(#"{"values":[],"isLastPage":true}"#, user: "sam.reviewer")
+        }
+        let settings = AppSettings(defaults: freshDefaults(), tokens: MemoryTokenStore())
+        settings.notificationsEnabled = false
+        settings.session = StubServer.session
+        try settings.applyConnection(BitbucketClient(server: try ServerAddress(parsing: "https://bitbucket.example.com"), token: "t"))
+        let store = PRStore(settings: settings)
+
+        #expect(settings.recentlyMergedCount == 3)
+        await store.refresh()
+        #expect(store.recentlyMerged.map(\.id) == ["OPS/deploy-tools#11", "PROJ/web-app#13", "PROJ/web-app#10"])
+        settings.recentlyMergedCount = 3
+        settings.repoFilter = "proj"
+        #expect(store.recentlyMerged.map(\.id) == ["PROJ/web-app#13", "PROJ/web-app#10"])
+
+        settings.recentlyMergedCount = 0
+        StubServer.reset { _ in .json(#"{"values":[],"isLastPage":true}"#, user: "sam.reviewer") }
+        await store.refresh()
+        #expect(store.recentlyMerged.isEmpty)
+        #expect(!StubServer.requests.contains { $0.query.contains("state=MERGED") })
+    }
+
     private static func dashboardJSON(prID: Int) -> String {
         let pr = String(decoding: try! JSONSerialization.data(withJSONObject: [
             "id": prID, "title": "T", "updatedDate": 0,
@@ -256,6 +286,7 @@ nonisolated final class StubServer: URLProtocol {
     struct Request: Sendable {
         let host: String?
         let path: String
+        let query: String
         let token: String?
     }
 
@@ -286,7 +317,7 @@ nonisolated final class StubServer: URLProtocol {
         let request = self.request
         let token = request.value(forHTTPHeaderField: "Authorization")?.replacingOccurrences(of: "Bearer ", with: "")
         let handler = Self.state.withLock { state in
-            state.requests.append(Request(host: request.url?.host(), path: request.url?.path() ?? "", token: token))
+            state.requests.append(Request(host: request.url?.host(), path: request.url?.path() ?? "", query: request.url?.query() ?? "", token: token))
             return state.handler
         }
         let url = request.url!

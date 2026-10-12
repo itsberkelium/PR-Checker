@@ -16,7 +16,8 @@ public sealed record PullRequest(
     PullRequest.Ref ToRef,
     PullRequest.Participant Author,
     IReadOnlyList<PullRequest.Participant> Reviewers,
-    PullRequest.PrProperties? Properties)
+    PullRequest.PrProperties? Properties,
+    long? ClosedDate = null)
 {
     public sealed record Ref(string DisplayId, string LatestCommit, Repository Repository);
     public sealed record Repository(string Slug, string Name, Project Project);
@@ -126,6 +127,8 @@ public sealed record PrItem
     public bool HasNewCommits { get; init; }
     /// <summary>Recent comments by people other than me; null when they couldn't be fetched.</summary>
     public IReadOnlyList<Comment>? CommentsByOthers { get; init; }
+    /// <summary>Recently merged list only: when it was merged.</summary>
+    public DateTimeOffset? Merged { get; init; }
 
     public int Approvals => Reviewers.Count(r => r.Status == ReviewStatus.Approved);
     public bool NeedsWork => Reviewers.Any(r => r.Status == ReviewStatus.NeedsWork);
@@ -157,6 +160,13 @@ public sealed record PrItem
             OpenTaskCount = pr.Properties?.OpenTaskCount ?? 0,
         };
     }
+
+    /// <summary>My merged PRs, most recently merged first. PRs without a merge time are dropped.</summary>
+    public static IReadOnlyList<PrItem> RecentlyMerged(IEnumerable<PullRequest> prs, ServerAddress server) =>
+        prs.Where(pr => pr.ClosedDate is not null)
+            .Select(pr => From(pr, server) with { Merged = DateTimeOffset.FromUnixTimeMilliseconds(pr.ClosedDate!.Value) })
+            .OrderByDescending(item => item.Merged)
+            .ToList();
 
     /// <summary>
     /// A review-list item, or null when the PR doesn't need my attention: not a reviewer,

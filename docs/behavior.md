@@ -23,6 +23,7 @@ All requests go to the configured server with `Authorization: Bearer <token>` an
 | Purpose | Request |
 |---|---|
 | PRs I review / I authored | `GET rest/api/1.0/dashboard/pull-requests?role=REVIEWER\|AUTHOR&state=OPEN&limit=100&start=<n>` |
+| My recently merged PRs | `GET rest/api/1.0/dashboard/pull-requests?role=AUTHOR&state=MERGED&order=NEWEST&limit=50` (one page) |
 | Current user | `X-AUSERNAME` response header of any request; fallback `GET plugins/servlet/applinks/whoami` (plain text) |
 | Comments on a PR | `GET rest/api/1.0/projects/{key}/repos/{slug}/pull-requests/{id}/activities?limit=50` |
 | Build result of a commit | `GET rest/build-status/1.0/commits/stats/{commit}` |
@@ -65,6 +66,16 @@ PRs where I'm not a reviewer are skipped.
 - Conflicts when `properties.mergeResult.outcome == "CONFLICTED"`. Comment and open-task counts from `properties`.
 - **Needs attention** (mine only): any reviewer needs work, conflicts, failed build, or open tasks > 0.
 - Lists are sorted by `updatedDate`, newest first.
+
+## Recently merged
+
+Setting **Recently merged**: *Off*, *Last 3* (default), *Last 5*, *Last 10*.
+
+- While it's on, every refresh also fetches one page of my merged PRs. The dashboard orders by last update, so items are sorted by `closedDate`, newest first; PRs without `closedDate` are dropped.
+- Shown in the Mine tab below my open PRs, under a "Recently merged" header: the first *N* that pass the filters. Rows show "Merged {time}" and no badges; comments and builds aren't fetched for them.
+- If the request fails, the previous merged list stays and the refresh isn't reported as failed.
+- Off sends no request. Turning it on refreshes immediately; changing between counts reuses the last fetch.
+- Merged PRs are never announced and aren't part of the snapshot. Departed PRs still notify `🎉 Merged` as before.
 
 ## Filters
 

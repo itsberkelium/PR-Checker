@@ -36,6 +36,7 @@ public sealed class BitbucketClient(ServerAddress server, string token, HttpMess
 {
     public const int PageSize = 100;
     public const int MaxPages = 20;
+    public const int MergedPageSize = 50;
     public const int MaxResponseBytes = 8 * 1024 * 1024;
     public const int MaxRedirects = 5;
 
@@ -75,6 +76,17 @@ public sealed class BitbucketClient(ServerAddress server, string token, HttpMess
             start = next;
         }
         throw new ApiException(ApiErrorKind.TooManyResults);
+    }
+
+    /// <summary>
+    /// Merged PRs I authored, one page. The dashboard sorts by last update, so callers sort by
+    /// merge time; a page of 50 leaves room for the project/repo filter.
+    /// </summary>
+    public async Task<IReadOnlyList<PullRequest>> RecentlyMergedAsync(CancellationToken cancellation = default)
+    {
+        var (body, _) = await GetAsync(
+            $"rest/api/1.0/dashboard/pull-requests?role=AUTHOR&state=MERGED&order=NEWEST&limit={MergedPageSize}", cancellation);
+        return Decode(body, JsonContext.Default.PagePullRequest).Values;
     }
 
     /// <summary>The signed-in user name; one small request, used to validate a connection.</summary>

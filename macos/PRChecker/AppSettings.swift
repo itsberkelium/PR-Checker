@@ -5,6 +5,8 @@ import Observation
 final class AppSettings {
     static let shared = AppSettings()
     static let refreshOptions = [1, 2, 5, 10, 15]
+    /// How many recently merged PRs to show under Mine; 0 is off.
+    static let recentlyMergedOptions = [0, 3, 5, 10]
 
     enum ConnectionError: LocalizedError {
         case tokenRequired
@@ -25,6 +27,7 @@ final class AppSettings {
         static let acceptedTermsVersion = "acceptedTermsVersion"
         static let automationEnabled = "automationEnabled"
         static let automationCommand = "automationCommand"
+        static let recentlyMergedCount = "recentlyMergedCount"
     }
 
     @ObservationIgnored let defaults: UserDefaults
@@ -39,6 +42,8 @@ final class AppSettings {
     private(set) var server: ServerAddress?
     var refreshMinutes: Int { didSet { defaults.set(refreshMinutes, forKey: Key.refreshMinutes) } }
     var hideDrafts: Bool { didSet { defaults.set(hideDrafts, forKey: Key.hideDrafts) } }
+    /// One of `recentlyMergedOptions`.
+    var recentlyMergedCount: Int { didSet { defaults.set(recentlyMergedCount, forKey: Key.recentlyMergedCount) } }
     /// Comma-separated project keys or "PROJECT/repo-slug" entries. Empty shows everything.
     var repoFilter: String {
         didSet {
@@ -72,6 +77,8 @@ final class AppSettings {
         server = defaults.string(forKey: Key.serverURL).flatMap { try? ServerAddress(parsing: $0) }
         refreshMinutes = defaults.object(forKey: Key.refreshMinutes) as? Int ?? 5
         hideDrafts = defaults.object(forKey: Key.hideDrafts) as? Bool ?? true
+        let merged = defaults.object(forKey: Key.recentlyMergedCount) as? Int ?? 3
+        recentlyMergedCount = Self.recentlyMergedOptions.contains(merged) ? merged : 3
         repoFilter = defaults.string(forKey: Key.repoFilter) ?? ""
         notificationsEnabled = defaults.object(forKey: Key.notificationsEnabled) as? Bool ?? true
         notificationDetails = defaults.object(forKey: Key.notificationDetails) as? Bool ?? true

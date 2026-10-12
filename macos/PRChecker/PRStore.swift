@@ -12,6 +12,8 @@ final class PRStore {
 
     private(set) var reviewItems: [PRItem] = []
     private(set) var mineItems: [PRItem] = []
+    /// My merged PRs, most recent first, before filters and the count setting.
+    private(set) var mergedItems: [PRItem] = []
     private(set) var username: String?
     private(set) var lastUpdated: Date?
     private(set) var errorMessage: String?
@@ -43,6 +45,7 @@ final class PRStore {
 
     var toReview: [PRItem] { reviewItems.filter(settings.includes) }
     var mine: [PRItem] { mineItems.filter(settings.includes) }
+    var recentlyMerged: [PRItem] { Array(mergedItems.filter(settings.includes).prefix(settings.recentlyMergedCount)) }
     var isConfigured: Bool { settings.makeClient() != nil }
 
     /// (Re)starts polling at the configured interval, refreshing immediately.
@@ -104,6 +107,7 @@ final class PRStore {
         refreshTask = nil
         reviewItems = []
         mineItems = []
+        mergedItems = []
         username = nil
         lastUpdated = nil
         errorMessage = nil
@@ -127,7 +131,10 @@ final class PRStore {
         do {
             async let reviewing = client.dashboard(role: .reviewer)
             async let authored = client.dashboard(role: .author)
+            // Optional extra: if it fails, the previous merged list stays.
+            async let merged = settings.recentlyMergedCount > 0 ? try? client.recentlyMerged() : []
             let (reviewDashboard, authorDashboard) = try await (reviewing, authored)
+            let mergedPRs = await merged
             guard isCurrent(generation) else { return }
 
             let me: String
@@ -147,6 +154,7 @@ final class PRStore {
             username = me
             reviewItems = review.sorted { $0.updated > $1.updated }
             mineItems = mine.sorted { $0.updated > $1.updated }
+            if let mergedPRs { mergedItems = PRItem.recentlyMerged(mergedPRs, server: server) }
             lastUpdated = .now
             errorMessage = rateLimited ? APIError.rateLimited.errorDescription : nil
             await notifyChanges(client: client, me: me, generation: generation)
@@ -333,10 +341,11 @@ final class PRStore {
 
     #if DEBUG
     /// Shows the given PRs without any network access; for rendering screenshots.
-    func showDemoData(review: [PRItem], mine: [PRItem], username: String) {
+    func showDemoData(review: [PRItem], mine: [PRItem], merged: [PRItem] = [], username: String) {
         reset()
         reviewItems = review
         mineItems = mine
+        mergedItems = merged
         self.username = username
         lastUpdated = .now.addingTimeInterval(-40)
     }

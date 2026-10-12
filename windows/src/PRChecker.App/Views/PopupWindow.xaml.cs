@@ -87,8 +87,17 @@ public sealed partial class PopupWindow : Window
         ToolTipService.SetToolTip(SettingsButton, L10n.Settings);
         ToolTipService.SetToolTip(QuitButton, L10n.QuitApp);
 
-        List.ItemsSource = items.Select(item => new PrRow(item, showsAuthor: review)).ToList();
-        var empty = items.Count == 0;
+        IReadOnlyList<PrItem> merged = review ? [] : store.RecentlyMerged;
+        var rows = new List<object>();
+        if (items.Count == 0 && merged.Count > 0) rows.Add(new ListLabel(L10n.NoOpenPullRequests, IsSectionHeader: false));
+        rows.AddRange(items.Select(item => new PrRow(item, showsAuthor: review)));
+        if (merged.Count > 0)
+        {
+            rows.Add(new ListLabel(L10n.RecentlyMerged, IsSectionHeader: true));
+            rows.AddRange(merged.Select(item => new PrRow(item, showsAuthor: false)));
+        }
+        List.ItemsSource = rows;
+        var empty = rows.Count == 0;
         List.Visibility = empty ? Visibility.Collapsed : Visibility.Visible;
         EmptyState.Visibility = empty ? Visibility.Visible : Visibility.Collapsed;
         EmptyAction.Visibility = Visibility.Collapsed;
@@ -121,6 +130,10 @@ public sealed partial class PopupWindow : Window
         NotificationsBlocked.ActionButton.Visibility = notifier.IsAvailable ? Visibility.Visible : Visibility.Collapsed;
         NotificationsBlocked.IsOpen = store.Settings.NotificationsEnabled && (notifier.IsBlockedBySystem || !notifier.IsAvailable);
     }
+
+    /// <summary>Labels aren't clickable and don't highlight on hover.</summary>
+    private void OnContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args) =>
+        args.ItemContainer.IsHitTestVisible = args.Item is PrRow;
 
     private void OnItemClick(object sender, ItemClickEventArgs e)
     {
