@@ -163,17 +163,20 @@ private struct BitbucketSettings: View {
             Section {
                 Toggle(L10n.hideDrafts, isOn: $settings.hideDrafts)
                 TextField(L10n.onlyTheseRepos, text: $settings.repoFilter, prompt: Text(L10n.filterAllPlaceholder))
-                Picker(L10n.recentlyMerged, selection: $settings.recentlyMergedCount) {
-                    ForEach(AppSettings.recentlyMergedOptions, id: \.self) { count in
-                        Text(count == 0 ? L10n.recentlyMergedOff : L10n.recentlyMergedLast(n: count)).tag(count)
-                    }
-                }
             } header: {
                 Text(L10n.filters)
             } footer: {
                 Text(L10n.filterHint)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Picker(L10n.recentlyMerged, selection: $settings.recentlyMergedCount) {
+                    ForEach(AppSettings.recentlyMergedOptions, id: \.self) { count in
+                        Text(count == 0 ? L10n.recentlyMergedOff : L10n.recentlyMergedLast(n: count)).tag(count)
+                    }
+                }
             }
         }
         .formStyle(.grouped)
