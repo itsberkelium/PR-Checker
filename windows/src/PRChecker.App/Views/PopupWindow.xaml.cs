@@ -36,6 +36,8 @@ public sealed partial class PopupWindow : Window
         AppWindow.Closing += (_, args) => { args.Cancel = true; HideWindow(); };
         Activated += (_, args) => { if (args.WindowActivationState == WindowActivationState.Deactivated) HideWindow(); };
 
+        // Labels aren't clickable and don't highlight on hover.
+        List.ContainerContentChanging += (_, args) => args.ItemContainer.IsHitTestVisible = args.Item is PrRow;
         _app.Store.PropertyChanged += OnStoreChanged;
         Localizer.Changed += () => DispatcherQueue.TryEnqueue(Render);
         _clock.Tick += (_, _) => Render();
@@ -130,10 +132,6 @@ public sealed partial class PopupWindow : Window
         NotificationsBlocked.ActionButton.Visibility = notifier.IsAvailable ? Visibility.Visible : Visibility.Collapsed;
         NotificationsBlocked.IsOpen = store.Settings.NotificationsEnabled && (notifier.IsBlockedBySystem || !notifier.IsAvailable);
     }
-
-    /// <summary>Labels aren't clickable and don't highlight on hover.</summary>
-    private void OnContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args) =>
-        args.ItemContainer.IsHitTestVisible = args.Item is PrRow;
 
     private void OnItemClick(object sender, ItemClickEventArgs e)
     {
