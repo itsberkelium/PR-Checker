@@ -11,6 +11,40 @@
     </Window.SystemBackdrop>
 
     <Grid RowDefinitions="Auto,Auto,*,Auto,Auto">
+        <Grid.Resources>
+            <DataTemplate x:Key="PrRowTemplate" x:DataType="local:PrRow">
+                <StackPanel Spacing="3" ToolTipService.ToolTip="{x:Bind Tooltip}">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                        <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
+                        <TextBlock Grid.Column="1" Text="{x:Bind Updated}" Style="{StaticResource CaptionTextBlockStyle}"
+                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    </Grid>
+                    <TextBlock Text="{x:Bind Subtitle}" Style="{StaticResource CaptionTextBlockStyle}" TextTrimming="CharacterEllipsis"
+                               Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+                    <ItemsControl ItemsSource="{x:Bind Badges}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal" Spacing="12" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="local:Badge">
+                                <StackPanel Orientation="Horizontal" Spacing="4">
+                                    <FontIcon Glyph="{x:Bind Glyph}" FontSize="12" Foreground="{x:Bind Foreground}" />
+                                    <TextBlock Text="{x:Bind Text}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{x:Bind Foreground}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </DataTemplate>
+            <DataTemplate x:Key="ListLabelTemplate" x:DataType="local:ListLabel">
+                <TextBlock Text="{x:Bind Text}" HorizontalAlignment="{x:Bind Alignment}" FontWeight="{x:Bind Weight}" Margin="{x:Bind Spacing}"
+                           Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
+            </DataTemplate>
+            <local:PrListTemplateSelector x:Key="PrListTemplates" Row="{StaticResource PrRowTemplate}" Label="{StaticResource ListLabelTemplate}" />
+        </Grid.Resources>
+
         <SelectorBar x:Name="Tabs" Grid.Row="0" HorizontalAlignment="Center" Margin="0,6,0,4"
                      SelectionChanged="OnTabChanged">
             <SelectorBarItem x:Name="ReviewTab" IsSelected="True" />
@@ -24,41 +58,14 @@
             </InfoBar.ActionButton>
         </InfoBar>
 
-        <ListView x:Name="List" Grid.Row="2" SelectionMode="None" IsItemClickEnabled="True" ItemClick="OnItemClick">
+        <ListView x:Name="List" Grid.Row="2" SelectionMode="None" IsItemClickEnabled="True" ItemClick="OnItemClick"
+                  ItemTemplateSelector="{StaticResource PrListTemplates}">
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Padding" Value="12,8" />
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                 </Style>
             </ListView.ItemContainerStyle>
-            <ListView.ItemTemplate>
-                <DataTemplate x:DataType="local:PrRow">
-                    <StackPanel Spacing="3" ToolTipService.ToolTip="{x:Bind Tooltip}">
-                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                            <TextBlock Text="{x:Bind Title}" FontWeight="SemiBold" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
-                            <TextBlock Grid.Column="1" Text="{x:Bind Updated}" Style="{StaticResource CaptionTextBlockStyle}"
-                                       Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                        </Grid>
-                        <TextBlock Text="{x:Bind Subtitle}" Style="{StaticResource CaptionTextBlockStyle}" TextTrimming="CharacterEllipsis"
-                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
-                        <ItemsControl ItemsSource="{x:Bind Badges}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal" Spacing="12" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="local:Badge">
-                                    <StackPanel Orientation="Horizontal" Spacing="4">
-                                        <FontIcon Glyph="{x:Bind Glyph}" FontSize="12" Foreground="{x:Bind Foreground}" />
-                                        <TextBlock Text="{x:Bind Text}" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{x:Bind Foreground}" />
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </DataTemplate>
-            </ListView.ItemTemplate>
         </ListView>
 
         <StackPanel x:Name="EmptyState" Grid.Row="2" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="8" Visibility="Collapsed">

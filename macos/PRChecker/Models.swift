@@ -13,6 +13,8 @@ struct PullRequest: Decodable {
     let title: String
     let draft: Bool?
     let updatedDate: Int64
+    /// When it was merged or declined; absent while open.
+    let closedDate: Int64?
     let fromRef: Ref
     let toRef: Ref
     let author: Participant
@@ -142,6 +144,8 @@ struct PRItem: Identifiable, Equatable {
     var hasNewCommits = false
     /// Recent comments and replies by people other than me; nil when they couldn't be fetched.
     var commentsByOthers: [Comment]?
+    /// Recently merged list only: when it was merged.
+    var merged: Date?
 
     var approvals: Int { reviewers.filter { $0.status == .approved }.count }
     var needsWork: Bool { reviewers.contains { $0.status == .needsWork } }
@@ -172,6 +176,17 @@ extension PRItem {
             commentCount: pr.properties?.commentCount ?? 0,
             openTaskCount: pr.properties?.openTaskCount ?? 0
         )
+    }
+
+    /// My merged PRs, most recently merged first. PRs without a merge time are dropped.
+    static func recentlyMerged(_ prs: [PullRequest], server: ServerAddress) -> [PRItem] {
+        prs.compactMap { pr -> PRItem? in
+            guard let closed = pr.closedDate else { return nil }
+            var item = PRItem(pr, server: server)
+            item.merged = Date(timeIntervalSince1970: TimeInterval(closed) / 1000)
+            return item
+        }
+        .sorted { $0.merged! > $1.merged! }
     }
 
     /// Builds a review-list item, or nil when the PR doesn't need my attention:

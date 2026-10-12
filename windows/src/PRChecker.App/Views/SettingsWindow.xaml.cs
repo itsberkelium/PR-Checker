@@ -73,6 +73,12 @@ public sealed partial class SettingsWindow : Window
         FilterBox.Header = L10n.OnlyTheseRepos;
         FilterBox.PlaceholderText = L10n.FilterAllPlaceholder;
         FilterHint.Text = L10n.FilterHint;
+        MergedBox.Header = L10n.RecentlyMerged;
+        var merged = MergedBox.SelectedIndex;
+        MergedBox.Items.Clear();
+        foreach (var count in AppSettings.RecentlyMergedOptions)
+            MergedBox.Items.Add(count == 0 ? L10n.RecentlyMergedOff : L10n.RecentlyMergedLast(count));
+        MergedBox.SelectedIndex = merged;
 
         CheckForUpdatesButton.Content = L10n.CheckForUpdates;
         ReportProblemButton.Content = L10n.ReportProblem;
@@ -120,6 +126,7 @@ public sealed partial class SettingsWindow : Window
         ServerBox.Text = Settings.SavedServerUrl;
         HideDraftsToggle.IsOn = Settings.HideDrafts;
         FilterBox.Text = Settings.RepoFilter;
+        MergedBox.SelectedIndex = Array.IndexOf(AppSettings.RecentlyMergedOptions, Settings.RecentlyMergedCount);
         VersionText.Text = $"PR Checker {Platform.Version}";
         UpdateTokenHint();
         RefreshNotificationState();
@@ -268,6 +275,16 @@ public sealed partial class SettingsWindow : Window
         if (_loading || FilterBox.Text == Settings.RepoFilter) return;
         Settings.RepoFilter = FilterBox.Text;
         _app.Store.FiltersChanged();
+    }
+
+    private void OnMergedChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loading || MergedBox.SelectedIndex < 0) return;
+        var before = Settings.RecentlyMergedCount;
+        Settings.RecentlyMergedCount = AppSettings.RecentlyMergedOptions[MergedBox.SelectedIndex];
+        _app.Store.FiltersChanged();
+        // Merged PRs aren't fetched while it's off; other counts reuse the last fetch.
+        if (before == 0 && Settings.RecentlyMergedCount > 0 && _app.Store.IsConfigured) _ = _app.Store.RefreshAsync();
     }
 
     // MARK: About

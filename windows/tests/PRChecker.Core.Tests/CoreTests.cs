@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using System.Net;
 using PRChecker.Core;
 using static PRChecker.Core.Tests.Fixtures;
@@ -361,6 +362,34 @@ public sealed class ConnectionTests
     {
         public void Post(Change change, bool showDetails) => throw new InvalidOperationException("Not registered");
         public void RemoveDelivered() => throw new InvalidOperationException("Not registered");
+    }
+
+    [Fact]
+    public async Task Recently_merged_follows_count_and_filters()
+    {
+        const string empty = """{"values":[],"isLastPage":true}""";
+        var merged = JsonNode.Parse(File.ReadAllText(Fixtures.Path("merged-list")))!["dashboard"]!.ToJsonString();
+        var stub = new StubServer
+        {
+            Handler = (request, _) => Task.FromResult(StubServer.Json(
+                request.RequestUri!.Query.Contains("state=MERGED", StringComparison.Ordinal) ? merged : empty, "sam.reviewer")),
+        };
+        var settings = new AppSettings(new MemoryStore(), new MemoryTokenStore()) { HttpHandler = stub, NotificationsEnabled = false };
+        settings.ApplyConnection(new BitbucketClient(Fixtures.TestServer, "t"));
+        using var store = new PrStore(settings, new MemoryStore(), new RecordingNotifier());
+
+        Assert.Equal(3, settings.RecentlyMergedCount);
+        await store.RefreshAsync();
+        Assert.Equal(["OPS/deploy-tools#11", "PROJ/web-app#13", "PROJ/web-app#10"], store.RecentlyMerged.Select(i => i.Id));
+        settings.RepoFilter = "proj";
+        Assert.Equal(["PROJ/web-app#13", "PROJ/web-app#10"], store.RecentlyMerged.Select(i => i.Id));
+
+        settings.RecentlyMergedCount = 0;
+        stub.Handler = (_, _) => Task.FromResult(StubServer.Json(empty, "sam.reviewer"));
+        while (stub.Requests.TryDequeue(out _)) { }
+        await store.RefreshAsync();
+        Assert.Empty(store.RecentlyMerged);
+        Assert.DoesNotContain(stub.Requests, r => r.PathAndQuery.Contains("state=MERGED", StringComparison.Ordinal));
     }
 
     private const string DashboardWithOnePr = """

@@ -27,6 +27,7 @@ public sealed class ConnectionException(string message) : Exception(message)
 public sealed class AppSettings : ObservableObject
 {
     public static readonly int[] RefreshOptions = [1, 2, 5, 10, 15];
+    public static readonly int[] RecentlyMergedOptions = [0, 3, 5, 10];
 
     private readonly ISettingsStore _store;
     private readonly ITokenStore _tokens;
@@ -41,6 +42,7 @@ public sealed class AppSettings : ObservableObject
         _tokens = tokens;
         _data = store.Load();
         if (!RefreshOptions.Contains(_data.RefreshMinutes)) _data = _data with { RefreshMinutes = 5 };
+        if (!RecentlyMergedOptions.Contains(_data.RecentlyMergedCount)) _data = _data with { RecentlyMergedCount = 3 };
         Server = _data.ServerUrl is { } url && ServerAddress.TryParse(url, out var server) ? server : null;
         _filterPatterns = ParsePatterns(_data.RepoFilter);
         Localizer.Apply(_data.Language);
@@ -54,6 +56,8 @@ public sealed class AppSettings : ObservableObject
 
     public int RefreshMinutes { get => _data.RefreshMinutes; set => Update(_data with { RefreshMinutes = value }); }
     public bool HideDrafts { get => _data.HideDrafts; set => Update(_data with { HideDrafts = value }); }
+    /// <summary>One of <see cref="RecentlyMergedOptions"/>.</summary>
+    public int RecentlyMergedCount { get => _data.RecentlyMergedCount; set => Update(_data with { RecentlyMergedCount = value }); }
     /// <summary>Comma-separated project keys or "PROJECT/repo-slug" entries. Empty shows everything.</summary>
     public string RepoFilter
     {

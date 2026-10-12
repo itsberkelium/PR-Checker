@@ -38,6 +38,7 @@ struct BitbucketClient {
 
     static let pageSize = 100
     static let maxPages = 20
+    static let mergedPageSize = 50
     static let maxResponseBytes = 8 * 1024 * 1024
 
     /// No disk cache or cookies, so API responses aren't persisted anywhere.
@@ -74,6 +75,18 @@ struct BitbucketClient {
             start = next
         }
         throw APIError.tooManyResults(limit: Self.maxPages * Self.pageSize)
+    }
+
+    /// Merged PRs I authored, one page. The dashboard sorts by last update, so callers sort by
+    /// merge time; a page of 50 leaves room for the project/repo filter.
+    func recentlyMerged() async throws -> [PullRequest] {
+        let (data, _) = try await get("rest/api/1.0/dashboard/pull-requests", query: [
+            URLQueryItem(name: "role", value: Role.author.rawValue),
+            URLQueryItem(name: "state", value: "MERGED"),
+            URLQueryItem(name: "order", value: "NEWEST"),
+            URLQueryItem(name: "limit", value: String(Self.mergedPageSize)),
+        ])
+        return try JSONDecoder().decode(Page<PullRequest>.self, from: data).values
     }
 
     /// The signed-in user name; one small request, used to validate a connection.

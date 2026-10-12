@@ -14,6 +14,7 @@ struct MenuContentView: View {
     }
 
     private var items: [PRItem] { tab == .review ? store.toReview : store.mine }
+    private var merged: [PRItem] { tab == .mine ? store.recentlyMerged : [] }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -41,7 +42,7 @@ struct MenuContentView: View {
 
     @ViewBuilder
     private var content: some View {
-        if items.isEmpty {
+        if items.isEmpty && merged.isEmpty {
             if let error = store.errorMessage {
                 ContentUnavailableView {
                     Label(L10n.cantLoadPullRequests, systemImage: "exclamationmark.triangle")
@@ -60,9 +61,30 @@ struct MenuContentView: View {
         } else {
             ScrollView {
                 LazyVStack(spacing: 0) {
+                    if items.isEmpty {
+                        Text(L10n.noOpenPullRequests)
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                        Divider()
+                    }
                     ForEach(items) { item in
                         PRRow(item: item, showsAuthor: tab == .review)
                         Divider()
+                    }
+                    if !merged.isEmpty {
+                        Text(L10n.recentlyMerged)
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.secondary)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.horizontal, 12)
+                            .padding(.top, 14)
+                            .padding(.bottom, 4)
+                        ForEach(merged) { item in
+                            PRRow(item: item, showsAuthor: false)
+                            Divider()
+                        }
                     }
                 }
             }

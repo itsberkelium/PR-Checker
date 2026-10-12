@@ -15,7 +15,7 @@ struct PRRow: View {
                         .font(.body.weight(.medium))
                         .lineLimit(2)
                     Spacer(minLength: 6)
-                    Text(item.updated.relativeText)
+                    Text(item.merged.map { L10n.mergedAgo(time: $0.relativeText) } ?? item.updated.relativeText)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize()
@@ -25,7 +25,7 @@ struct PRRow: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
                     .truncationMode(.middle)
-                badges
+                if item.merged == nil { badges }
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)

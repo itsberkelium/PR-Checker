@@ -24,7 +24,7 @@ enum ScreenshotRenderer {
         let settings = AppSettings(defaults: defaults, tokens: NoTokens())
         settings.notificationsEnabled = false
         let store = PRStore(settings: settings)
-        store.showDemoData(review: DemoData.review, mine: DemoData.mine, username: "sam.reviewer")
+        store.showDemoData(review: DemoData.review, mine: DemoData.mine, merged: DemoData.merged, username: "sam.reviewer")
 
         Task {
             do {
@@ -126,6 +126,17 @@ private enum DemoData {
            reviewers: [("Priya Natarajan", .approved), ("Jordan Lee", .unapproved), ("Alex Kim", .unapproved)],
            build: .running),
     ]
+
+    static let merged: [PRItem] = [
+        (1198, "Show the build status in the PR list", "WEB", "web-app", "Web App", "feature/build-status", 26.0),
+        (311, "Fix crash when the camera permission is denied", "MOB", "mobile-app", "Mobile App", "fix/camera-permission", 50.0),
+        (40, "Retry failed webhooks with backoff", "PAY", "payments-api", "Payments API", "feature/webhook-retry", 97.0),
+    ].map { number, title, project, repo, name, from, hoursAgo in
+        var item = pr(number, title, project: project, repo: repo, name: name, from: from,
+                      author: "Sam Reviewer", minutesAgo: hoursAgo * 60, reviewers: [])
+        item.merged = .now.addingTimeInterval(-hoursAgo * 3600)
+        return item
+    }
 
     private static func pr(
         _ number: Int, _ title: String, project: String, repo: String, name: String, from: String,

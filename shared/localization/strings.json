@@ -699,6 +699,52 @@
       ]
     },
     {
+      "id": "recentlyMerged",
+      "en": "Recently merged",
+      "tr": "Son birleştirilenler",
+      "platforms": [
+        "macos",
+        "windows"
+      ],
+      "note": "Setting label and the section title under Mine"
+    },
+    {
+      "id": "recentlyMergedOff",
+      "en": "Off",
+      "tr": "Kapalı",
+      "platforms": [
+        "macos",
+        "windows"
+      ],
+      "note": "Recently merged setting: don't show merged PRs"
+    },
+    {
+      "id": "recentlyMergedLast",
+      "args": {
+        "n": "int"
+      },
+      "en": "Last {n}",
+      "tr": "Son {n}",
+      "platforms": [
+        "macos",
+        "windows"
+      ],
+      "note": "Recently merged setting: how many to show"
+    },
+    {
+      "id": "mergedAgo",
+      "args": {
+        "time": "string"
+      },
+      "en": "Merged {time}",
+      "tr": "{time} birleştirildi",
+      "platforms": [
+        "macos",
+        "windows"
+      ],
+      "note": "time is relative, e.g. \"2 days ago\""
+    },
+    {
       "id": "onlyTheseRepos",
       "en": "Only these projects/repos",
       "tr": "Yalnızca bu projeler/repolar",

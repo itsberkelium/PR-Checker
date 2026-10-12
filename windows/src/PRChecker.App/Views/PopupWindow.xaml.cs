@@ -36,6 +36,8 @@ public sealed partial class PopupWindow : Window
         AppWindow.Closing += (_, args) => { args.Cancel = true; HideWindow(); };
         Activated += (_, args) => { if (args.WindowActivationState == WindowActivationState.Deactivated) HideWindow(); };
 
+        // Labels aren't clickable and don't highlight on hover.
+        List.ContainerContentChanging += (_, args) => args.ItemContainer.IsHitTestVisible = args.Item is PrRow;
         _app.Store.PropertyChanged += OnStoreChanged;
         Localizer.Changed += () => DispatcherQueue.TryEnqueue(Render);
         _clock.Tick += (_, _) => Render();
@@ -87,8 +89,17 @@ public sealed partial class PopupWindow : Window
         ToolTipService.SetToolTip(SettingsButton, L10n.Settings);
         ToolTipService.SetToolTip(QuitButton, L10n.QuitApp);
 
-        List.ItemsSource = items.Select(item => new PrRow(item, showsAuthor: review)).ToList();
-        var empty = items.Count == 0;
+        IReadOnlyList<PrItem> merged = review ? [] : store.RecentlyMerged;
+        var rows = new List<object>();
+        if (items.Count == 0 && merged.Count > 0) rows.Add(new ListLabel(L10n.NoOpenPullRequests, IsSectionHeader: false));
+        rows.AddRange(items.Select(item => new PrRow(item, showsAuthor: review)));
+        if (merged.Count > 0)
+        {
+            rows.Add(new ListLabel(L10n.RecentlyMerged, IsSectionHeader: true));
+            rows.AddRange(merged.Select(item => new PrRow(item, showsAuthor: false)));
+        }
+        List.ItemsSource = rows;
+        var empty = rows.Count == 0;
         List.Visibility = empty ? Visibility.Collapsed : Visibility.Visible;
         EmptyState.Visibility = empty ? Visibility.Visible : Visibility.Collapsed;
         EmptyAction.Visibility = Visibility.Collapsed;

@@ -22,6 +22,7 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
 
     private IReadOnlyList<PrItem> _reviewItems = [];
     private IReadOnlyList<PrItem> _mineItems = [];
+    private IReadOnlyList<PrItem> _mergedItems = [];
     private string? _username;
     private DateTimeOffset? _lastUpdated;
     private string? _errorMessage;
@@ -40,6 +41,8 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
 
     public IReadOnlyList<PrItem> ReviewItems { get => _reviewItems; private set { if (Set(ref _reviewItems, value)) Raise(nameof(ToReview)); } }
     public IReadOnlyList<PrItem> MineItems { get => _mineItems; private set { if (Set(ref _mineItems, value)) Raise(nameof(Mine)); } }
+    /// <summary>My merged PRs, most recent first, before filters and the count setting.</summary>
+    public IReadOnlyList<PrItem> MergedItems { get => _mergedItems; private set { if (Set(ref _mergedItems, value)) Raise(nameof(RecentlyMerged)); } }
     public string? Username { get => _username; private set => Set(ref _username, value); }
     public DateTimeOffset? LastUpdated { get => _lastUpdated; private set => Set(ref _lastUpdated, value); }
     public string? ErrorMessage { get => _errorMessage; private set => Set(ref _errorMessage, value); }
@@ -47,6 +50,7 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
 
     public IReadOnlyList<PrItem> ToReview => ReviewItems.Where(Settings.Includes).ToList();
     public IReadOnlyList<PrItem> Mine => MineItems.Where(Settings.Includes).ToList();
+    public IReadOnlyList<PrItem> RecentlyMerged => MergedItems.Where(Settings.Includes).Take(Settings.RecentlyMergedCount).ToList();
     public bool IsConfigured => Settings.MakeClient() is not null;
 
     /// <summary>Call after a filter changes so bound lists update.</summary>
@@ -54,6 +58,7 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
     {
         Raise(nameof(ToReview));
         Raise(nameof(Mine));
+        Raise(nameof(RecentlyMerged));
     }
 
     /// <summary>(Re)starts polling at the configured interval, refreshing immediately.</summary>
@@ -140,6 +145,7 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
         _refreshTask = null;
         ReviewItems = [];
         MineItems = [];
+        MergedItems = [];
         Username = null;
         LastUpdated = null;
         ErrorMessage = null;
@@ -150,6 +156,13 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
 
     private bool IsCurrent(int generation, CancellationToken cancellation) =>
         generation == _generation && !cancellation.IsCancellationRequested;
+
+    /// <summary>An optional extra: when it fails, the previous merged list stays.</summary>
+    private static async Task<IReadOnlyList<PullRequest>?> RecentlyMergedOrNullAsync(BitbucketClient client, CancellationToken cancellation)
+    {
+        try { return await client.RecentlyMergedAsync(cancellation); }
+        catch (Exception error) when (error is ApiException or HttpRequestException or System.Text.Json.JsonException) { return null; }
+    }
 
     private async Task PerformRefreshAsync(int generation, CancellationToken cancellation)
     {
@@ -163,8 +176,10 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
         {
             var reviewing = client.DashboardAsync(Role.Reviewer, cancellation);
             var authored = client.DashboardAsync(Role.Author, cancellation);
+            var merged = Settings.RecentlyMergedCount > 0 ? RecentlyMergedOrNullAsync(client, cancellation) : Task.FromResult<IReadOnlyList<PullRequest>?>([]);
             var reviewDashboard = await reviewing;
             var authorDashboard = await authored;
+            var mergedPrs = await merged;
             if (!IsCurrent(generation, cancellation)) return;
 
             var me = reviewDashboard.Username ?? authorDashboard.Username ?? await client.WhoAmIAsync(cancellation);
@@ -179,6 +194,7 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
             Username = me;
             ReviewItems = enrichedReview.OrderByDescending(i => i.Updated).ToList();
             MineItems = enrichedMine.OrderByDescending(i => i.Updated).ToList();
+            if (mergedPrs is not null) MergedItems = PrItem.RecentlyMerged(mergedPrs, server);
             LastUpdated = DateTimeOffset.Now;
             ErrorMessage = rateLimited ? new ApiException(ApiErrorKind.RateLimited).Message : null;
             await NotifyChangesAsync(client, me, generation, cancellation);

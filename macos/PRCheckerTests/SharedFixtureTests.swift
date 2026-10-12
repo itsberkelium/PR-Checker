@@ -33,6 +33,19 @@ struct SharedFixtureTests {
         }
     }
 
+    @Test func recentlyMerged() throws {
+        let data = try fixture("merged-list")
+        let server = try ServerAddress(parsing: try #require(data["server"] as? String))
+        let page = try decode(Page<PullRequest>.self, from: try #require(data["dashboard"]))
+        let expected = try #require(data["expected"] as? [[String: Any]])
+
+        let items = PRItem.recentlyMerged(page.values, server: server)
+        #expect(items.map(\.id) == expected.map { $0["id"] as? String })
+        #expect(items.map(\.url.absoluteString) == expected.map { $0["link"] as? String })
+        #expect(items.map { $0.merged.map { Int64($0.timeIntervalSince1970 * 1000) } }
+                == expected.map { ($0["merged"] as? NSNumber)?.int64Value })
+    }
+
     @Test func commentsByOthers() throws {
         let data = try fixture("activities")
         let page = try decode(Page<Activity>.self, from: try #require(data["page"]))

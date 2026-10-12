@@ -436,6 +436,38 @@ nonisolated enum L10n {
         }
     }
 
+    /// Recently merged
+    static var recentlyMerged: String {
+        switch Localizer.current {
+        case .english: "Recently merged"
+        case .turkish: "Son birleştirilenler"
+        }
+    }
+
+    /// Off
+    static var recentlyMergedOff: String {
+        switch Localizer.current {
+        case .english: "Off"
+        case .turkish: "Kapalı"
+        }
+    }
+
+    /// Last {n}
+    static func recentlyMergedLast(n: Int) -> String {
+        switch Localizer.current {
+        case .english: "Last \(n)"
+        case .turkish: "Son \(n)"
+        }
+    }
+
+    /// Merged {time}
+    static func mergedAgo(time: String) -> String {
+        switch Localizer.current {
+        case .english: "Merged \(time)"
+        case .turkish: "\(time) birleştirildi"
+        }
+    }
+
     /// Only these projects/repos
     static var onlyTheseRepos: String {
         switch Localizer.current {

@@ -60,6 +60,7 @@
                     <ToggleSwitch x:Name="HideDraftsToggle" Toggled="OnHideDraftsToggled" />
                     <TextBox x:Name="FilterBox" LostFocus="OnFilterChanged" />
                     <TextBlock x:Name="FilterHint" Style="{StaticResource CaptionTextBlockStyle}" Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
+                    <ComboBox x:Name="MergedBox" SelectionChanged="OnMergedChanged" MinWidth="160" />
                 </StackPanel>
 
                 <!-- About -->

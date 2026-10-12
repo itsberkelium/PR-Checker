@@ -389,6 +389,30 @@ public static class L10n
             ? "Taslak PR'ları gizle"
             : "Hide draft pull requests";
 
+    /// <summary>Recently merged</summary>
+    public static string RecentlyMerged =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Son birleştirilenler"
+            : "Recently merged";
+
+    /// <summary>Off</summary>
+    public static string RecentlyMergedOff =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Kapalı"
+            : "Off";
+
+    /// <summary>Last {n}</summary>
+    public static string RecentlyMergedLast(int n) =>
+        Localizer.Language == AppLanguage.Turkish
+            ? $"Son {n}"
+            : $"Last {n}";
+
+    /// <summary>Merged {time}</summary>
+    public static string MergedAgo(string time) =>
+        Localizer.Language == AppLanguage.Turkish
+            ? $"{time} birleştirildi"
+            : $"Merged {time}";
+
     /// <summary>Only these projects/repos</summary>
     public static string OnlyTheseRepos =>
         Localizer.Language == AppLanguage.Turkish

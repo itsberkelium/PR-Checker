@@ -26,6 +26,8 @@ public sealed record SettingsData
     public string? ServerUrl { get; init; }
     public int RefreshMinutes { get; init; } = 5;
     public bool HideDrafts { get; init; } = true;
+    /// <summary>How many recently merged PRs to show under Mine; 0 is off.</summary>
+    public int RecentlyMergedCount { get; init; } = 3;
     public string RepoFilter { get; init; } = "";
     public bool NotificationsEnabled { get; init; } = true;
     public bool NotificationDetails { get; init; } = true;

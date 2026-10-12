@@ -1,0 +1,210 @@
+{
+  "description": "Merged AUTHOR dashboard page (sorted by last update) and the Recently merged list it must produce: most recently merged first, PRs without closedDate dropped. See docs/behavior.md#recently-merged. API links are hostile on purpose and must be ignored.",
+  "server": "https://bitbucket.example.com",
+  "dashboard": {
+    "values": [
+      {
+        "id": 10,
+        "title": "Commented on after merging",
+        "draft": false,
+        "updatedDate": 1791300000000,
+        "closedDate": 1791100000000,
+        "fromRef": {
+          "displayId": "feature/10",
+          "latestCommit": "c10",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "toRef": {
+          "displayId": "main",
+          "latestCommit": "base",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "author": {
+          "user": {
+            "name": "Sam.Reviewer",
+            "slug": "sam.reviewer",
+            "displayName": "Sam Reviewer"
+          },
+          "status": "UNAPPROVED",
+          "lastReviewedCommit": null
+        },
+        "reviewers": [],
+        "links": {
+          "self": [
+            {
+              "href": "https://evil.example.net/pr"
+            }
+          ]
+        }
+      },
+      {
+        "id": 11,
+        "title": "Merged last",
+        "draft": false,
+        "updatedDate": 1791250000000,
+        "closedDate": 1791250000000,
+        "fromRef": {
+          "displayId": "feature/11",
+          "latestCommit": "c11",
+          "repository": {
+            "slug": "deploy-tools",
+            "name": "Deploy Tools",
+            "project": {
+              "key": "OPS"
+            }
+          }
+        },
+        "toRef": {
+          "displayId": "main",
+          "latestCommit": "base",
+          "repository": {
+            "slug": "deploy-tools",
+            "name": "Deploy Tools",
+            "project": {
+              "key": "OPS"
+            }
+          }
+        },
+        "author": {
+          "user": {
+            "name": "Sam.Reviewer",
+            "slug": "sam.reviewer",
+            "displayName": "Sam Reviewer"
+          },
+          "status": "UNAPPROVED",
+          "lastReviewedCommit": null
+        },
+        "reviewers": [],
+        "links": {
+          "self": [
+            {
+              "href": "https://evil.example.net/pr"
+            }
+          ]
+        }
+      },
+      {
+        "id": 12,
+        "title": "No merge time",
+        "draft": false,
+        "updatedDate": 1791200000000,
+        "fromRef": {
+          "displayId": "feature/12",
+          "latestCommit": "c12",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "toRef": {
+          "displayId": "main",
+          "latestCommit": "base",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "author": {
+          "user": {
+            "name": "Sam.Reviewer",
+            "slug": "sam.reviewer",
+            "displayName": "Sam Reviewer"
+          },
+          "status": "UNAPPROVED",
+          "lastReviewedCommit": null
+        },
+        "reviewers": [],
+        "links": {
+          "self": [
+            {
+              "href": "https://evil.example.net/pr"
+            }
+          ]
+        }
+      },
+      {
+        "id": 13,
+        "title": "Merged in between",
+        "draft": false,
+        "updatedDate": 1791150000000,
+        "closedDate": 1791150000000,
+        "fromRef": {
+          "displayId": "feature/13",
+          "latestCommit": "c13",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "toRef": {
+          "displayId": "main",
+          "latestCommit": "base",
+          "repository": {
+            "slug": "web-app",
+            "name": "Web App",
+            "project": {
+              "key": "PROJ"
+            }
+          }
+        },
+        "author": {
+          "user": {
+            "name": "Sam.Reviewer",
+            "slug": "sam.reviewer",
+            "displayName": "Sam Reviewer"
+          },
+          "status": "UNAPPROVED",
+          "lastReviewedCommit": null
+        },
+        "reviewers": [],
+        "links": {
+          "self": [
+            {
+              "href": "https://evil.example.net/pr"
+            }
+          ]
+        }
+      }
+    ],
+    "isLastPage": true,
+    "nextPageStart": null
+  },
+  "expected": [
+    {
+      "id": "OPS/deploy-tools#11",
+      "link": "https://bitbucket.example.com/projects/OPS/repos/deploy-tools/pull-requests/11",
+      "merged": 1791250000000
+    },
+    {
+      "id": "PROJ/web-app#13",
+      "link": "https://bitbucket.example.com/projects/PROJ/repos/web-app/pull-requests/13",
+      "merged": 1791150000000
+    },
+    {
+      "id": "PROJ/web-app#10",
+      "link": "https://bitbucket.example.com/projects/PROJ/repos/web-app/pull-requests/10",
+      "merged": 1791100000000
+    }
+  ]
+}
