@@ -9,10 +9,9 @@
 #                                 macOS-v<version> (notes from notes.md, or
 #                                 generated)
 #   scripts/package.sh --publish-dev <version>
-#                                 build <version> (e.g. 0.3.0d1) and upload it to
-#                                 the dev feed only; only apps on the dev channel
-#                                 offer it. No tag, no GitHub release,
-#                                 and the branch needn't be pushed.
+#                                 build <version> (e.g. 0.3.0d1) from the dev branch
+#                                 and upload it to the dev feed only; only apps on
+#                                 the dev channel offer it. No tag, no GitHub release.
 #   scripts/package.sh --local    sign with Developer ID and install into
 #                                 /Applications for testing; no notarization,
 #                                 nothing published. Don't distribute this build.
@@ -48,15 +47,15 @@ fi
 cd "$(dirname "$0")/.."
 
 if [[ $PUBLISH == 1 ]]; then
-  # A published build must match a commit. A release is also tagged at HEAD, so it must be
-  # exactly what's on GitHub; A dev build may come from a local branch.
+  # A published build must be exactly what's on GitHub: releases come from main (and are
+  # tagged at HEAD), dev builds from dev.
   git diff --quiet && git diff --cached --quiet \
     || { echo "Uncommitted changes; commit them before publishing" >&2; exit 1; }
-  if [[ $DEV == 0 ]]; then
-    git fetch --quiet
-    [[ "$(git rev-parse HEAD)" == "$(git rev-parse @{u})" ]] \
-      || { echo "HEAD isn't the pushed upstream; push or pull first" >&2; exit 1; }
-  fi
+  BRANCH=main
+  [[ $DEV == 1 ]] && BRANCH=dev
+  git fetch --quiet origin "$BRANCH"
+  [[ "$(git rev-parse HEAD)" == "$(git rev-parse "origin/$BRANCH")" ]] \
+    || { echo "HEAD isn't origin/$BRANCH; publish from $BRANCH as it is on GitHub" >&2; exit 1; }
   [[ -z "$NOTES_FILE" || -f "$NOTES_FILE" ]] || { echo "No notes file: $NOTES_FILE" >&2; exit 1; }
   # wrangler 4 needs Node.js 20+; an older node first on PATH fails mid-release.
   NODE_MAJOR=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)

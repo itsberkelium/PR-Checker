@@ -50,6 +50,11 @@ for rid in win-arm64 win-x64; do
   cp "$WORK/windows-release-$VERSION-$rid"/* "$DIR"/
 done
 ls -la "$DIR"
+# Releases are built from main, dev builds from dev.
+BRANCH=$(gh run view "$RUN_ID" --repo "$REPO" --json headBranch --jq .headBranch)
+EXPECTED=main
+[[ $DEV == 1 ]] && EXPECTED=dev
+[[ "$BRANCH" == "$EXPECTED" ]] || { echo "Run $RUN_ID built $BRANCH; publish only runs from $EXPECTED" >&2; exit 1; }
 # A release goes to everyone, so it can't be a dev version, and a dev build can't go to everyone.
 if [[ $DEV == 1 ]]; then
   [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-dev\.[0-9]+$ ]] \

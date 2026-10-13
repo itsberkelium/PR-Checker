@@ -106,6 +106,8 @@ The full details are in the [Privacy Policy](PRIVACY.md): what's stored where, e
 
 Releases are tagged and titled per platform: `macOS-v0.2.7` "PR Checker for macOS 0.2.7", `windows-v0.1.0` "PR Checker for Windows 0.1.0". The release scripts create the tag and the GitHub release, so the rule holds without manual steps. The version badges read the live update feeds on the CDN, so a release doesn't change the README. `main` only accepts changes through pull requests.
 
+Branches follow the update channels. Changes merge into `dev` through pull requests, and dev builds for the Dev channel are published from `dev`. When `dev` is ready, a pull request merges it into `main`, and stable releases are published from `main`. A fix that can't wait goes into `main` and is then merged back into `dev`. The release scripts and the Windows release workflow refuse to publish from the wrong branch.
+
 ## License
 
 [MIT](LICENSE)

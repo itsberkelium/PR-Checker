@@ -45,6 +45,9 @@ jobs:
         run: |
           $version = dotnet msbuild src/PRChecker.App/PRChecker.App.csproj -getProperty:Version
           $versionArgs = @()
+          # Releases are built from main, dev builds from dev.
+          $expected = if ($env:DEV_VERSION) { "refs/heads/dev" } else { "refs/heads/main" }
+          if ($env:GITHUB_REF -ne $expected) { throw "Run this workflow from $expected for this kind of build" }
           if ($env:DEV_VERSION) {
             # Velopack orders 0.2.9 < 0.3.0-dev.1 < 0.3.0-dev.2 < 0.3.0, so dev installs move on to the release.
             if ($env:DEV_VERSION -notmatch '^\d+\.\d+\.\d+-dev\.\d+$') { throw "Dev version must look like 0.3.0-dev.1" }
