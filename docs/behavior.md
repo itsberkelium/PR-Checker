@@ -16,6 +16,11 @@ The rules both apps implement. The macOS app (`macos/`) is the reference impleme
 - The agreed version is saved in settings. Bump the terms version (`Terms.version` on macOS, `TermsWindow.Version` on Windows, kept equal) only when TERMS.md changes in a way users must agree to again.
 - On Windows the prompt also covers Microsoft's license terms for the bundled Windows App SDK, whose license requires end users to agree to protective terms.
 
+## Updates
+
+- Installed apps check their update feed once a week, or when asked, and ask before installing.
+- **Test channel**: a hidden setting (`updateChannel` = `test`, set by hand; there's no UI for it) switches to the test feed, `test/` next to the release feed. Test builds are published only there, so nobody else is offered them. They're numbered as the coming release plus a test suffix (`0.3.0b1` on macOS, `0.3.0-test.1` on Windows), which both updaters sort before the release itself.
+
 ## Bitbucket API
 
 All requests go to the configured server with `Authorization: Bearer <token>` and `Accept: application/json`.

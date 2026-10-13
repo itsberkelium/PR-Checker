@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.Win32;
 using PRChecker.Core;
@@ -13,8 +14,9 @@ internal static partial class Platform
     public static string DataDirectory =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PRChecker");
 
+    /// <summary>The package version, e.g. "0.1.3" or a test build's "0.2.0-test.1", without the commit hash.</summary>
     public static string Version =>
-        typeof(Platform).Assembly.GetName().Version is { } v ? $"{v.Major}.{v.Minor}.{v.Build}" : "?";
+        typeof(Platform).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0] ?? "?";
 
     /// <summary>Opens a PR link only if it points at the configured server.</summary>
     public static void OpenLink(string url, AppSettings settings)

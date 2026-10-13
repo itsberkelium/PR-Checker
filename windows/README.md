@@ -63,6 +63,20 @@ Releases are built in CI and published from a maintainer's Mac or PC, so no Clou
 
 Installed apps check the feed once a week, or right away via **Settings → About → Check for updates**. They ask before installing.
 
+### Test updates
+
+To try an update before everyone gets it, publish a test build to the test feed (`gu-cdn.berke.dev/pr-checker/test/windows/`). Only PCs that opted in see it.
+
+1. On the PC that should get test builds, quit PR Checker, add `"updateChannel": "test"` (with a comma after the previous entry) to `%LOCALAPPDATA%\PRChecker\settings.json` and start it again.
+2. Push the branch and start **Actions → Windows release → Run workflow** on it with **test_version** set to the coming release plus `-test.<n>`, e.g. `0.3.0-test.1`. Velopack sorts it after the current release and before `0.3.0`, so the real release replaces it.
+3. Publish that run to the test feed only; nothing is tagged or released on GitHub:
+
+   ```bash
+   windows/scripts/publish.sh --test <run-id>
+   ```
+
+Then use **Check for updates** on the test PC. To go back, remove the line and restart; the PC stays on the test build until a newer release is out. A regular publish refuses test versions, and `--test` refuses release versions.
+
 **About the packages:**
 - The app is installed per user into `%LOCALAPPDATA%\PRCheckerApp`, with a Start menu shortcut.
 - Each architecture has its own update channel (`win-arm64`, `win-x64`).

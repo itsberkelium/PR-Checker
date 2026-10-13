@@ -35,6 +35,8 @@ public sealed record SettingsData
     public LanguagePreference Language { get; init; } = LanguagePreference.System;
     /// <summary>The Terms of Use version the user agreed to; 0 if never.</summary>
     public int AcceptedTermsVersion { get; init; }
+    /// <summary>"test" takes updates from the test feed. Only set by hand in settings.json; there's no UI for it.</summary>
+    public string? UpdateChannel { get; init; }
 }
 
 public interface ISettingsStore

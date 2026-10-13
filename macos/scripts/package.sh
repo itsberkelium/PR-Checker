@@ -8,6 +8,11 @@
 #                                 apps offer it, create the GitHub release
 #                                 macOS-v<version> (notes from notes.md, or
 #                                 generated)
+#   scripts/package.sh --publish-test <version>
+#                                 build <version> (e.g. 0.3.0b1) and upload it to
+#                                 the test feed only; just apps that opted in to
+#                                 test updates offer it. No tag, no GitHub release,
+#                                 and the branch needn't be pushed.
 #   scripts/package.sh --local    sign with Developer ID and install into
 #                                 /Applications for testing; no notarization,
 #                                 nothing published. Don't distribute this build.
@@ -22,25 +27,36 @@
 set -euo pipefail
 
 PUBLISH=0
+TEST=0
 LOCAL=0
 NOTES_FILE=""
+TEST_VERSION=""
 case "${1:-}" in
   --publish) PUBLISH=1; NOTES_FILE="${2:-}" ;;
+  --publish-test) PUBLISH=1; TEST=1; TEST_VERSION="${2:-}" ;;
   --local) LOCAL=1 ;;
   "") ;;
-  *) echo "usage: $0 [--publish [notes.md] | --local]" >&2; exit 2 ;;
+  *) echo "usage: $0 [--publish [notes.md] | --publish-test <version> | --local]" >&2; exit 2 ;;
 esac
+# Test builds are the coming release plus b<n>: Sparkle orders 0.2.9 < 0.3.0b1 < 0.3.0b2 < 0.3.0,
+# so testers move on to the real release. (It reads "0.3.0-test.1" as equal to 0.3.0.)
+if [[ $TEST == 1 && ! "$TEST_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+b[0-9]+$ ]]; then
+  echo "usage: $0 --publish-test <version>, e.g. 0.3.0b1 (the coming release plus b<n>)" >&2; exit 2
+fi
 [[ -z "$NOTES_FILE" ]] || NOTES_FILE="$(cd "$(dirname "$NOTES_FILE")" && pwd)/$(basename "$NOTES_FILE")"
 
 cd "$(dirname "$0")/.."
 
 if [[ $PUBLISH == 1 ]]; then
-  # The release is tagged at HEAD, so it must be exactly what's on GitHub.
+  # A published build must match a commit. A release is also tagged at HEAD, so it must be
+  # exactly what's on GitHub; a test build may come from a local branch.
   git diff --quiet && git diff --cached --quiet \
     || { echo "Uncommitted changes; commit them before publishing" >&2; exit 1; }
-  git fetch --quiet
-  [[ "$(git rev-parse HEAD)" == "$(git rev-parse @{u})" ]] \
-    || { echo "HEAD isn't the pushed upstream; push or pull first" >&2; exit 1; }
+  if [[ $TEST == 0 ]]; then
+    git fetch --quiet
+    [[ "$(git rev-parse HEAD)" == "$(git rev-parse @{u})" ]] \
+      || { echo "HEAD isn't the pushed upstream; push or pull first" >&2; exit 1; }
+  fi
   [[ -z "$NOTES_FILE" || -f "$NOTES_FILE" ]] || { echo "No notes file: $NOTES_FILE" >&2; exit 1; }
   # wrangler 4 needs Node.js 20+; an older node first on PATH fails mid-release.
   NODE_MAJOR=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0)
@@ -62,6 +78,10 @@ SPARKLE_VERSION="2.10.0" # keep in sync with project.yml
 # Exact version so publishing never runs a newly released, unreviewed wrangler.
 WRANGLER=(npx --yes wrangler@4.148.0)
 
+# A test build overrides the version; CURRENT_PROJECT_VERSION follows MARKETING_VERSION.
+VERSION_SETTINGS=()
+[[ $TEST == 1 ]] && VERSION_SETTINGS=(MARKETING_VERSION="$TEST_VERSION")
+
 step() { printf '\n\033[1m==> %s\033[0m\n' "$1"; }
 
 step "Generating Xcode project"
@@ -81,6 +101,7 @@ xcodebuild archive \
   DEVELOPMENT_TEAM="$TEAM_ID" \
   CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO \
   OTHER_CODE_SIGN_FLAGS="--timestamp" \
+  ${VERSION_SETTINGS[@]+"${VERSION_SETTINGS[@]}"} \
   -quiet
 
 ditto "$ARCHIVE/Products/Applications/$APP_NAME.app" "$APP"
@@ -143,6 +164,15 @@ VERSION=$(defaults read "$PWD/$APP/Contents/Info.plist" CFBundleShortVersionStri
 FEED_URL=$(defaults read "$PWD/$APP/Contents/Info.plist" SUFeedURL)
 [[ "$FEED_URL" == https://* && "$FEED_URL" != *_TBD* ]] \
   || { echo "SUFeedURL is not configured: $FEED_URL" >&2; exit 1; }
+if [[ $TEST == 1 ]]; then
+  [[ "$VERSION" == "$TEST_VERSION" ]] || { echo "Built $VERSION, expected $TEST_VERSION" >&2; exit 1; }
+  # Next to the release feed; the app's Updater.testFeedURL builds the same URL.
+  FEED_URL="${FEED_URL%/*}/test/appcast.xml"
+else
+  # A release goes to everyone, so it can't be a test version.
+  [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] \
+    || { echo "Release version must be like 1.2.3, not $VERSION" >&2; exit 1; }
+fi
 
 step "Generating Sparkle appcast"
 xcodebuild -project PRChecker.xcodeproj -scheme PRChecker -derivedDataPath build \
@@ -169,7 +199,15 @@ if [[ $PUBLISH == 1 ]]; then
     --cache-control "no-cache"
   curl -fsS "$FEED_URL" | grep -q "<sparkle:shortVersionString>$VERSION<" \
     || { echo "Published feed doesn't list $VERSION yet: $FEED_URL" >&2; exit 1; }
+fi
 
+if [[ $PUBLISH == 1 && $TEST == 1 ]]; then
+  step "Done: test build $VERSION from $(git rev-parse --short HEAD) is on the test feed"
+  echo "Apps with test updates on offer it via Check for Updates. Nothing was tagged or released."
+  exit 0
+fi
+
+if [[ $PUBLISH == 1 ]]; then
   TAG="macOS-v$VERSION"
   step "Creating GitHub release $TAG"
   git tag -a "$TAG" -m "PR Checker for macOS $VERSION"

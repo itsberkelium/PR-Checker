@@ -80,6 +80,9 @@ public sealed class AppSettings : ObservableObject
         }
     }
 
+    /// <summary>Whether updates come from the test feed instead of the release feed; read at launch.</summary>
+    public bool UsesTestUpdates => _data.UpdateChannel == "test";
+
     private void Update(SettingsData data, [CallerMemberName] string? name = null)
     {
         if (data == _data) return;

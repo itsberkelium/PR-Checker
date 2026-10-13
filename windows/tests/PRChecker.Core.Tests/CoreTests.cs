@@ -104,6 +104,34 @@ public sealed class ChangeDetectorTests
     }
 }
 
+public sealed class UpdateChannelTests
+{
+    [Fact]
+    public void Test_channel_is_set_by_hand_in_the_settings_file_and_kept()
+    {
+        var directory = Directory.CreateTempSubdirectory().FullName;
+        try
+        {
+            var path = System.IO.Path.Combine(directory, "settings.json");
+            var initial = new AppSettings(new JsonFileStore(directory), new MemoryTokenStore());
+            initial.RefreshMinutes = 10; // writes the file
+            Assert.False(initial.UsesTestUpdates);
+
+            // As done by hand: one line added to the file the app wrote.
+            var json = JsonNode.Parse(File.ReadAllText(path))!.AsObject();
+            json["updateChannel"] = "test";
+            File.WriteAllText(path, json.ToJsonString());
+            var settings = new AppSettings(new JsonFileStore(directory), new MemoryTokenStore());
+            Assert.True(settings.UsesTestUpdates);
+
+            // Saving any other setting keeps the hand-written channel.
+            settings.HideDrafts = false;
+            Assert.True(new AppSettings(new JsonFileStore(directory), new MemoryTokenStore()).UsesTestUpdates);
+        }
+        finally { Directory.Delete(directory, recursive: true); }
+    }
+}
+
 public sealed class FilterTests
 {
     [Fact]

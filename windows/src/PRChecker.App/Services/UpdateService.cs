@@ -8,14 +8,17 @@ namespace PRChecker.App.Services;
 /// installing. Packages are downloaded over HTTPS and verified against the hashes in the feed;
 /// they aren't code-signed yet. Always downloads the full package: rebuilding a delta update
 /// on the user's PC took minutes with no way to show meaningful progress.
+/// With <paramref name="testChannel"/>, updates come from the test feed, where test builds are
+/// published before a release (see windows/README.md).
 /// </summary>
-internal sealed class UpdateService
+internal sealed class UpdateService(bool testChannel)
 {
     public const string FeedUrl = "https://gu-cdn.berke.dev/pr-checker/windows/";
+    public const string TestFeedUrl = "https://gu-cdn.berke.dev/pr-checker/test/windows/";
     private static readonly TimeSpan Interval = TimeSpan.FromDays(7);
 
     private readonly UpdateManager _manager =
-        new(new SimpleWebSource(FeedUrl), new UpdateOptions { MaximumDeltasBeforeFallback = -1 });
+        new(new SimpleWebSource(testChannel ? TestFeedUrl : FeedUrl), new UpdateOptions { MaximumDeltasBeforeFallback = -1 });
     private readonly string _stateFile = Path.Combine(Platform.DataDirectory, "last-update-check");
 
     /// <summary>False for development builds that weren't installed by Velopack.</summary>
@@ -37,7 +40,7 @@ internal sealed class UpdateService
     public async Task<UpdateInfo?> CheckAsync()
     {
         if (!IsInstalled) return null;
-        Log.Info("Checking for updates");
+        Log.Info(testChannel ? "Checking for updates (test channel)" : "Checking for updates");
         var update = await _manager.CheckForUpdatesAsync();
         Log.Info(update is null ? "Up to date" : $"Update available: {update.TargetFullRelease.Version}");
         LastCheck = DateTimeOffset.Now;

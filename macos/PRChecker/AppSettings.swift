@@ -28,6 +28,7 @@ final class AppSettings {
         static let automationEnabled = "automationEnabled"
         static let automationCommand = "automationCommand"
         static let recentlyMergedCount = "recentlyMergedCount"
+        static let updateChannel = "updateChannel"
     }
 
     @ObservationIgnored let defaults: UserDefaults
@@ -92,6 +93,12 @@ final class AppSettings {
     /// Optional default baked in at build time from Config/Local.xcconfig (DEFAULT_SERVER_URL).
     private static var bundledServerURL: String {
         Bundle.main.object(forInfoDictionaryKey: "PRCheckerDefaultServerURL") as? String ?? ""
+    }
+
+    /// Whether updates come from the test feed instead of the release feed. Set by hand with
+    /// `defaults write dev.berke.PRChecker updateChannel test`; there's no UI for it.
+    var usesTestUpdates: Bool {
+        defaults.string(forKey: Key.updateChannel) == "test"
     }
 
     /// The server URL as last saved, for pre-filling the settings form.
