@@ -45,8 +45,7 @@ public sealed partial class App : Application, IDisposable
         Log.Info("Launched");
         var files = new JsonFileStore(Platform.DataDirectory);
         var settings = new AppSettings(files, new CredentialTokenStore());
-        _updates = new UpdateService(settings.UsesTestUpdates);
-        if (settings.UsesTestUpdates) Log.Info("Using the test update channel");
+        _updates = new UpdateService(settings);
         _store = new PrStore(settings, files, _notifier);
 
         // Nothing connects anywhere until the user has agreed to the Terms of Use.

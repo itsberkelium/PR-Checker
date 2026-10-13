@@ -59,18 +59,16 @@ With `--local`, it signs the app and installs it into `/Applications` to try cha
 - Sparkle's EdDSA signing key, created with `generate_keys` from Sparkle's `bin/`. Its public key is `SPARKLE_PUBLIC_KEY` in `project.yml`. **Back up the private key.** Without it, installed apps reject every future update.
 - `npx wrangler@4.148.0 login` and `gh auth login`, needed for `--publish`. The script pins wrangler and Sparkle to exact versions; bump them deliberately.
 
-### Test updates
+### Dev channel
 
-To try an update before everyone gets it, publish a test build to the test feed (`…/pr-checker/test/appcast.xml`, next to the release feed). Only Macs that opted in see it.
+To try an update before everyone gets it, publish a dev build to the dev feed (`…/pr-checker/dev/appcast.xml`, next to the release feed). Only Macs with **Settings → About → Dev channel** on are offered it.
 
 ```bash
-# On the Mac that should get test builds; takes effect at the next check
-defaults write dev.berke.PRChecker updateChannel test
-# Build, notarize and publish a test build of the coming release; the branch needn't be pushed
-./scripts/package.sh --publish-test 0.3.0b1
+# Build, notarize and publish a dev build of the coming release; the branch needn't be pushed
+./scripts/package.sh --publish-dev 0.3.0d1
 ```
 
-Then use **Check for Updates** on the test Mac. Number test builds as the coming release plus `b<n>` (`0.3.0b1`, `0.3.0b2`): Sparkle sorts them after the current release and before `0.3.0`, so the real release replaces them. Nothing is tagged or released on GitHub. To go back, `defaults delete dev.berke.PRChecker updateChannel`; the Mac stays on the test build until a newer release is out.
+Then use **Check for Updates** on a Mac with the dev channel on. Number dev builds as the coming release plus `d<n>` (`0.3.0d1`, `0.3.0d2`): Sparkle sorts them after the current release and before `0.3.0`, so the real release replaces them. It reads `0.3.0-dev.1` as equal to `0.3.0`, so that form doesn't work here. Nothing is tagged or released on GitHub. Turning the channel off keeps the installed dev build until a newer release is out.
 
 To release from another account or host, change `DEVELOPMENT_TEAM`, `SPARKLE_FEED_URL` and `SPARKLE_PUBLIC_KEY` in `project.yml`, and `TEAM_ID` and `R2_BUCKET` in the script.
 

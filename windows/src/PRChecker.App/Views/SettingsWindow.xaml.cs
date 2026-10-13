@@ -81,6 +81,8 @@ public sealed partial class SettingsWindow : Window
         MergedBox.SelectedIndex = merged;
 
         CheckForUpdatesButton.Content = L10n.CheckForUpdates;
+        DevChannelToggle.Header = L10n.DevChannel;
+        DevChannelHint.Text = L10n.DevChannelHint;
         ReportProblemButton.Content = L10n.ReportProblem;
         ShowLogButton.Content = L10n.ShowLog;
         ReportProblemHint.Text = L10n.ReportProblemHint;
@@ -128,6 +130,7 @@ public sealed partial class SettingsWindow : Window
         FilterBox.Text = Settings.RepoFilter;
         MergedBox.SelectedIndex = Array.IndexOf(AppSettings.RecentlyMergedOptions, Settings.RecentlyMergedCount);
         VersionText.Text = $"PR Checker {Platform.Version}";
+        DevChannelToggle.IsOn = Settings.DevUpdates;
         UpdateTokenHint();
         RefreshNotificationState();
         _loading = false;
@@ -290,6 +293,11 @@ public sealed partial class SettingsWindow : Window
     // MARK: About
 
     /// <summary>The button is disabled and a spinner shows while checking and downloading.</summary>
+    private void OnDevChannelToggled(object sender, RoutedEventArgs e)
+    {
+        if (!_loading) Settings.DevUpdates = DevChannelToggle.IsOn;
+    }
+
     private async void OnCheckForUpdates(object sender, RoutedEventArgs e)
     {
         CheckForUpdatesButton.IsEnabled = false;

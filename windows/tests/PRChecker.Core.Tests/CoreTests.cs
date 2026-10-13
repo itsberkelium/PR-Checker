@@ -107,26 +107,20 @@ public sealed class ChangeDetectorTests
 public sealed class UpdateChannelTests
 {
     [Fact]
-    public void Test_channel_is_set_by_hand_in_the_settings_file_and_kept()
+    public void Dev_channel_is_opt_in_and_remembered()
     {
         var directory = Directory.CreateTempSubdirectory().FullName;
         try
         {
-            var path = System.IO.Path.Combine(directory, "settings.json");
-            var initial = new AppSettings(new JsonFileStore(directory), new MemoryTokenStore());
-            initial.RefreshMinutes = 10; // writes the file
-            Assert.False(initial.UsesTestUpdates);
-
-            // As done by hand: one line added to the file the app wrote.
-            var json = JsonNode.Parse(File.ReadAllText(path))!.AsObject();
-            json["updateChannel"] = "test";
-            File.WriteAllText(path, json.ToJsonString());
             var settings = new AppSettings(new JsonFileStore(directory), new MemoryTokenStore());
-            Assert.True(settings.UsesTestUpdates);
+            Assert.False(settings.DevUpdates);
+            settings.DevUpdates = true;
+            Assert.Contains("\"updateChannel\":\"dev\"", File.ReadAllText(System.IO.Path.Combine(directory, "settings.json")), StringComparison.Ordinal);
 
-            // Saving any other setting keeps the hand-written channel.
-            settings.HideDrafts = false;
-            Assert.True(new AppSettings(new JsonFileStore(directory), new MemoryTokenStore()).UsesTestUpdates);
+            var reloaded = new AppSettings(new JsonFileStore(directory), new MemoryTokenStore());
+            Assert.True(reloaded.DevUpdates);
+            reloaded.DevUpdates = false;
+            Assert.False(new AppSettings(new JsonFileStore(directory), new MemoryTokenStore()).DevUpdates);
         }
         finally { Directory.Delete(directory, recursive: true); }
     }

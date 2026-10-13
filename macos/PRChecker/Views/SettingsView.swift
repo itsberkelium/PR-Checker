@@ -221,7 +221,10 @@ private struct BitbucketSettings: View {
 // MARK: - About
 
 private struct AboutSettings: View {
+    @Environment(PRStore.self) private var store
+
     var body: some View {
+        @Bindable var settings = store.settings
         Form {
             Section {
                 LabeledContent(L10n.version, value: Self.appVersion)
@@ -234,6 +237,10 @@ private struct AboutSettings: View {
                     } else {
                         Text(L10n.checkedWeekly)
                     }
+                }
+                Toggle(isOn: $settings.devUpdates) {
+                    Text(L10n.devChannel)
+                    Text(L10n.devChannelHint)
                 }
             }
 

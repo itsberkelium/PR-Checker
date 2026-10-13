@@ -2,8 +2,8 @@ import AppKit
 import Sparkle
 
 /// Sparkle auto-updates: checks the appcast weekly (SUScheduledCheckInterval) and asks before installing.
-/// With `AppSettings.usesTestUpdates`, the feed is the test appcast next to the release one,
-/// where test builds are published before a release (see macos/README.md).
+/// With `AppSettings.devUpdates`, the feed is the dev appcast next to the release one,
+/// where dev builds are published before a release (see macos/README.md).
 final class Updater: NSObject, SPUUpdaterDelegate, SPUStandardUserDriverDelegate {
     static let shared = Updater()
 
@@ -11,17 +11,17 @@ final class Updater: NSObject, SPUUpdaterDelegate, SPUStandardUserDriverDelegate
         startingUpdater: true, updaterDelegate: self, userDriverDelegate: self
     )
 
-    /// "…/pr-checker/appcast.xml" becomes "…/pr-checker/test/appcast.xml".
-    static func testFeedURL(for releaseFeed: String) -> String? {
+    /// "…/pr-checker/appcast.xml" becomes "…/pr-checker/dev/appcast.xml".
+    static func devFeedURL(for releaseFeed: String) -> String? {
         guard let url = URL(string: releaseFeed) else { return nil }
-        return url.deletingLastPathComponent().appending(path: "test/appcast.xml").absoluteString
+        return url.deletingLastPathComponent().appending(path: "dev/appcast.xml").absoluteString
     }
 
     /// Asked before every check, so changing the channel takes effect without a restart.
     func feedURLString(for updater: SPUUpdater) -> String? {
-        guard AppSettings.shared.usesTestUpdates,
+        guard AppSettings.shared.devUpdates,
               let releaseFeed = Bundle.main.object(forInfoDictionaryKey: "SUFeedURL") as? String else { return nil }
-        return Self.testFeedURL(for: releaseFeed)
+        return Self.devFeedURL(for: releaseFeed)
     }
 
     func start() {

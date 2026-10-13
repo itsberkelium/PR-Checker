@@ -8,8 +8,8 @@ name: Windows release
 on:
   workflow_dispatch:
     inputs:
-      test_version:
-        description: "Test build version, e.g. 0.3.0-test.1 (the coming release plus -test.<n>). Leave empty for a release."
+      dev_version:
+        description: "Dev build version, e.g. 0.3.0-dev.1 (the coming release plus -dev.<n>). Leave empty for a release."
         required: false
         default: ""
 
@@ -41,14 +41,14 @@ jobs:
 
       - name: Package
         env:
-          TEST_VERSION: ${{ inputs.test_version }}
+          DEV_VERSION: ${{ inputs.dev_version }}
         run: |
           $version = dotnet msbuild src/PRChecker.App/PRChecker.App.csproj -getProperty:Version
           $versionArgs = @()
-          if ($env:TEST_VERSION) {
-            # Velopack orders 0.2.9 < 0.3.0-test.1 < 0.3.0-test.2 < 0.3.0, so testers move on to the release.
-            if ($env:TEST_VERSION -notmatch '^\d+\.\d+\.\d+-test\.\d+$') { throw "Test version must look like 0.3.0-test.1" }
-            $version = $env:TEST_VERSION
+          if ($env:DEV_VERSION) {
+            # Velopack orders 0.2.9 < 0.3.0-dev.1 < 0.3.0-dev.2 < 0.3.0, so dev installs move on to the release.
+            if ($env:DEV_VERSION -notmatch '^\d+\.\d+\.\d+-dev\.\d+$') { throw "Dev version must look like 0.3.0-dev.1" }
+            $version = $env:DEV_VERSION
             $versionArgs = @("-p:Version=$version")
           }
           "VERSION=$version" | Out-File -Append $env:GITHUB_ENV

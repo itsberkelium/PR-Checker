@@ -449,6 +449,18 @@ public static class L10n
             ? "Haftada bir otomatik kontrol edilir"
             : "Checked automatically once a week";
 
+    /// <summary>Dev channel</summary>
+    public static string DevChannel =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Geliştirme kanalı"
+            : "Dev channel";
+
+    /// <summary>Get new versions before they're released. They may have bugs.</summary>
+    public static string DevChannelHint =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Yeni sürümleri yayımlanmadan önce alın. Hata içerebilirler."
+            : "Get new versions before they're released. They may have bugs.";
+
     /// <summary>PR Checker is up to date.</summary>
     public static string UpToDate =>
         Localizer.Language == AppLanguage.Turkish

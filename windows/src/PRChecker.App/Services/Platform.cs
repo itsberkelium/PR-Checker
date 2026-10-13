@@ -14,7 +14,7 @@ internal static partial class Platform
     public static string DataDirectory =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "PRChecker");
 
-    /// <summary>The package version, e.g. "0.1.3" or a test build's "0.2.0-test.1", without the commit hash.</summary>
+    /// <summary>The package version, e.g. "0.1.3" or a dev build's "0.3.0-dev.1", without the commit hash.</summary>
     public static string Version =>
         typeof(Platform).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0] ?? "?";
 

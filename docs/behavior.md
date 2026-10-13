@@ -19,7 +19,7 @@ The rules both apps implement. The macOS app (`macos/`) is the reference impleme
 ## Updates
 
 - Installed apps check their update feed once a week, or when asked, and ask before installing.
-- **Test channel**: a hidden setting (`updateChannel` = `test`, set by hand; there's no UI for it) switches to the test feed, `test/` next to the release feed. Test builds are published only there, so nobody else is offered them. They're numbered as the coming release plus a test suffix (`0.3.0b1` on macOS, `0.3.0-test.1` on Windows), which both updaters sort before the release itself.
+- **Dev channel**: a toggle under Check for Updates (*Dev channel*, off by default) switches to the dev feed, `dev/` next to the release feed. It takes effect at the next check, without a restart. Dev builds are published only there, so nobody else is offered them. They're numbered as the coming release plus a dev suffix (`0.3.0d1` on macOS, `0.3.0-dev.1` on Windows), which both updaters sort before the release itself. Turning it off keeps the installed dev build until a newer release is out.
 
 ## Bitbucket API
 

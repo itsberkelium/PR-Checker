@@ -532,6 +532,22 @@ nonisolated enum L10n {
         }
     }
 
+    /// Dev channel
+    static var devChannel: String {
+        switch Localizer.current {
+        case .english: "Dev channel"
+        case .turkish: "Geliştirme kanalı"
+        }
+    }
+
+    /// Get new versions before they're released. They may have bugs.
+    static var devChannelHint: String {
+        switch Localizer.current {
+        case .english: "Get new versions before they're released. They may have bugs."
+        case .turkish: "Yeni sürümleri yayımlanmadan önce alın. Hata içerebilirler."
+        }
+    }
+
     /// Help
     static var help: String {
         switch Localizer.current {

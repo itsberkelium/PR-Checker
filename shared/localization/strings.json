@@ -818,6 +818,25 @@
       ]
     },
     {
+      "id": "devChannel",
+      "en": "Dev channel",
+      "tr": "Geliştirme kanalı",
+      "platforms": [
+        "macos",
+        "windows"
+      ],
+      "note": "Toggle under Check for Updates; gets builds published before a release"
+    },
+    {
+      "id": "devChannelHint",
+      "en": "Get new versions before they're released. They may have bugs.",
+      "tr": "Yeni sürümleri yayımlanmadan önce alın. Hata içerebilirler.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
       "id": "upToDate",
       "en": "PR Checker is up to date.",
       "tr": "PR Checker güncel.",

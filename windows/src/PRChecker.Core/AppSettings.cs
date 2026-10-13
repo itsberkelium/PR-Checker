@@ -80,8 +80,14 @@ public sealed class AppSettings : ObservableObject
         }
     }
 
-    /// <summary>Whether updates come from the test feed instead of the release feed; read at launch.</summary>
-    public bool UsesTestUpdates => _data.UpdateChannel == "test";
+    public const string DevChannel = "dev";
+
+    /// <summary>Updates come from the dev feed, where builds are published before a release; takes effect at the next check.</summary>
+    public bool DevUpdates
+    {
+        get => _data.UpdateChannel == DevChannel;
+        set => Update(_data with { UpdateChannel = value ? DevChannel : null });
+    }
 
     private void Update(SettingsData data, [CallerMemberName] string? name = null)
     {

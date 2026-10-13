@@ -67,6 +67,11 @@ final class AppSettings {
     /// Runs `automationCommand` when a PR enters the review list or gets new commits.
     var automationEnabled: Bool { didSet { defaults.set(automationEnabled, forKey: Key.automationEnabled) } }
     var automationCommand: String { didSet { defaults.set(automationCommand, forKey: Key.automationCommand) } }
+    /// Updates come from the dev feed, where builds are published before a release; takes effect at the next check.
+    var devUpdates: Bool {
+        didSet { defaults.set(devUpdates ? Self.devChannel : nil, forKey: Key.updateChannel) }
+    }
+    static let devChannel = "dev"
 
     init(defaults: UserDefaults = .standard, tokens: TokenStore = Keychain()) {
         self.defaults = defaults
@@ -87,18 +92,13 @@ final class AppSettings {
         acceptedTermsVersion = defaults.integer(forKey: Key.acceptedTermsVersion)
         automationEnabled = defaults.object(forKey: Key.automationEnabled) as? Bool ?? false
         automationCommand = defaults.string(forKey: Key.automationCommand) ?? ""
+        devUpdates = defaults.string(forKey: Key.updateChannel) == Self.devChannel
         filterPatterns = Self.parsePatterns(repoFilter)
     }
 
     /// Optional default baked in at build time from Config/Local.xcconfig (DEFAULT_SERVER_URL).
     private static var bundledServerURL: String {
         Bundle.main.object(forInfoDictionaryKey: "PRCheckerDefaultServerURL") as? String ?? ""
-    }
-
-    /// Whether updates come from the test feed instead of the release feed. Set by hand with
-    /// `defaults write dev.berke.PRChecker updateChannel test`; there's no UI for it.
-    var usesTestUpdates: Bool {
-        defaults.string(forKey: Key.updateChannel) == "test"
     }
 
     /// The server URL as last saved, for pre-filling the settings form.
