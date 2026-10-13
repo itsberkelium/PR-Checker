@@ -39,7 +39,7 @@ Regenerate the main README's screenshots from made-up data. This builds a Debug 
 4. writes `dist/PR Checker.zip` and the Sparkle appcast
 
 With `--publish`, it also:
-1. checks the working tree is clean and pushed, since the release is tagged at `HEAD`
+1. checks the working tree is clean and `HEAD` is `main` as on GitHub, since the release is tagged at `HEAD`
 2. uploads the update to the R2 bucket behind `SUFeedURL`, under the same path as the feed
 3. tags the commit `macOS-v<version>` and creates the GitHub release "PR Checker for macOS <version>" with the zip. The release notes come from the optional notes file, or are generated from commits without one.
 
@@ -64,7 +64,7 @@ With `--local`, it signs the app and installs it into `/Applications` to try cha
 To try an update before everyone gets it, publish a dev build to the dev feed (`…/pr-checker/dev/appcast.xml`, next to the release feed). Only Macs with **Settings → About → Update channel** set to **Dev** are offered it.
 
 ```bash
-# Build, notarize and publish a dev build of the coming release; the branch needn't be pushed
+# On the dev branch as pushed: build, notarize and publish a dev build of the coming release
 ./scripts/package.sh --publish-dev 0.3.0d1
 ```
 

@@ -49,7 +49,7 @@ Use `win-x64` for Intel/AMD PCs. CI publishes both for every push; download them
 Releases are built in CI and published from a maintainer's Mac or PC, so no Cloudflare credentials are stored in GitHub.
 
 1. Bump `<Version>` in `Directory.Build.props`. Velopack compares it to decide what's newer. Merge it into `main` through a pull request.
-2. Start **Actions → Windows release → Run workflow**.
+2. Start **Actions → Windows release → Run workflow** on `main`.
    - It tests the core, publishes both architectures, and packs them with Velopack. Each architecture gets a `Setup.exe`, a portable zip and its update feed (`releases.<rid>.json`).
    - Updates are full packages, not deltas: rebuilding a delta on the user's PC took minutes, longer than downloading the full package.
 3. Publish that run, with optional release notes:
@@ -68,7 +68,7 @@ Installed apps check the feed once a week, or right away via **Settings → Abou
 
 To try an update before everyone gets it, publish a dev build to the dev feed (`gu-cdn.berke.dev/pr-checker/dev/windows/`). Only PCs with **Settings → About → Update channel** set to **Dev** are offered it.
 
-1. Push the branch and start **Actions → Windows release → Run workflow** on it with **dev_version** set to the coming release plus `-dev.<n>`, e.g. `0.3.0-dev.1`. Velopack sorts it after the current release and before `0.3.0`, so the real release replaces it.
+1. Start **Actions → Windows release → Run workflow** on the `dev` branch with **dev_version** set to the coming release plus `-dev.<n>`, e.g. `0.3.0-dev.1`. Velopack sorts it after the current release and before `0.3.0`, so the real release replaces it.
 2. Publish that run to the dev feed only; nothing is tagged or released on GitHub:
 
    ```bash
