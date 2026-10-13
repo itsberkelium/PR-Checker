@@ -59,6 +59,19 @@ With `--local`, it signs the app and installs it into `/Applications` to try cha
 - Sparkle's EdDSA signing key, created with `generate_keys` from Sparkle's `bin/`. Its public key is `SPARKLE_PUBLIC_KEY` in `project.yml`. **Back up the private key.** Without it, installed apps reject every future update.
 - `npx wrangler@4.148.0 login` and `gh auth login`, needed for `--publish`. The script pins wrangler and Sparkle to exact versions; bump them deliberately.
 
+### Dev channel
+
+To try an update before everyone gets it, publish a dev build to the dev feed (`…/pr-checker/dev/appcast.xml`, next to the release feed). Only Macs with **Settings → About → Update channel** set to **Dev** are offered it.
+
+```bash
+# Build, notarize and publish a dev build of the coming release; the branch needn't be pushed
+./scripts/package.sh --publish-dev 0.3.0d1
+```
+
+Then use **Check for Updates** on a Mac on the dev channel. Number dev builds as the coming release plus `d<n>` (`0.3.0d1`, `0.3.0d2`): Sparkle sorts them after the current release and before `0.3.0`, so the real release replaces them. It reads `0.3.0-dev.1` as equal to `0.3.0`, so that form doesn't work here. Nothing is tagged or released on GitHub.
+
+Switching to Dev keeps a copy of the stable app in `~/Library/Application Support/dev.berke.PRChecker/Stable/`. Switching back to Stable and checking for updates puts that copy back (after checking its Developer ID signature) and relaunches, since Sparkle won't install an older version itself.
+
 To release from another account or host, change `DEVELOPMENT_TEAM`, `SPARKLE_FEED_URL` and `SPARKLE_PUBLIC_KEY` in `project.yml`, and `TEAM_ID` and `R2_BUCKET` in the script.
 
 ## Project layout
@@ -73,7 +86,8 @@ PRChecker/
   AppSettings.swift       preferences and filters
   Keychain.swift          per-server token storage
   Notifier.swift          macOS notifications
-  Updater.swift           Sparkle integration
+  Updater.swift           Sparkle integration and the update channel
+  StableCopy.swift        kept stable app for going back from a dev build
   Views/                  menu bar popover, PR rows, settings window
   Debug/                  screenshot renderer with made-up data (Debug builds only)
   Assets.xcassets/        app icon

@@ -80,6 +80,15 @@ public sealed class AppSettings : ObservableObject
         }
     }
 
+    public const string DevChannel = "dev";
+
+    /// <summary>Updates come from the dev feed, where builds are published before a release; takes effect at the next check.</summary>
+    public bool DevUpdates
+    {
+        get => _data.UpdateChannel == DevChannel;
+        set => Update(_data with { UpdateChannel = value ? DevChannel : null });
+    }
+
     private void Update(SettingsData data, [CallerMemberName] string? name = null)
     {
         if (data == _data) return;

@@ -1,3 +1,4 @@
+using PRChecker.Core;
 using Velopack;
 using Velopack.Sources;
 
@@ -8,18 +9,44 @@ namespace PRChecker.App.Services;
 /// installing. Packages are downloaded over HTTPS and verified against the hashes in the feed;
 /// they aren't code-signed yet. Always downloads the full package: rebuilding a delta update
 /// on the user's PC took minutes with no way to show meaningful progress.
+/// With <see cref="AppSettings.DevUpdates"/>, updates come from the dev feed, where dev builds are
+/// published before a release (see windows/README.md). Back on the release feed, a dev build is
+/// offered the latest release even though it's an older version.
 /// </summary>
-internal sealed class UpdateService
+internal sealed class UpdateService(AppSettings settings)
 {
     public const string FeedUrl = "https://gu-cdn.berke.dev/pr-checker/windows/";
+    public const string DevFeedUrl = "https://gu-cdn.berke.dev/pr-checker/dev/windows/";
     private static readonly TimeSpan Interval = TimeSpan.FromDays(7);
 
-    private readonly UpdateManager _manager =
-        new(new SimpleWebSource(FeedUrl), new UpdateOptions { MaximumDeltasBeforeFallback = -1 });
+    private (bool Dev, UpdateManager Manager)? _current;
+
+    /// <summary>The manager for the feed the settings name now, so switching channels needs no restart.</summary>
+    private UpdateManager Manager
+    {
+        get
+        {
+            var dev = settings.DevUpdates;
+            if (_current is not { } current || current.Dev != dev)
+            {
+                current = (dev, new UpdateManager(new SimpleWebSource(dev ? DevFeedUrl : FeedUrl), new UpdateOptions
+                {
+                    MaximumDeltasBeforeFallback = -1,
+                    // Only a dev build moves down; otherwise the same version would be offered again.
+                    AllowVersionDowngrade = !dev && IsDevBuild(Platform.Version),
+                }));
+                _current = current;
+            }
+            return current.Manager;
+        }
+    }
     private readonly string _stateFile = Path.Combine(Platform.DataDirectory, "last-update-check");
 
+    /// <summary>Dev builds are versioned like 0.3.0-dev.1 (publish.sh --dev).</summary>
+    public static bool IsDevBuild(string version) => version.Contains("-dev.", StringComparison.Ordinal);
+
     /// <summary>False for development builds that weren't installed by Velopack.</summary>
-    public bool IsInstalled => _manager.IsInstalled;
+    public bool IsInstalled => Manager.IsInstalled;
 
     public DateTimeOffset? LastCheck
     {
@@ -37,8 +64,8 @@ internal sealed class UpdateService
     public async Task<UpdateInfo?> CheckAsync()
     {
         if (!IsInstalled) return null;
-        Log.Info("Checking for updates");
-        var update = await _manager.CheckForUpdatesAsync();
+        Log.Info(settings.DevUpdates ? "Checking for updates (dev channel)" : "Checking for updates");
+        var update = await Manager.CheckForUpdatesAsync();
         Log.Info(update is null ? "Up to date" : $"Update available: {update.TargetFullRelease.Version}");
         LastCheck = DateTimeOffset.Now;
         return update;
@@ -49,8 +76,8 @@ internal sealed class UpdateService
     {
         var started = DateTimeOffset.Now;
         Log.Info($"Downloading update {update.TargetFullRelease.Version}");
-        await _manager.DownloadUpdatesAsync(update, progress);
+        await Manager.DownloadUpdatesAsync(update, progress);
         Log.Info($"Downloaded in {(DateTimeOffset.Now - started).TotalSeconds:0.0} s; applying and restarting");
-        _manager.ApplyUpdatesAndRestart(update);
+        Manager.ApplyUpdatesAndRestart(update);
     }
 }

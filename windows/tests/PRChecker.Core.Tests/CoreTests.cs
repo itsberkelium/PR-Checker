@@ -104,6 +104,28 @@ public sealed class ChangeDetectorTests
     }
 }
 
+public sealed class UpdateChannelTests
+{
+    [Fact]
+    public void Dev_channel_is_opt_in_and_remembered()
+    {
+        var directory = Directory.CreateTempSubdirectory().FullName;
+        try
+        {
+            var settings = new AppSettings(new JsonFileStore(directory), new MemoryTokenStore());
+            Assert.False(settings.DevUpdates);
+            settings.DevUpdates = true;
+            Assert.Contains("\"updateChannel\":\"dev\"", File.ReadAllText(System.IO.Path.Combine(directory, "settings.json")), StringComparison.Ordinal);
+
+            var reloaded = new AppSettings(new JsonFileStore(directory), new MemoryTokenStore());
+            Assert.True(reloaded.DevUpdates);
+            reloaded.DevUpdates = false;
+            Assert.False(new AppSettings(new JsonFileStore(directory), new MemoryTokenStore()).DevUpdates);
+        }
+        finally { Directory.Delete(directory, recursive: true); }
+    }
+}
+
 public sealed class FilterTests
 {
     [Fact]

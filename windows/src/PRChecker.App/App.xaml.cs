@@ -14,7 +14,7 @@ public sealed partial class App : Application, IDisposable
 {
     private readonly DispatcherQueue _dispatcher = DispatcherQueue.GetForCurrentThread();
     private readonly WindowsNotifier _notifier = new();
-    private readonly UpdateService _updates = new();
+    private UpdateService? _updates;
     private PrStore? _store;
     private TrayController? _tray;
     private PopupWindow? _popup;
@@ -37,7 +37,7 @@ public sealed partial class App : Application, IDisposable
     }
 
     internal PrStore Store => _store!;
-    internal UpdateService Updates => _updates;
+    internal UpdateService Updates => _updates!;
     internal WindowsNotifier Notifier => _notifier;
 
     protected override async void OnLaunched(LaunchActivatedEventArgs args)
@@ -45,6 +45,7 @@ public sealed partial class App : Application, IDisposable
         Log.Info("Launched");
         var files = new JsonFileStore(Platform.DataDirectory);
         var settings = new AppSettings(files, new CredentialTokenStore());
+        _updates = new UpdateService(settings);
         _store = new PrStore(settings, files, _notifier);
 
         // Nothing connects anywhere until the user has agreed to the Terms of Use.
@@ -131,18 +132,19 @@ public sealed partial class App : Application, IDisposable
     /// <summary>Scheduled checks run once a week; a manual check always runs and reports the result.</summary>
     internal async Task CheckForUpdatesAsync(bool userInitiated)
     {
-        if (_checkingForUpdates || (!userInitiated && !_updates.IsDue)) return;
+        if (_checkingForUpdates || (!userInitiated && !Updates.IsDue)) return;
         _checkingForUpdates = true;
         try
         {
-            var update = await _updates.CheckAsync();
+            var update = await Updates.CheckAsync();
             if (update is null)
             {
-                if (userInitiated) UpdatePrompt.Inform(_updates.IsInstalled ? L10n.UpToDate : L10n.UpdatesOnlyInstalled);
+                if (userInitiated) UpdatePrompt.Inform(Updates.IsInstalled ? L10n.UpToDate : L10n.UpdatesOnlyInstalled);
                 return;
             }
             // Declining just closes the question; it isn't "up to date".
-            if (await UpdatePrompt.AskAsync(update.TargetFullRelease.Version.ToString()))
+            var version = update.TargetFullRelease.Version.ToString();
+            if (await (update.IsDowngrade ? UpdatePrompt.AskBackToStableAsync(version) : UpdatePrompt.AskAsync(version)))
                 await InstallWithProgressAsync(update);
         }
         catch (Exception error) when (error is HttpRequestException or IOException or InvalidOperationException)
@@ -162,7 +164,7 @@ public sealed partial class App : Application, IDisposable
         window.ShowCentered();
         try
         {
-            await _updates.InstallAndRestartAsync(update, percent => _dispatcher.TryEnqueue(() => window.Report(percent)));
+            await Updates.InstallAndRestartAsync(update, percent => _dispatcher.TryEnqueue(() => window.Report(percent)));
         }
         catch
         {

@@ -532,6 +532,102 @@ nonisolated enum L10n {
         }
     }
 
+    /// Update channel
+    static var updateChannel: String {
+        switch Localizer.current {
+        case .english: "Update channel"
+        case .turkish: "Güncelleme kanalı"
+        }
+    }
+
+    /// Stable
+    static var channelStable: String {
+        switch Localizer.current {
+        case .english: "Stable"
+        case .turkish: "Kararlı"
+        }
+    }
+
+    /// Dev
+    static var channelDev: String {
+        switch Localizer.current {
+        case .english: "Dev"
+        case .turkish: "Geliştirme"
+        }
+    }
+
+    /// Get new versions before they're released. They may have bugs.
+    static var devChannelHint: String {
+        switch Localizer.current {
+        case .english: "Get new versions before they're released. They may have bugs."
+        case .turkish: "Yeni sürümleri yayımlanmadan önce alın. Hata içerebilirler."
+        }
+    }
+
+    /// Switch to the dev channel?
+    static var devChannelConfirmTitle: String {
+        switch Localizer.current {
+        case .english: "Switch to the dev channel?"
+        case .turkish: "Geliştirme kanalına geçilsin mi?"
+        }
+    }
+
+    /// Dev builds come out before a release and may have bugs. To go back, turn the dev channel off and check for updates: PR Checker installs the stable version again.
+    static var devChannelConfirmMessage: String {
+        switch Localizer.current {
+        case .english: "Dev builds come out before a release and may have bugs. To go back, turn the dev channel off and check for updates: PR Checker installs the stable version again."
+        case .turkish: "Geliştirme sürümleri yayımdan önce çıkar ve hata içerebilir. Geri dönmek için geliştirme kanalını kapatıp güncellemeleri kontrol edin: PR Checker kararlı sürümü yeniden kurar."
+        }
+    }
+
+    /// Switch to Dev
+    static var switchToDev: String {
+        switch Localizer.current {
+        case .english: "Switch to Dev"
+        case .turkish: "Geliştirme kanalına geç"
+        }
+    }
+
+    /// Go back to the stable version?
+    static var backToStableTitle: String {
+        switch Localizer.current {
+        case .english: "Go back to the stable version?"
+        case .turkish: "Kararlı sürüme dönülsün mü?"
+        }
+    }
+
+    /// PR Checker {stable} replaces dev build {current}. PR Checker restarts when it's done.
+    static func backToStableMessage(stable: String, current: String) -> String {
+        switch Localizer.current {
+        case .english: "PR Checker \(stable) replaces dev build \(current). PR Checker restarts when it's done."
+        case .turkish: "PR Checker \(stable), \(current) geliştirme sürümünün yerine kurulur. Kurulum bitince PR Checker yeniden başlar."
+        }
+    }
+
+    /// Go Back to Stable
+    static var goBackToStable: String {
+        switch Localizer.current {
+        case .english: "Go Back to Stable"
+        case .turkish: "Kararlı sürüme dön"
+        }
+    }
+
+    /// Couldn't go back to the stable version: {message}
+    static func couldntRestoreStable(message: String) -> String {
+        switch Localizer.current {
+        case .english: "Couldn't go back to the stable version: \(message)"
+        case .turkish: "Kararlı sürüme dönülemedi: \(message)"
+        }
+    }
+
+    /// No stable version is kept on this Mac, so you'll get the next release when it's out.
+    static var noStableCopy: String {
+        switch Localizer.current {
+        case .english: "No stable version is kept on this Mac, so you'll get the next release when it's out."
+        case .turkish: "Bu Mac'te saklanmış bir kararlı sürüm yok; bir sonraki sürüm yayımlandığında onu alacaksınız."
+        }
+    }
+
     /// Help
     static var help: String {
         switch Localizer.current {

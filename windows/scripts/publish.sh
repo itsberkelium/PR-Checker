@@ -3,15 +3,20 @@
 # uploads the Velopack feed to the CDN and creates the GitHub release.
 #
 #   windows/scripts/publish.sh <run-id> [notes.md]
+#   windows/scripts/publish.sh --dev <run-id>
 #
 # notes.md, if given, opens the release notes; install instructions are added after it.
+# --dev publishes a dev build (run with a dev_version) to the dev feed only: only apps on
+# the dev channel offer it. No tag, no GitHub release.
 #
 # Needs: gh (logged in), npx wrangler@4.148.0 login.
 # Releases are tagged <OS>-v<version>: windows-v0.1.0, macOS-v0.2.7.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-RUN_ID="${1:?usage: $0 <run-id of the Windows release workflow> [notes.md]}"
+DEV=0
+if [[ "${1:-}" == "--dev" ]]; then DEV=1; shift; fi
+RUN_ID="${1:?usage: $0 [--dev] <run-id of the Windows release workflow> [notes.md]}"
 NOTES_FILE="${2:-}"
 [[ -z "$NOTES_FILE" || -f "$NOTES_FILE" ]] || { echo "No notes file: $NOTES_FILE" >&2; exit 1; }
 [[ -z "$NOTES_FILE" ]] || NOTES_FILE="$(cd "$(dirname "$NOTES_FILE")" && pwd)/$(basename "$NOTES_FILE")"
@@ -22,6 +27,8 @@ NODE_MAJOR=$(node -p 'process.versions.node.split(".")[0]' 2>/dev/null || echo 0
 REPO="itsberkelium/PR-Checker"
 R2_BUCKET="${R2_BUCKET:-gu-cdn-eeur}"
 PREFIX="pr-checker/windows"
+# Matches UpdateService.DevFeedUrl in the app.
+[[ $DEV == 1 ]] && PREFIX="pr-checker/dev/windows"
 FEED="https://gu-cdn.berke.dev/$PREFIX"
 WRANGLER=(npx --yes wrangler@4.148.0)
 
@@ -43,6 +50,14 @@ for rid in win-arm64 win-x64; do
   cp "$WORK/windows-release-$VERSION-$rid"/* "$DIR"/
 done
 ls -la "$DIR"
+# A release goes to everyone, so it can't be a dev version, and a dev build can't go to everyone.
+if [[ $DEV == 1 ]]; then
+  [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+-dev\.[0-9]+$ ]] \
+    || { echo "$VERSION isn't a dev version; run the workflow with dev_version, e.g. 0.3.0-dev.1" >&2; exit 1; }
+else
+  [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] \
+    || { echo "$VERSION is a dev version; publish it with --dev" >&2; exit 1; }
+fi
 
 for rid in win-arm64 win-x64; do
   [[ -f "$DIR/releases.$rid.json" && -f "$DIR/PRCheckerApp-$rid-Setup.exe" ]] \
@@ -68,6 +83,12 @@ for rid in win-arm64 win-x64; do
   curl -fsS "$FEED/releases.$rid.json" | grep -qE "\"Version\": *\"$VERSION\"" \
     || { echo "Published $rid feed doesn't list $VERSION" >&2; exit 1; }
 done
+
+if [[ $DEV == 1 ]]; then
+  step "Done: dev build $VERSION is on the dev feed"
+  echo "Apps on the dev channel offer it via Check for updates. Nothing was tagged or released."
+  exit 0
+fi
 
 TAG="windows-v$VERSION"
 step "Creating GitHub release $TAG"

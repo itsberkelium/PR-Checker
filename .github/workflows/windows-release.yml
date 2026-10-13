@@ -7,6 +7,11 @@ name: Windows release
 
 on:
   workflow_dispatch:
+    inputs:
+      dev_version:
+        description: "Dev build version, e.g. 0.3.0-dev.1 (the coming release plus -dev.<n>). Leave empty for a release."
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -35,11 +40,20 @@ jobs:
         run: dotnet tool install --global vpk --version $env:VPK_VERSION
 
       - name: Package
+        env:
+          DEV_VERSION: ${{ inputs.dev_version }}
         run: |
           $version = dotnet msbuild src/PRChecker.App/PRChecker.App.csproj -getProperty:Version
+          $versionArgs = @()
+          if ($env:DEV_VERSION) {
+            # Velopack orders 0.2.9 < 0.3.0-dev.1 < 0.3.0-dev.2 < 0.3.0, so dev installs move on to the release.
+            if ($env:DEV_VERSION -notmatch '^\d+\.\d+\.\d+-dev\.\d+$') { throw "Dev version must look like 0.3.0-dev.1" }
+            $version = $env:DEV_VERSION
+            $versionArgs = @("-p:Version=$version")
+          }
           "VERSION=$version" | Out-File -Append $env:GITHUB_ENV
           foreach ($rid in "win-arm64", "win-x64") {
-            dotnet publish src/PRChecker.App -c Release -r $rid -o "publish/$rid"
+            dotnet publish src/PRChecker.App -c Release -r $rid -o "publish/$rid" @versionArgs
             if (-not (Test-Path "publish/$rid/PRChecker.pri")) { throw "No app PRI in publish/$rid" }
             # Full packages only: rebuilding a delta on the user's PC was far slower than downloading.
             vpk pack --packId PRCheckerApp --packVersion $version --packDir "publish/$rid" `

@@ -81,6 +81,13 @@ public sealed partial class SettingsWindow : Window
         MergedBox.SelectedIndex = merged;
 
         CheckForUpdatesButton.Content = L10n.CheckForUpdates;
+        ChannelBox.Header = L10n.UpdateChannel;
+        var channel = ChannelBox.SelectedIndex;
+        ChannelBox.Items.Clear();
+        ChannelBox.Items.Add(L10n.ChannelStable);
+        ChannelBox.Items.Add(L10n.ChannelDev);
+        ChannelBox.SelectedIndex = channel;
+        DevChannelHint.Text = L10n.DevChannelHint;
         ReportProblemButton.Content = L10n.ReportProblem;
         ShowLogButton.Content = L10n.ShowLog;
         ReportProblemHint.Text = L10n.ReportProblemHint;
@@ -128,6 +135,7 @@ public sealed partial class SettingsWindow : Window
         FilterBox.Text = Settings.RepoFilter;
         MergedBox.SelectedIndex = Array.IndexOf(AppSettings.RecentlyMergedOptions, Settings.RecentlyMergedCount);
         VersionText.Text = $"PR Checker {Platform.Version}";
+        ChannelBox.SelectedIndex = Settings.DevUpdates ? 1 : 0;
         UpdateTokenHint();
         RefreshNotificationState();
         _loading = false;
@@ -290,6 +298,34 @@ public sealed partial class SettingsWindow : Window
     // MARK: About
 
     /// <summary>The button is disabled and a spinner shows while checking and downloading.</summary>
+    /// <summary>Dev needs a confirmation that also says how to go back; declining keeps Stable selected.</summary>
+    private async void OnChannelChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_loading || ChannelBox.SelectedIndex < 0) return;
+        var dev = ChannelBox.SelectedIndex == 1;
+        if (dev == Settings.DevUpdates) return;
+        if (dev)
+        {
+            var dialog = new ContentDialog
+            {
+                XamlRoot = Content.XamlRoot,
+                Title = L10n.DevChannelConfirmTitle,
+                Content = L10n.DevChannelConfirmMessage,
+                PrimaryButtonText = L10n.SwitchToDev,
+                CloseButtonText = L10n.Cancel,
+                DefaultButton = ContentDialogButton.Close,
+            };
+            if (await dialog.ShowAsync() != ContentDialogResult.Primary)
+            {
+                _loading = true;
+                ChannelBox.SelectedIndex = 0;
+                _loading = false;
+                return;
+            }
+        }
+        Settings.DevUpdates = dev;
+    }
+
     private async void OnCheckForUpdates(object sender, RoutedEventArgs e)
     {
         CheckForUpdatesButton.IsEnabled = false;

@@ -818,6 +818,122 @@
       ]
     },
     {
+      "id": "updateChannel",
+      "en": "Update channel",
+      "tr": "Güncelleme kanalı",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "channelStable",
+      "en": "Stable",
+      "tr": "Kararlı",
+      "platforms": [
+        "macos",
+        "windows"
+      ],
+      "note": "Update channel option: released versions"
+    },
+    {
+      "id": "channelDev",
+      "en": "Dev",
+      "tr": "Geliştirme",
+      "platforms": [
+        "macos",
+        "windows"
+      ],
+      "note": "Update channel option: builds published before a release"
+    },
+    {
+      "id": "devChannelHint",
+      "en": "Get new versions before they're released. They may have bugs.",
+      "tr": "Yeni sürümleri yayımlanmadan önce alın. Hata içerebilirler.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "devChannelConfirmTitle",
+      "en": "Switch to the dev channel?",
+      "tr": "Geliştirme kanalına geçilsin mi?",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "devChannelConfirmMessage",
+      "en": "Dev builds come out before a release and may have bugs. To go back, turn the dev channel off and check for updates: PR Checker installs the stable version again.",
+      "tr": "Geliştirme sürümleri yayımdan önce çıkar ve hata içerebilir. Geri dönmek için geliştirme kanalını kapatıp güncellemeleri kontrol edin: PR Checker kararlı sürümü yeniden kurar.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "switchToDev",
+      "en": "Switch to Dev",
+      "tr": "Geliştirme kanalına geç",
+      "platforms": [
+        "macos",
+        "windows"
+      ],
+      "note": "Button in the dev channel confirmation"
+    },
+    {
+      "id": "backToStableTitle",
+      "en": "Go back to the stable version?",
+      "tr": "Kararlı sürüme dönülsün mü?",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "backToStableMessage",
+      "args": {
+        "stable": "string",
+        "current": "string"
+      },
+      "en": "PR Checker {stable} replaces dev build {current}. PR Checker restarts when it's done.",
+      "tr": "PR Checker {stable}, {current} geliştirme sürümünün yerine kurulur. Kurulum bitince PR Checker yeniden başlar.",
+      "platforms": [
+        "macos",
+        "windows"
+      ]
+    },
+    {
+      "id": "goBackToStable",
+      "en": "Go Back to Stable",
+      "tr": "Kararlı sürüme dön",
+      "platforms": [
+        "macos"
+      ],
+      "note": "Button"
+    },
+    {
+      "id": "couldntRestoreStable",
+      "args": {
+        "message": "string"
+      },
+      "en": "Couldn't go back to the stable version: {message}",
+      "tr": "Kararlı sürüme dönülemedi: {message}",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
+      "id": "noStableCopy",
+      "en": "No stable version is kept on this Mac, so you'll get the next release when it's out.",
+      "tr": "Bu Mac'te saklanmış bir kararlı sürüm yok; bir sonraki sürüm yayımlandığında onu alacaksınız.",
+      "platforms": [
+        "macos"
+      ]
+    },
+    {
       "id": "upToDate",
       "en": "PR Checker is up to date.",
       "tr": "PR Checker güncel.",

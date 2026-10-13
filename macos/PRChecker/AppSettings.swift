@@ -28,6 +28,7 @@ final class AppSettings {
         static let automationEnabled = "automationEnabled"
         static let automationCommand = "automationCommand"
         static let recentlyMergedCount = "recentlyMergedCount"
+        static let updateChannel = "updateChannel"
     }
 
     @ObservationIgnored let defaults: UserDefaults
@@ -66,6 +67,11 @@ final class AppSettings {
     /// Runs `automationCommand` when a PR enters the review list or gets new commits.
     var automationEnabled: Bool { didSet { defaults.set(automationEnabled, forKey: Key.automationEnabled) } }
     var automationCommand: String { didSet { defaults.set(automationCommand, forKey: Key.automationCommand) } }
+    /// Updates come from the dev feed, where builds are published before a release; takes effect at the next check.
+    var devUpdates: Bool {
+        didSet { defaults.set(devUpdates ? Self.devChannel : nil, forKey: Key.updateChannel) }
+    }
+    static let devChannel = "dev"
 
     init(defaults: UserDefaults = .standard, tokens: TokenStore = Keychain()) {
         self.defaults = defaults
@@ -86,6 +92,7 @@ final class AppSettings {
         acceptedTermsVersion = defaults.integer(forKey: Key.acceptedTermsVersion)
         automationEnabled = defaults.object(forKey: Key.automationEnabled) as? Bool ?? false
         automationCommand = defaults.string(forKey: Key.automationCommand) ?? ""
+        devUpdates = defaults.string(forKey: Key.updateChannel) == Self.devChannel
         filterPatterns = Self.parsePatterns(repoFilter)
     }
 

@@ -21,5 +21,11 @@ internal static partial class UpdatePrompt
             L10n.UpdateAvailableMessage(version, Platform.Version),
             L10n.UpdateAvailableTitle, MbYesNo | MbIconInformation | MbFront) == IdYes);
 
+    /// <summary>Going from a dev build back to the release; Velopack reports it as a downgrade.</summary>
+    public static Task<bool> AskBackToStableAsync(string version) => Task.FromResult(
+        MessageBox(IntPtr.Zero,
+            L10n.BackToStableMessage(version, Platform.Version),
+            L10n.BackToStableTitle, MbYesNo | MbIconInformation | MbFront) == IdYes);
+
     public static void Inform(string message) => MessageBox(IntPtr.Zero, message, "PR Checker", MbOk | MbIconInformation | MbFront);
 }
