@@ -9,6 +9,7 @@ The rules both apps implement. The macOS app (`macos/`) is the reference impleme
 - Changing it applies immediately, including relative times ("3 hours ago" / "3 saat önce"). Notifications and error messages use the language at the time they're created.
 - Logs stay in English.
 - Turkish strings are confirmed by the maintainer; don't change them without asking.
+- **PR or MR** follows the connected provider. Bitbucket Server and GitHub say *pull request* / *PR*; GitLab says *merge request* / *MR*. Turkish uses the short forms in both cases (*PR'larım*, *MR'larım*). The app name stays *PR Checker* everywhere. Each string that names one gets a GitLab variant when GitLab support is added, and its Turkish text is confirmed like any other.
 
 ## Terms of Use
 
