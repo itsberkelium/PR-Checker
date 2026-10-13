@@ -21,22 +21,27 @@ public static class TokenAccounts
 }
 
 /// <summary>Settings persisted as JSON. Tokens never go here.</summary>
+/// <remarks>
+/// Setters rather than init: for init-only properties the JSON source generator sets every one
+/// in an object initializer, so a property missing from the file becomes null/false/0 instead
+/// of keeping its default below. Treat instances as immutable and change them with <c>with</c>.
+/// </remarks>
 public sealed record SettingsData
 {
-    public string? ServerUrl { get; init; }
-    public int RefreshMinutes { get; init; } = 5;
-    public bool HideDrafts { get; init; } = true;
+    public string? ServerUrl { get; set; }
+    public int RefreshMinutes { get; set; } = 5;
+    public bool HideDrafts { get; set; } = true;
     /// <summary>How many recently merged PRs to show under Mine; 0 is off.</summary>
-    public int RecentlyMergedCount { get; init; } = 3;
-    public string RepoFilter { get; init; } = "";
-    public bool NotificationsEnabled { get; init; } = true;
-    public bool NotificationDetails { get; init; } = true;
-    public bool OpenAtLogin { get; init; }
-    public LanguagePreference Language { get; init; } = LanguagePreference.System;
+    public int RecentlyMergedCount { get; set; } = 3;
+    public string RepoFilter { get; set; } = "";
+    public bool NotificationsEnabled { get; set; } = true;
+    public bool NotificationDetails { get; set; } = true;
+    public bool OpenAtLogin { get; set; }
+    public LanguagePreference Language { get; set; } = LanguagePreference.System;
     /// <summary>The Terms of Use version the user agreed to; 0 if never.</summary>
-    public int AcceptedTermsVersion { get; init; }
+    public int AcceptedTermsVersion { get; set; }
     /// <summary>"dev" takes updates from the dev feed; null is the release feed.</summary>
-    public string? UpdateChannel { get; init; }
+    public string? UpdateChannel { get; set; }
 }
 
 public interface ISettingsStore
