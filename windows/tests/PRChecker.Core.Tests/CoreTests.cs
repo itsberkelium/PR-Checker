@@ -102,6 +102,27 @@ public sealed class ChangeDetectorTests
         }
         finally { Directory.Delete(directory, recursive: true); }
     }
+
+    [Theory]
+    [InlineData("""{"updateChannel": "test", "hideDrafts": false}""")]
+    [InlineData("""{"hideDrafts": false, "repoFilter": null}""")]
+    public void A_partial_settings_file_keeps_defaults_for_what_it_leaves_out(string json)
+    {
+        var directory = Directory.CreateTempSubdirectory().FullName;
+        try
+        {
+            File.WriteAllText(System.IO.Path.Combine(directory, "settings.json"), json);
+            var settings = new AppSettings(new JsonFileStore(directory), new MemoryTokenStore());
+            Assert.False(settings.HideDrafts);
+            Assert.Equal("", settings.RepoFilter);
+            Assert.Equal(5, settings.RefreshMinutes);
+            Assert.Equal(3, settings.RecentlyMergedCount);
+            Assert.True(settings.NotificationsEnabled);
+            Assert.True(settings.NotificationDetails);
+            Assert.True(settings.Includes(Item()));
+        }
+        finally { Directory.Delete(directory, recursive: true); }
+    }
 }
 
 public sealed class UpdateChannelTests

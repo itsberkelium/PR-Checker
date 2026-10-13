@@ -43,6 +43,8 @@ public sealed class AppSettings : ObservableObject
         _data = store.Load();
         if (!RefreshOptions.Contains(_data.RefreshMinutes)) _data = _data with { RefreshMinutes = 5 };
         if (!RecentlyMergedOptions.Contains(_data.RecentlyMergedCount)) _data = _data with { RecentlyMergedCount = 3 };
+        // A hand-edited file can still say "repoFilter": null.
+        if (_data.RepoFilter is null) _data = _data with { RepoFilter = "" };
         Server = _data.ServerUrl is { } url && ServerAddress.TryParse(url, out var server) ? server : null;
         _filterPatterns = ParsePatterns(_data.RepoFilter);
         Localizer.Apply(_data.Language);
