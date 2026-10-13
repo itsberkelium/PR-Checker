@@ -9,6 +9,7 @@ The rules both apps implement. The macOS app (`macos/`) is the reference impleme
 - Changing it applies immediately, including relative times ("3 hours ago" / "3 saat önce"). Notifications and error messages use the language at the time they're created.
 - Logs stay in English.
 - Turkish strings are confirmed by the maintainer; don't change them without asking.
+- **PR or MR** follows the connected provider. Bitbucket Server and GitHub say *pull request* / *PR*; GitLab says *merge request* / *MR*. Turkish uses the short forms in both cases (*PR'larım*, *MR'larım*). The app name stays *PR Checker* everywhere. Each string that names one gets a GitLab variant when GitLab support is added, and its Turkish text is confirmed like any other.
 
 ## Terms of Use
 
@@ -24,6 +25,10 @@ The rules both apps implement. The macOS app (`macos/`) is the reference impleme
 - **Going back**: with *Stable* chosen on a dev build, Check for Updates offers the stable version (*Go back to the stable version?*) and restarts into it.
   - macOS: Sparkle never installs an older version, so choosing *Dev* on a stable build first keeps a copy of that app in `~/Library/Application Support/dev.berke.PRChecker/Stable/`. Going back checks the copy is signed with PR Checker's Developer ID, moves it over the dev build and relaunches; Sparkle then offers any newer release as usual. Without a copy, it says the next release will replace the dev build. Choosing *Stable* on a stable build deletes the copy.
   - Windows: Velopack installs the latest release from the release feed as a downgrade; this is allowed only while a dev build is running.
+
+## Providers
+
+The app talks to a code host only through a provider interface (`PRProvider` on macOS, `IPrProvider` on Windows): the signed-in user, my open PRs and the review list, my recently merged PRs, comments by others, a commit's build result and the state of a PR that left the list. Each provider maps its own responses to PR items and applies the review-list rules itself, so everything after that (filters, badges, snapshots, notifications, automation) is shared. Bitbucket Server / Data Center is the only provider so far.
 
 ## Bitbucket API
 

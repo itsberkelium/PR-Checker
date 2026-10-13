@@ -225,9 +225,7 @@ struct ConnectionTests {
     }
 
     @Test func recentlyMergedFollowsCountAndFilters() async throws {
-        let url = try #require(Bundle(for: MemoryTokenStore.self)
-            .url(forResource: "merged-list", withExtension: "json", subdirectory: "fixtures"))
-        let fixture = try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
+        let fixture = try SharedFixtureTests.fixture("bitbucket-server/merged-list")
         let merged = String(decoding: try JSONSerialization.data(withJSONObject: try #require(fixture["dashboard"])), as: UTF8.self)
         StubServer.reset { request in
             request.url?.query()?.contains("state=MERGED") == true

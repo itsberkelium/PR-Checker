@@ -24,7 +24,7 @@ enum APIError: LocalizedError, Equatable {
 }
 
 /// Minimal Bitbucket Server / Data Center REST client using an HTTP access token.
-struct BitbucketClient {
+struct BitbucketClient: PRProvider {
     enum Role: String {
         case reviewer = "REVIEWER"
         case author = "AUTHOR"
@@ -77,16 +77,30 @@ struct BitbucketClient {
         throw APIError.tooManyResults(limit: Self.maxPages * Self.pageSize)
     }
 
-    /// Merged PRs I authored, one page. The dashboard sorts by last update, so callers sort by
-    /// merge time; a page of 50 leaves room for the project/repo filter.
-    func recentlyMerged() async throws -> [PullRequest] {
+    /// Both dashboards at once. The user name comes from their X-AUSERNAME header, or `whoami`
+    /// when neither sent one.
+    func openPullRequests() async throws -> OpenPullRequests {
+        async let reviewing = dashboard(role: .reviewer)
+        async let authored = dashboard(role: .author)
+        let (reviewDashboard, authorDashboard) = try await (reviewing, authored)
+        let me = if let name = reviewDashboard.username ?? authorDashboard.username { name } else { try await whoami() }
+        return OpenPullRequests(
+            toReview: reviewDashboard.pullRequests.compactMap { PRItem(reviewing: $0, as: me, server: server) },
+            mine: authorDashboard.pullRequests.map { PRItem($0, server: server) },
+            username: me
+        )
+    }
+
+    /// Merged PRs I authored, one page. The dashboard sorts by last update, so these are
+    /// re-sorted by merge time; a page of 50 leaves room for the project/repo filter.
+    func recentlyMerged() async throws -> [PRItem] {
         let (data, _) = try await get("rest/api/1.0/dashboard/pull-requests", query: [
             URLQueryItem(name: "role", value: Role.author.rawValue),
             URLQueryItem(name: "state", value: "MERGED"),
             URLQueryItem(name: "order", value: "NEWEST"),
             URLQueryItem(name: "limit", value: String(Self.mergedPageSize)),
         ])
-        return try JSONDecoder().decode(Page<PullRequest>.self, from: data).values
+        return PRItem.recentlyMerged(try JSONDecoder().decode(Page<PullRequest>.self, from: data).values, server: server)
     }
 
     /// The signed-in user name; one small request, used to validate a connection.

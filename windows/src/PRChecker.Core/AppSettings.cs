@@ -101,27 +101,30 @@ public sealed class AppSettings : ObservableObject
 
     public bool HasToken(ServerAddress server) => !string.IsNullOrEmpty(TokenFor(server));
 
-    public BitbucketClient? MakeClient() =>
-        Server is { } server && TokenFor(server) is { Length: > 0 } token ? new BitbucketClient(server, token, HttpHandler) : null;
+    public IPrProvider? MakeClient() =>
+        Server is { } server && TokenFor(server) is { Length: > 0 } token ? MakeProvider(server, token) : null;
 
     /// <summary>
     /// Client for a connection that hasn't been applied yet. A blank token reuses the saved one
     /// only for the same server, so a token never goes to a new host.
     /// </summary>
-    public BitbucketClient DraftClient(string serverUrl, string draftToken)
+    public IPrProvider DraftClient(string serverUrl, string draftToken)
     {
         var candidate = ServerAddress.Parse(serverUrl);
         var trimmed = draftToken.Trim();
         var token = trimmed.Length > 0 ? trimmed : TokenFor(candidate) ?? "";
         if (token.Length == 0) throw ConnectionException.TokenRequired();
-        return new BitbucketClient(candidate, token, HttpHandler);
+        return MakeProvider(candidate, token);
     }
+
+    /// <summary>The provider for a server; Bitbucket Server is the only one so far.</summary>
+    private BitbucketClient MakeProvider(ServerAddress server, string token) => new(server, token, HttpHandler);
 
     /// <summary>
     /// Saves a validated connection. The token is written first; if that fails nothing changes.
     /// A previous server's token is removed when switching.
     /// </summary>
-    public void ApplyConnection(BitbucketClient client)
+    public void ApplyConnection(IPrProvider client)
     {
         _tokens.Save(client.Token, TokenAccounts.For(client.Server));
         if (Server is { } old && old != client.Server)

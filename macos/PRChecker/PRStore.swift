@@ -129,32 +129,23 @@ final class PRStore {
         defer { if generation == self.generation { isLoading = false } }
 
         do {
-            async let reviewing = client.dashboard(role: .reviewer)
-            async let authored = client.dashboard(role: .author)
+            async let open = client.openPullRequests()
             // Optional extra: if it fails, the previous merged list stays.
             async let merged = settings.recentlyMergedCount > 0 ? try? client.recentlyMerged() : []
-            let (reviewDashboard, authorDashboard) = try await (reviewing, authored)
+            let lists = try await open
             let mergedPRs = await merged
             guard isCurrent(generation) else { return }
 
-            let me: String
-            if let name = reviewDashboard.username ?? authorDashboard.username {
-                me = name
-            } else {
-                me = try await client.whoami()
-            }
-            guard isCurrent(generation) else { return }
-
-            let server = client.server
-            var review = reviewDashboard.pullRequests.compactMap { PRItem(reviewing: $0, as: me, server: server) }
-            var mine = authorDashboard.pullRequests.map { PRItem($0, server: server) }
+            let me = lists.username
+            var review = lists.toReview
+            var mine = lists.mine
             let rateLimited = await enrich(&review, &mine, client: client, me: me)
             guard isCurrent(generation) else { return }
 
             username = me
             reviewItems = review.sorted { $0.updated > $1.updated }
             mineItems = mine.sorted { $0.updated > $1.updated }
-            if let mergedPRs { mergedItems = PRItem.recentlyMerged(mergedPRs, server: server) }
+            if let mergedPRs { mergedItems = mergedPRs }
             lastUpdated = .now
             errorMessage = rateLimited ? APIError.rateLimited.errorDescription : nil
             await notifyChanges(client: client, me: me, generation: generation)
@@ -179,8 +170,8 @@ final class PRStore {
 
     /// Adds comments by others to every PR and build results to mine, reusing
     /// cached results that can't have changed. Hidden PRs are included so that
-    /// widening a filter doesn't re-announce them. Returns whether Bitbucket rate-limited us.
-    private func enrich(_ review: inout [PRItem], _ mine: inout [PRItem], client: BitbucketClient, me: String) async -> Bool {
+    /// widening a filter doesn't re-announce them. Returns whether the server rate-limited us.
+    private func enrich(_ review: inout [PRItem], _ mine: inout [PRItem], client: any PRProvider, me: String) async -> Bool {
         let all = review + mine
         var jobs: [Job] = []
         for (index, item) in all.enumerated() {
@@ -290,7 +281,7 @@ final class PRStore {
 
     /// Compares against the snapshot saved for this server and user, so restarts
     /// and connection switches don't announce anything that isn't new.
-    private func notifyChanges(client: BitbucketClient, me: String, generation: Int) async {
+    private func notifyChanges(client: any PRProvider, me: String, generation: Int) async {
         let key = Self.snapshotPrefix + client.server.id + "|" + me.lowercased()
         let defaults = settings.defaults
         let old = defaults.data(forKey: key).flatMap { try? JSONDecoder().decode(Snapshot.self, from: $0) }

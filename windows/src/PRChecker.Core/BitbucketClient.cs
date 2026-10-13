@@ -32,7 +32,7 @@ public sealed record Dashboard(IReadOnlyList<PullRequest> PullRequests, string? 
 /// Minimal Bitbucket Server / Data Center REST client using an HTTP access token.
 /// Limits and redirect rules are described in docs/behavior.md.
 /// </summary>
-public sealed class BitbucketClient(ServerAddress server, string token, HttpMessageHandler? handler = null)
+public sealed class BitbucketClient(ServerAddress server, string token, HttpMessageHandler? handler = null) : IPrProvider
 {
     public const int PageSize = 100;
     public const int MaxPages = 20;
@@ -79,14 +79,31 @@ public sealed class BitbucketClient(ServerAddress server, string token, HttpMess
     }
 
     /// <summary>
-    /// Merged PRs I authored, one page. The dashboard sorts by last update, so callers sort by
-    /// merge time; a page of 50 leaves room for the project/repo filter.
+    /// Both dashboards at once. The user name comes from their X-AUSERNAME header, or
+    /// <see cref="WhoAmIAsync"/> when neither sent one.
     /// </summary>
-    public async Task<IReadOnlyList<PullRequest>> RecentlyMergedAsync(CancellationToken cancellation = default)
+    public async Task<OpenPullRequests> OpenPullRequestsAsync(CancellationToken cancellation = default)
+    {
+        var reviewing = DashboardAsync(Role.Reviewer, cancellation);
+        var authored = DashboardAsync(Role.Author, cancellation);
+        var reviewDashboard = await reviewing;
+        var authorDashboard = await authored;
+        var me = reviewDashboard.Username ?? authorDashboard.Username ?? await WhoAmIAsync(cancellation);
+        return new OpenPullRequests(
+            reviewDashboard.PullRequests.Select(pr => PrItem.ForReview(pr, me, Server)).OfType<PrItem>().ToList(),
+            authorDashboard.PullRequests.Select(pr => PrItem.From(pr, Server)).ToList(),
+            me);
+    }
+
+    /// <summary>
+    /// Merged PRs I authored, one page. The dashboard sorts by last update, so these are
+    /// re-sorted by merge time; a page of 50 leaves room for the project/repo filter.
+    /// </summary>
+    public async Task<IReadOnlyList<PrItem>> RecentlyMergedAsync(CancellationToken cancellation = default)
     {
         var (body, _) = await GetAsync(
             $"rest/api/1.0/dashboard/pull-requests?role=AUTHOR&state=MERGED&order=NEWEST&limit={MergedPageSize}", cancellation);
-        return Decode(body, JsonContext.Default.PagePullRequest).Values;
+        return PrItem.RecentlyMerged(Decode(body, JsonContext.Default.PagePullRequest).Values, Server);
     }
 
     /// <summary>The signed-in user name; one small request, used to validate a connection.</summary>

@@ -9,7 +9,8 @@ A system tray app for Windows 10 (1809) and later, built with C#, .NET 10 and Wi
 ```
 src/PRChecker.Core/        everything except the UI; cross-platform, builds and tests on macOS too
   ServerAddress.cs         server URL validation, link ownership, PR link building
-  BitbucketClient.cs       REST calls with size/page limits and same-server redirects
+  IPrProvider.cs           what the app needs from a code host; providers return PrItems
+  BitbucketClient.cs       Bitbucket Server provider: REST calls with size/page limits and same-server redirects
   Models.cs                API payloads and the PrItem model
   PrStore.cs               polling, enrichment, notification triggering
   ChangeDetector.cs        snapshot diffing that decides what to announce
