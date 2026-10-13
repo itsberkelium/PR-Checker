@@ -449,17 +449,59 @@ public static class L10n
             ? "Haftada bir otomatik kontrol edilir"
             : "Checked automatically once a week";
 
-    /// <summary>Dev channel</summary>
-    public static string DevChannel =>
+    /// <summary>Update channel</summary>
+    public static string UpdateChannel =>
         Localizer.Language == AppLanguage.Turkish
-            ? "Geliştirme kanalı"
-            : "Dev channel";
+            ? "Güncelleme kanalı"
+            : "Update channel";
+
+    /// <summary>Stable</summary>
+    public static string ChannelStable =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Kararlı"
+            : "Stable";
+
+    /// <summary>Dev</summary>
+    public static string ChannelDev =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Geliştirme"
+            : "Dev";
 
     /// <summary>Get new versions before they're released. They may have bugs.</summary>
     public static string DevChannelHint =>
         Localizer.Language == AppLanguage.Turkish
             ? "Yeni sürümleri yayımlanmadan önce alın. Hata içerebilirler."
             : "Get new versions before they're released. They may have bugs.";
+
+    /// <summary>Switch to the dev channel?</summary>
+    public static string DevChannelConfirmTitle =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Geliştirme kanalına geçilsin mi?"
+            : "Switch to the dev channel?";
+
+    /// <summary>Dev builds come out before a release and may have bugs. To go back, turn the dev channel off and check for updates: PR Checker installs the stable version again.</summary>
+    public static string DevChannelConfirmMessage =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Geliştirme sürümleri yayımdan önce çıkar ve hata içerebilir. Geri dönmek için geliştirme kanalını kapatıp güncellemeleri kontrol edin: PR Checker kararlı sürümü yeniden kurar."
+            : "Dev builds come out before a release and may have bugs. To go back, turn the dev channel off and check for updates: PR Checker installs the stable version again.";
+
+    /// <summary>Switch to Dev</summary>
+    public static string SwitchToDev =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Geliştirme kanalına geç"
+            : "Switch to Dev";
+
+    /// <summary>Go back to the stable version?</summary>
+    public static string BackToStableTitle =>
+        Localizer.Language == AppLanguage.Turkish
+            ? "Kararlı sürüme dönülsün mü?"
+            : "Go back to the stable version?";
+
+    /// <summary>PR Checker {stable} replaces dev build {current}. PR Checker restarts when it's done.</summary>
+    public static string BackToStableMessage(string stable, string current) =>
+        Localizer.Language == AppLanguage.Turkish
+            ? $"PR Checker {stable}, {current} geliştirme sürümünün yerine kurulur. Kurulum bitince PR Checker yeniden başlar."
+            : $"PR Checker {stable} replaces dev build {current}. PR Checker restarts when it's done.";
 
     /// <summary>PR Checker is up to date.</summary>
     public static string UpToDate =>

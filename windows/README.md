@@ -65,7 +65,7 @@ Installed apps check the feed once a week, or right away via **Settings → Abou
 
 ### Dev channel
 
-To try an update before everyone gets it, publish a dev build to the dev feed (`gu-cdn.berke.dev/pr-checker/dev/windows/`). Only PCs with **Settings → About → Dev channel** on are offered it.
+To try an update before everyone gets it, publish a dev build to the dev feed (`gu-cdn.berke.dev/pr-checker/dev/windows/`). Only PCs with **Settings → About → Update channel** set to **Dev** are offered it.
 
 1. Push the branch and start **Actions → Windows release → Run workflow** on it with **dev_version** set to the coming release plus `-dev.<n>`, e.g. `0.3.0-dev.1`. Velopack sorts it after the current release and before `0.3.0`, so the real release replaces it.
 2. Publish that run to the dev feed only; nothing is tagged or released on GitHub:
@@ -74,7 +74,7 @@ To try an update before everyone gets it, publish a dev build to the dev feed (`
    windows/scripts/publish.sh --dev <run-id>
    ```
 
-Then use **Check for updates** on a PC with the dev channel on. Turning the channel off keeps the installed dev build until a newer release is out. A regular publish refuses dev versions, and `--dev` refuses release versions.
+Then use **Check for updates** on a PC on the dev channel. Switching back to Stable and checking for updates installs the latest release as a downgrade. A regular publish refuses dev versions, and `--dev` refuses release versions.
 
 **About the packages:**
 - The app is installed per user into `%LOCALAPPDATA%\PRCheckerApp`, with a Start menu shortcut.

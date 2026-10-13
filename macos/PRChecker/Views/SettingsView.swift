@@ -222,6 +222,7 @@ private struct BitbucketSettings: View {
 
 private struct AboutSettings: View {
     @Environment(PRStore.self) private var store
+    @State private var confirmingDev = false
 
     var body: some View {
         @Bindable var settings = store.settings
@@ -238,9 +239,20 @@ private struct AboutSettings: View {
                         Text(L10n.checkedWeekly)
                     }
                 }
-                Toggle(isOn: $settings.devUpdates) {
-                    Text(L10n.devChannel)
+                Picker(selection: Binding(
+                    get: { settings.devUpdates },
+                    set: { dev in if dev { confirmingDev = true } else { Updater.shared.setDevChannel(false) } }
+                )) {
+                    Text(L10n.channelStable).tag(false)
+                    Text(L10n.channelDev).tag(true)
+                } label: {
+                    Text(L10n.updateChannel)
                     Text(L10n.devChannelHint)
+                }
+                .confirmationDialog(L10n.devChannelConfirmTitle, isPresented: $confirmingDev) {
+                    Button(L10n.switchToDev) { Updater.shared.setDevChannel(true) }
+                } message: {
+                    Text(L10n.devChannelConfirmMessage)
                 }
             }
 

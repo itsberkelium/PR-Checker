@@ -9,7 +9,8 @@ namespace PRChecker.App.Services;
 /// they aren't code-signed yet. Always downloads the full package: rebuilding a delta update
 /// on the user's PC took minutes with no way to show meaningful progress.
 /// With <see cref="AppSettings.DevUpdates"/>, updates come from the dev feed, where dev builds are
-/// published before a release (see windows/README.md).
+/// published before a release (see windows/README.md). Back on the release feed, a dev build is
+/// offered the latest release even though it's an older version.
 /// </summary>
 internal sealed class UpdateService(AppSettings settings)
 {
@@ -27,14 +28,21 @@ internal sealed class UpdateService(AppSettings settings)
             var dev = settings.DevUpdates;
             if (_current is not { } current || current.Dev != dev)
             {
-                current = (dev, new UpdateManager(new SimpleWebSource(dev ? DevFeedUrl : FeedUrl),
-                                                  new UpdateOptions { MaximumDeltasBeforeFallback = -1 }));
+                current = (dev, new UpdateManager(new SimpleWebSource(dev ? DevFeedUrl : FeedUrl), new UpdateOptions
+                {
+                    MaximumDeltasBeforeFallback = -1,
+                    // Only a dev build moves down; otherwise the same version would be offered again.
+                    AllowVersionDowngrade = !dev && IsDevBuild(Platform.Version),
+                }));
                 _current = current;
             }
             return current.Manager;
         }
     }
     private readonly string _stateFile = Path.Combine(Platform.DataDirectory, "last-update-check");
+
+    /// <summary>Dev builds are versioned like 0.3.0-dev.1 (publish.sh --dev).</summary>
+    public static bool IsDevBuild(string version) => version.Contains("-dev.", StringComparison.Ordinal);
 
     /// <summary>False for development builds that weren't installed by Velopack.</summary>
     public bool IsInstalled => Manager.IsInstalled;

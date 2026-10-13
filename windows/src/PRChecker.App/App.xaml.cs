@@ -143,7 +143,8 @@ public sealed partial class App : Application, IDisposable
                 return;
             }
             // Declining just closes the question; it isn't "up to date".
-            if (await UpdatePrompt.AskAsync(update.TargetFullRelease.Version.ToString()))
+            var version = update.TargetFullRelease.Version.ToString();
+            if (await (update.IsDowngrade ? UpdatePrompt.AskBackToStableAsync(version) : UpdatePrompt.AskAsync(version)))
                 await InstallWithProgressAsync(update);
         }
         catch (Exception error) when (error is HttpRequestException or IOException or InvalidOperationException)

@@ -33,4 +33,82 @@ struct UpdateChannelTests {
         #expect(older("0.3.0d10", "0.3.0"))
         #expect(comparator.compareVersion("0.3.0-dev.1", toVersion: "0.3.0") == .orderedSame)
     }
+
+    // MARK: Going back to stable on macOS
+
+    @Test func recognizesDevBuilds() {
+        #expect(StableCopy.isDevBuild("0.3.0d1"))
+        #expect(StableCopy.isDevBuild("1.10.2d12"))
+        #expect(!StableCopy.isDevBuild("0.2.9"))
+        #expect(!StableCopy.isDevBuild("0.3.0b1"))
+        #expect(!StableCopy.isDevBuild("0.3.0d"))
+    }
+
+    /// A folder with a fake app ("PR Checker.app" with an Info.plist) and where to keep its copy.
+    private func sandbox() throws -> (root: URL, copy: StableCopy) {
+        let root = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
+        try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+        var copy = StableCopy(url: root.appending(path: "Support/Stable/PR Checker.app"))
+        copy.verify = { _ in }
+        return (root, copy)
+    }
+
+    private func makeApp(at url: URL, version: String) throws {
+        let contents = url.appending(path: "Contents")
+        try FileManager.default.createDirectory(at: contents, withIntermediateDirectories: true)
+        let plist = try PropertyListSerialization.data(fromPropertyList: ["CFBundleShortVersionString": version],
+                                                       format: .xml, options: 0)
+        try plist.write(to: contents.appending(path: "Info.plist"))
+    }
+
+    @Test func keepsOnlyStableBuilds() throws {
+        let (root, copy) = try sandbox()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let app = root.appending(path: "Applications/PR Checker.app")
+
+        try makeApp(at: app, version: "0.2.9")
+        try copy.keep(app, version: "0.2.9")
+        #expect(copy.version == "0.2.9")
+
+        // Turning dev on again from a dev build keeps the stable copy already there.
+        try FileManager.default.removeItem(at: app)
+        try makeApp(at: app, version: "0.3.0d1")
+        try copy.keep(app, version: "0.3.0d1")
+        #expect(copy.version == "0.2.9")
+
+        // A newer stable build replaces it.
+        try FileManager.default.removeItem(at: app)
+        try makeApp(at: app, version: "0.3.0")
+        try copy.keep(app, version: "0.3.0")
+        #expect(copy.version == "0.3.0")
+    }
+
+    @Test func restorePutsTheStableCopyBack() throws {
+        let (root, copy) = try sandbox()
+        defer { try? FileManager.default.removeItem(at: root) }
+        let app = root.appending(path: "Applications/PR Checker.app")
+        try makeApp(at: app, version: "0.2.9")
+        try copy.keep(app, version: "0.2.9")
+        try FileManager.default.removeItem(at: app)
+        try makeApp(at: app, version: "0.3.0d1")
+
+        try copy.restore(over: app)
+        #expect(StableCopy.version(of: app) == "0.2.9")
+        #expect(copy.version == nil)
+    }
+
+    @Test func restoreRefusesAnUnsignedCopy() throws {
+        var (root, copy) = try sandbox()
+        defer { try? FileManager.default.removeItem(at: root) }
+        copy.verify = StableCopy.verifySignature
+        let app = root.appending(path: "Applications/PR Checker.app")
+        try makeApp(at: app, version: "0.2.9")
+        try copy.keep(app, version: "0.2.9")
+        try FileManager.default.removeItem(at: app)
+        try makeApp(at: app, version: "0.3.0d1")
+
+        #expect(throws: (any Error).self) { try copy.restore(over: app) }
+        #expect(StableCopy.version(of: app) == "0.3.0d1")
+        #expect(copy.version == "0.2.9")
+    }
 }

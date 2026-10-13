@@ -19,7 +19,11 @@ The rules both apps implement. The macOS app (`macos/`) is the reference impleme
 ## Updates
 
 - Installed apps check their update feed once a week, or when asked, and ask before installing.
-- **Dev channel**: a toggle under Check for Updates (*Dev channel*, off by default) switches to the dev feed, `dev/` next to the release feed. It takes effect at the next check, without a restart. Dev builds are published only there, so nobody else is offered them. They're numbered as the coming release plus a dev suffix (`0.3.0d1` on macOS, `0.3.0-dev.1` on Windows), which both updaters sort before the release itself. Turning it off keeps the installed dev build until a newer release is out.
+- **Update channel**: a dropdown under Check for Updates, *Stable* (default) or *Dev*. Dev uses the dev feed, `dev/` next to the release feed; it takes effect at the next check, without a restart. Dev builds are published only there, so nobody else is offered them. They're numbered as the coming release plus a dev suffix (`0.3.0d1` on macOS, `0.3.0-dev.1` on Windows), which both updaters sort before the release itself.
+- Choosing *Dev* asks first (*Switch to the dev channel?*) and says how to go back. Choosing *Stable* doesn't ask.
+- **Going back**: with *Stable* chosen on a dev build, Check for Updates offers the stable version (*Go back to the stable version?*) and restarts into it.
+  - macOS: Sparkle never installs an older version, so choosing *Dev* on a stable build first keeps a copy of that app in `~/Library/Application Support/dev.berke.PRChecker/Stable/`. Going back checks the copy is signed with PR Checker's Developer ID, moves it over the dev build and relaunches; Sparkle then offers any newer release as usual. Without a copy, it says the next release will replace the dev build. Choosing *Stable* on a stable build deletes the copy.
+  - Windows: Velopack installs the latest release from the release feed as a downgrade; this is allowed only while a dev build is running.
 
 ## Bitbucket API
 

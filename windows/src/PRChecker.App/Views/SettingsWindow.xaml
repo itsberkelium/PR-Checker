@@ -73,7 +73,7 @@
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" />
                     </StackPanel>
                     <StackPanel Spacing="0">
-                        <ToggleSwitch x:Name="DevChannelToggle" Toggled="OnDevChannelToggled" />
+                        <ComboBox x:Name="ChannelBox" SelectionChanged="OnChannelChanged" MinWidth="160" />
                         <TextBlock x:Name="DevChannelHint" Style="{StaticResource CaptionTextBlockStyle}"
                                    Foreground="{ThemeResource TextFillColorSecondaryBrush}" TextWrapping="Wrap" />
                     </StackPanel>
