@@ -99,7 +99,7 @@ The full details are in the [Privacy Policy](PRIVACY.md): what's stored where, e
 | [`macos/`](macos/README.md) | Mac app: build, test, release |
 | [`windows/`](windows/README.md) | Windows app: build, test, release |
 | [`docs/behavior.md`](docs/behavior.md) | Rules both apps implement: review list, notifications, security limits |
-| [`shared/fixtures/`](shared/fixtures) | Sample Bitbucket responses used by both test suites |
+| [`shared/fixtures/`](shared/fixtures) | Sample API responses, per provider, used by both test suites |
 | [`shared/localization/`](shared/localization) | Every user-facing string in English and Turkish; `generate.py` writes each app's typed `L10n` accessors |
 | [`Design/`](Design) | Icon sources for both platforms |
 | [`.github/workflows/`](.github/workflows) | CI: builds and tests both apps on every push |

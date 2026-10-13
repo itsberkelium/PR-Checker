@@ -390,7 +390,7 @@ public sealed class ConnectionTests
     public async Task Recently_merged_follows_count_and_filters()
     {
         const string empty = """{"values":[],"isLastPage":true}""";
-        var merged = JsonNode.Parse(File.ReadAllText(Fixtures.Path("merged-list")))!["dashboard"]!.ToJsonString();
+        var merged = JsonNode.Parse(File.ReadAllText(Fixtures.Path("bitbucket-server/merged-list")))!["dashboard"]!.ToJsonString();
         var stub = new StubServer
         {
             Handler = (request, _) => Task.FromResult(StubServer.Json(

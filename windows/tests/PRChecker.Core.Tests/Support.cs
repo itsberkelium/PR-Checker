@@ -83,6 +83,7 @@ internal static class Fixtures
 {
     public static readonly ServerAddress TestServer = ServerAddress.Parse("https://bitbucket.example.com");
 
+    /// <summary><paramref name="name"/> is relative to shared/fixtures, e.g. "bitbucket-server/review-list".</summary>
     public static string Path(string name) => System.IO.Path.Combine(AppContext.BaseDirectory, "fixtures", name + ".json");
 
     public static PrItem Item(string status = "UNAPPROVED", string merge = "CLEAN", BuildState build = BuildState.None,

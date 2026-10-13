@@ -13,7 +13,7 @@ public sealed class SharedFixtureTests
     [Fact]
     public void Review_list()
     {
-        var data = Load("review-list");
+        var data = Load("bitbucket-server/review-list");
         var server = ServerAddress.Parse((string)data["server"]!);
         var user = (string)data["user"]!;
         var page = Decode<Page<PullRequest>>(data["dashboard"]!);
@@ -34,7 +34,7 @@ public sealed class SharedFixtureTests
     [Fact]
     public void Recently_merged()
     {
-        var data = Load("merged-list");
+        var data = Load("bitbucket-server/merged-list");
         var server = ServerAddress.Parse((string)data["server"]!);
         var page = Decode<Page<PullRequest>>(data["dashboard"]!);
         var expected = data["expected"]!.AsArray();
@@ -48,7 +48,7 @@ public sealed class SharedFixtureTests
     [Fact]
     public void Comments_by_others()
     {
-        var data = Load("activities");
+        var data = Load("bitbucket-server/activities");
         var page = Decode<Page<Activity>>(data["page"]!);
         var comments = BitbucketClient.CommentsByOthers(page.Values, (string)data["user"]!);
         var expected = data["expected"]!.AsArray()
@@ -59,7 +59,7 @@ public sealed class SharedFixtureTests
     [Fact]
     public void Build_states()
     {
-        foreach (var testCase in Load("build-stats")["cases"]!.AsArray())
+        foreach (var testCase in Load("bitbucket-server/build-stats")["cases"]!.AsArray())
         {
             var state = BuildStates.From(Decode<BuildStats>(testCase!["stats"]!));
             Assert.Equal((string)testCase["expected"]!, state.ToString().ToLowerInvariant());

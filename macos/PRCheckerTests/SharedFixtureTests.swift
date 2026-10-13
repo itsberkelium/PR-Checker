@@ -5,9 +5,10 @@ import Testing
 /// Runs the cases in shared/fixtures, which the Windows tests check too.
 @MainActor
 struct SharedFixtureTests {
-    private func fixture(_ name: String) throws -> [String: Any] {
-        let url = try #require(Bundle(for: MemoryTokenStore.self)
-            .url(forResource: name, withExtension: "json", subdirectory: "fixtures"))
+    /// `name` is relative to shared/fixtures, e.g. "bitbucket-server/review-list".
+    static func fixture(_ name: String) throws -> [String: Any] {
+        let url = try #require(Bundle(for: MemoryTokenStore.self).resourceURL)
+            .appending(path: "fixtures/\(name).json")
         return try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
     }
 
@@ -16,7 +17,7 @@ struct SharedFixtureTests {
     }
 
     @Test func reviewList() throws {
-        let data = try fixture("review-list")
+        let data = try Self.fixture("bitbucket-server/review-list")
         let server = try ServerAddress(parsing: try #require(data["server"] as? String))
         let user = try #require(data["user"] as? String)
         let page = try decode(Page<PullRequest>.self, from: try #require(data["dashboard"]))
@@ -34,7 +35,7 @@ struct SharedFixtureTests {
     }
 
     @Test func recentlyMerged() throws {
-        let data = try fixture("merged-list")
+        let data = try Self.fixture("bitbucket-server/merged-list")
         let server = try ServerAddress(parsing: try #require(data["server"] as? String))
         let page = try decode(Page<PullRequest>.self, from: try #require(data["dashboard"]))
         let expected = try #require(data["expected"] as? [[String: Any]])
@@ -47,7 +48,7 @@ struct SharedFixtureTests {
     }
 
     @Test func commentsByOthers() throws {
-        let data = try fixture("activities")
+        let data = try Self.fixture("bitbucket-server/activities")
         let page = try decode(Page<Activity>.self, from: try #require(data["page"]))
         let comments = BitbucketClient.commentsByOthers(in: page.values, excluding: try #require(data["user"] as? String))
         let expected = try #require(data["expected"] as? [[String: Any]])
@@ -58,7 +59,7 @@ struct SharedFixtureTests {
     }
 
     @Test func buildStates() throws {
-        let cases = try #require(try fixture("build-stats")["cases"] as? [[String: Any]])
+        let cases = try #require(try Self.fixture("bitbucket-server/build-stats")["cases"] as? [[String: Any]])
         for testCase in cases {
             let stats = try decode(BuildStats.self, from: try #require(testCase["stats"]))
             #expect(BuildState(stats).rawValue == testCase["expected"] as? String)
@@ -66,7 +67,7 @@ struct SharedFixtureTests {
     }
 
     @Test func serverAddresses() throws {
-        let data = try fixture("servers")
+        let data = try Self.fixture("servers")
         for testCase in try #require(data["parse"] as? [[String: Any]]) {
             let input = try #require(testCase["input"] as? String)
             if let id = testCase["id"] as? String {
