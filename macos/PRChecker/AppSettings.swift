@@ -110,24 +110,29 @@ final class AppSettings {
         !(token(for: server) ?? "").isEmpty
     }
 
-    func makeClient() -> BitbucketClient? {
+    func makeClient() -> (any PRProvider)? {
         guard let server, let token = token(for: server), !token.isEmpty else { return nil }
-        return BitbucketClient(server: server, token: token, session: session)
+        return makeProvider(server: server, token: token)
     }
 
     /// Client for a connection that hasn't been applied yet. A blank token reuses
     /// the saved one only for the same server, so a token never goes to a new host.
-    func draftClient(serverURL: String, token draftToken: String) throws -> BitbucketClient {
+    func draftClient(serverURL: String, token draftToken: String) throws -> any PRProvider {
         let candidate = try ServerAddress(parsing: serverURL)
         let trimmed = draftToken.trimmingCharacters(in: .whitespacesAndNewlines)
         let token = trimmed.isEmpty ? (self.token(for: candidate) ?? "") : trimmed
         guard !token.isEmpty else { throw ConnectionError.tokenRequired }
-        return BitbucketClient(server: candidate, token: token, session: session)
+        return makeProvider(server: candidate, token: token)
+    }
+
+    /// The provider for a server; Bitbucket Server is the only one so far.
+    private func makeProvider(server: ServerAddress, token: String) -> any PRProvider {
+        BitbucketClient(server: server, token: token, session: session)
     }
 
     /// Saves a validated connection. The token is written first; if that fails
     /// nothing changes. A previous server's token is removed when switching.
-    func applyConnection(_ client: BitbucketClient) throws {
+    func applyConnection(_ client: any PRProvider) throws {
         try tokens.save(client.token, account: Keychain.account(for: client.server))
         if let old = server, old != client.server {
             try? tokens.delete(account: Keychain.account(for: old))

@@ -8,7 +8,7 @@ public interface INotifier
 }
 
 /// <summary>
-/// Polls Bitbucket, keeps the lists and announces changes. Call it from the UI thread: awaits
+/// Polls the server, keeps the lists and announces changes. Call it from the UI thread: awaits
 /// resume there, so property changes reach bindings on the right thread.
 /// </summary>
 public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INotifier notifier) : ObservableObject, IDisposable
@@ -158,7 +158,7 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
         generation == _generation && !cancellation.IsCancellationRequested;
 
     /// <summary>An optional extra: when it fails, the previous merged list stays.</summary>
-    private static async Task<IReadOnlyList<PullRequest>?> RecentlyMergedOrNullAsync(BitbucketClient client, CancellationToken cancellation)
+    private static async Task<IReadOnlyList<PrItem>?> RecentlyMergedOrNullAsync(IPrProvider client, CancellationToken cancellation)
     {
         try { return await client.RecentlyMergedAsync(cancellation); }
         catch (Exception error) when (error is ApiException or HttpRequestException or System.Text.Json.JsonException) { return null; }
@@ -174,27 +174,20 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
         IsLoading = true;
         try
         {
-            var reviewing = client.DashboardAsync(Role.Reviewer, cancellation);
-            var authored = client.DashboardAsync(Role.Author, cancellation);
-            var merged = Settings.RecentlyMergedCount > 0 ? RecentlyMergedOrNullAsync(client, cancellation) : Task.FromResult<IReadOnlyList<PullRequest>?>([]);
-            var reviewDashboard = await reviewing;
-            var authorDashboard = await authored;
+            var open = client.OpenPullRequestsAsync(cancellation);
+            var merged = Settings.RecentlyMergedCount > 0 ? RecentlyMergedOrNullAsync(client, cancellation) : Task.FromResult<IReadOnlyList<PrItem>?>([]);
+            var lists = await open;
             var mergedPrs = await merged;
             if (!IsCurrent(generation, cancellation)) return;
 
-            var me = reviewDashboard.Username ?? authorDashboard.Username ?? await client.WhoAmIAsync(cancellation);
-            if (!IsCurrent(generation, cancellation)) return;
-
-            var server = client.Server;
-            var review = reviewDashboard.PullRequests.Select(pr => PrItem.ForReview(pr, me, server)).OfType<PrItem>().ToList();
-            var mine = authorDashboard.PullRequests.Select(pr => PrItem.From(pr, server)).ToList();
-            var (enrichedReview, enrichedMine, rateLimited) = await EnrichAsync(review, mine, client, me, cancellation);
+            var me = lists.Username;
+            var (enrichedReview, enrichedMine, rateLimited) = await EnrichAsync([.. lists.ToReview], [.. lists.Mine], client, me, cancellation);
             if (!IsCurrent(generation, cancellation)) return;
 
             Username = me;
             ReviewItems = enrichedReview.OrderByDescending(i => i.Updated).ToList();
             MineItems = enrichedMine.OrderByDescending(i => i.Updated).ToList();
-            if (mergedPrs is not null) MergedItems = PrItem.RecentlyMerged(mergedPrs, server);
+            if (mergedPrs is not null) MergedItems = mergedPrs;
             LastUpdated = DateTimeOffset.Now;
             ErrorMessage = rateLimited ? new ApiException(ApiErrorKind.RateLimited).Message : null;
             await NotifyChangesAsync(client, me, generation, cancellation);
@@ -221,7 +214,7 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
     /// can't have changed. Hidden PRs are included so widening a filter doesn't re-announce them.
     /// </summary>
     private async Task<(List<PrItem> Review, List<PrItem> Mine, bool RateLimited)> EnrichAsync(
-        List<PrItem> review, List<PrItem> mine, BitbucketClient client, string me, CancellationToken cancellation)
+        List<PrItem> review, List<PrItem> mine, IPrProvider client, string me, CancellationToken cancellation)
     {
         var all = review.Concat(mine).ToList();
         var commentJobs = all.Where(item => !(_commentCache.TryGetValue(item.Id, out var cached)
@@ -274,7 +267,7 @@ public sealed class PrStore(AppSettings settings, ISnapshotStore snapshots, INot
     /// Compares against the snapshot saved for this server and user, so restarts and
     /// connection switches don't announce anything that isn't new.
     /// </summary>
-    private async Task NotifyChangesAsync(BitbucketClient client, string me, int generation, CancellationToken cancellation)
+    private async Task NotifyChangesAsync(IPrProvider client, string me, int generation, CancellationToken cancellation)
     {
         var old = snapshots.Load(client.Server.Id, me);
         var current = Snapshot.Create(ReviewItems, MineItems, old, Settings.Includes);

@@ -25,6 +25,10 @@ The rules both apps implement. The macOS app (`macos/`) is the reference impleme
   - macOS: Sparkle never installs an older version, so choosing *Dev* on a stable build first keeps a copy of that app in `~/Library/Application Support/dev.berke.PRChecker/Stable/`. Going back checks the copy is signed with PR Checker's Developer ID, moves it over the dev build and relaunches; Sparkle then offers any newer release as usual. Without a copy, it says the next release will replace the dev build. Choosing *Stable* on a stable build deletes the copy.
   - Windows: Velopack installs the latest release from the release feed as a downgrade; this is allowed only while a dev build is running.
 
+## Providers
+
+The app talks to a code host only through a provider interface (`PRProvider` on macOS, `IPrProvider` on Windows): the signed-in user, my open PRs and the review list, my recently merged PRs, comments by others, a commit's build result and the state of a PR that left the list. Each provider maps its own responses to PR items and applies the review-list rules itself, so everything after that (filters, badges, snapshots, notifications, automation) is shared. Bitbucket Server / Data Center is the only provider so far.
+
 ## Bitbucket API
 
 All requests go to the configured server with `Authorization: Bearer <token>` and `Accept: application/json`.

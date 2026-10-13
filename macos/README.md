@@ -78,7 +78,8 @@ To release from another account or host, change `DEVELOPMENT_TEAM`, `SPARKLE_FEE
 
 ```
 PRChecker/
-  BitbucketClient.swift   REST calls with size/page limits and same-server redirects
+  PRProvider.swift        what the app needs from a code host; providers return PRItems
+  BitbucketClient.swift   Bitbucket Server provider: REST calls with size/page limits and same-server redirects
   ServerAddress.swift     server URL validation, link ownership, PR link building
   Models.swift            API payloads and the PRItem view model
   PRStore.swift           polling, enrichment, notification triggering
