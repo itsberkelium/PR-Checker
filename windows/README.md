@@ -62,6 +62,8 @@ Releases are built in CI and published from a maintainer's Mac or PC, so no Clou
    - uploads the packages, then the feeds, to `gu-cdn.berke.dev/pr-checker/windows/`, and checks that the live feeds list the new version
    - tags the commit CI built `windows-v<version>` and creates the GitHub release "PR Checker for Windows <version>" with the installers. The notes file's content opens the notes, and install instructions are added after it.
 
+If downloading the run's files keeps failing, download the two `windows-release-*` artifacts some other way and pass their folder with `--files <dir>` (before the run id); the branch and version checks still apply.
+
 Installed apps check the feed once a week, or right away via **Settings → About → Check for updates**. They ask before installing.
 
 ### Dev channel
