@@ -73,6 +73,7 @@ APP="$DIST/$APP_NAME.app"
 ZIP="$DIST/$APP_NAME.zip"
 UPDATES="$DIST/updates"
 R2_BUCKET="${R2_BUCKET:-gu-cdn-eeur}"
+TAP_REPO="${TAP_REPO:-itsberkelium/homebrew-tap}"
 SPARKLE_BIN="build/SourcePackages/artifacts/sparkle/Sparkle/bin"
 SPARKLE_VERSION="2.10.0" # keep in sync with project.yml
 # Exact version so publishing never runs a newly released, unreviewed wrangler.
@@ -216,6 +217,18 @@ if [[ $PUBLISH == 1 ]]; then
   [[ -n "$NOTES_FILE" ]] && NOTES=(--notes-file "$NOTES_FILE")
   gh release create "$TAG" --verify-tag --title "PR Checker for macOS $VERSION" "${NOTES[@]}" \
     "$UPDATES/$UPDATE_ZIP"
+
+  # Point the Homebrew cask at the new release. The release is already live, so if this fails,
+  # edit version and sha256 in the tap by hand.
+  step "Updating Homebrew tap $TAP_REPO"
+  SHA256=$(shasum -a 256 "$UPDATES/$UPDATE_ZIP" | awk '{print $1}')
+  TAP_DIR=$(mktemp -d)
+  trap 'rm -rf "$TAP_DIR"' EXIT
+  gh repo clone "$TAP_REPO" "$TAP_DIR" -- --quiet
+  CASK="$TAP_DIR/Casks/pr-checker.rb"
+  sed -i '' -E "s/^( *version )\".*\"/\1\"$VERSION\"/; s/^( *sha256 )\".*\"/\1\"$SHA256\"/" "$CASK"
+  git -C "$TAP_DIR" diff --quiet \
+    || { git -C "$TAP_DIR" commit -qam "pr-checker $VERSION" && git -C "$TAP_DIR" push -q; }
 fi
 
 step "Done: $ZIP (version $VERSION)"
