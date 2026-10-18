@@ -38,7 +38,7 @@ Both need Bitbucket Server or Data Center and a personal **HTTP access token** w
 
 ## Install
 
-**macOS:** download `PR-Checker-<version>.zip` from [Releases](../../releases), unzip it and move **PR Checker** to Applications. Open it, enter your server URL and token in Settings, and click **Save & Connect**. The app checks for updates once a week and asks before installing; to check right away, use **Settings → About → Check for Updates**
+**macOS:** with Homebrew, run `brew install --cask itsberkelium/tap/pr-checker`. Or download `PR-Checker-<version>.zip` from [Releases](../../releases), unzip it and move **PR Checker** to Applications. Open it, enter your server URL and token in Settings, and click **Save & Connect**. The app checks for updates once a week and asks before installing; to check right away, use **Settings → About → Check for Updates**
 
 **Windows:** from the latest **PR Checker for Windows** release on [Releases](../../releases), download the installer for your PC:
 - `PRCheckerApp-win-x64-Setup.exe` for most PCs
