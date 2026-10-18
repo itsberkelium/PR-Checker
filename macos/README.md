@@ -42,6 +42,7 @@ With `--publish`, it also:
 1. checks the working tree is clean and `HEAD` is `main` as on GitHub, since the release is tagged at `HEAD`
 2. uploads the update to the R2 bucket behind `SUFeedURL`, under the same path as the feed
 3. tags the commit `macOS-v<version>` and creates the GitHub release "PR Checker for macOS <version>" with the zip. The release notes come from the optional notes file, or are generated from commits without one.
+4. updates the `pr-checker` cask in the Homebrew tap ([itsberkelium/homebrew-tap](https://github.com/itsberkelium/homebrew-tap)) with the new version and the zip's SHA-256, and pushes it. `gh` needs push access to the tap.
 
 With `--local`, it signs the app and installs it into `/Applications` to try changes, skipping notarization and publishing.
 
@@ -72,7 +73,7 @@ Then use **Check for Updates** on a Mac on the dev channel. Number dev builds as
 
 Switching to Dev keeps a copy of the stable app in `~/Library/Application Support/dev.berke.PRChecker/Stable/`. Switching back to Stable and checking for updates puts that copy back (after checking its Developer ID signature) and relaunches, since Sparkle won't install an older version itself.
 
-To release from another account or host, change `DEVELOPMENT_TEAM`, `SPARKLE_FEED_URL` and `SPARKLE_PUBLIC_KEY` in `project.yml`, and `TEAM_ID` and `R2_BUCKET` in the script.
+To release from another account or host, change `DEVELOPMENT_TEAM`, `SPARKLE_FEED_URL` and `SPARKLE_PUBLIC_KEY` in `project.yml`, and `TEAM_ID`, `R2_BUCKET` and `TAP_REPO` in the script.
 
 ## Project layout
 
